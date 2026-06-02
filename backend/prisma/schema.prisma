@@ -1,0 +1,365 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── MODELS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  fullName           String
+  email              String    @unique
+  password           String
+  phone              String?
+  avatar             String?
+  address            String?
+  role               Role      @default(USER) // ADMIN | STAFF | USER
+  isOnline           Boolean   @default(false)
+  isActive           Boolean   @default(true)
+  isVerified         Boolean   @default(false)
+  verifyToken        String?
+  refreshToken       String?
+  refreshTokenExpiry DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  orders        Order[]
+  addresses     Address[]
+  cart          Cart?
+  news          News[]
+  products      Product[]
+  newsComments  NewsComment[]
+  newsReactions NewsReaction[]
+
+  // Relations for Support Chat
+  supportRequests SupportRequest[] @relation("UserRequests")
+  assignedSupport SupportRequest[] @relation("StaffRequests")
+  messages        Message[]
+
+  @@map("user")
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  phone     String
+  province  String
+  district  String
+  ward      String
+  detail    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("address")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@map("category")
+}
+
+// ─── PRODUCT TAG SYSTEM ───────────────────────────────────────────────────────
+
+model ProductTag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  products ProductTagOnProduct[]
+
+  @@map("producttag")
+}
+
+model ProductTagOnProduct {
+  productId Int
+  tagId     Int
+
+  product Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("producttagonproduct")
+}
+
+// ─── PRODUCT ──────────────────────────────────────────────────────────────────
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?  @db.Text
+  shortDescription String?
+  thumbnail        String?
+  images           String   @default("[]") // JSON array as string
+  price            Int
+  salePrice        Int?
+  stock            Int      @default(0)
+  sku              String?  @unique
+  unit             String   @default("gram")
+  weight           Int?
+  isPublished      Boolean  @default(false)
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id])
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  tags       ProductTagOnProduct[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+
+  @@map("product")
+}
+
+// ─── CART ─────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  cartId Int
+  cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@map("cartitem")
+}
+
+// ─── ORDER ─────────────────────────────────────────────────────────@───────────
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  orderCode       String        @unique
+  subtotal        Int
+  shippingFee     Int           @default(0)
+  discountAmount  Int           @default(0)
+  totalAmount     Int
+  paymentMethod   PaymentMethod @default(COD)
+  paymentStatus   PaymentStatus @default(PENDING)
+  orderStatus     OrderStatus   @default(PENDING)
+  shippingAddress String
+  customerPhone   String
+  customerEmail   String
+  note            String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  paidAt          DateTime?
+
+  userId              Int
+  user                User                 @relation(fields: [userId], references: [id])
+  orderItems          OrderItem[]
+  paymentTransactions PaymentTransaction[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id           Int     @id @default(autoincrement())
+  quantity     Int
+  price        Int
+  productName  String
+  productImage String?
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("orderitem")
+}
+
+model Coupon {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  discountType String
+  value        Int
+  startAt      DateTime
+  endAt        DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("coupon")
+}
+
+// ─── NEWS ─────────────────────────────────────────────────────────────────────
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  excerpt     String?  @db.Text
+  content     String   @db.LongText
+  thumbnail   String?
+  views       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id])
+
+  comments  NewsComment[]
+  reactions NewsReaction[]
+
+  @@map("news")
+}
+
+model NewsComment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  newsId Int
+  news   News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("newscomment")
+}
+
+model NewsReaction {
+  id        Int          @id @default(autoincrement())
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  newsId Int
+  news   News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, userId])
+  @@map("newsreaction")
+}
+
+// ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
+
+model SupportRequest {
+  id         Int           @id @default(autoincrement())
+  status     SupportStatus @default(WAITING)
+  title      String?
+  createdAt  DateTime      @default(now())
+  acceptedAt DateTime?
+  closedAt   DateTime?
+  updatedAt  DateTime      @updatedAt
+
+  userId Int
+  user   User @relation("UserRequests", fields: [userId], references: [id])
+
+  assignedStaffId Int?
+  assignedStaff   User? @relation("StaffRequests", fields: [assignedStaffId], references: [id])
+
+  messages Message[]
+
+  @@map("supportrequest")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  supportRequestId Int
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id], onDelete: Cascade)
+
+  senderId Int
+  sender   User @relation(fields: [senderId], references: [id])
+
+  @@map("message")
+}
+
+model PaymentTransaction {
+  id            Int      @id @default(autoincrement())
+  orderId       Int
+  transactionId String   @unique
+  gateway       String
+  amount        Int
+  content       String
+  rawData       String   @db.Text
+  createdAt     DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("paymenttransaction")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  STAFF
+  USER
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum SupportStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  MOMO
+  VNPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPING
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
