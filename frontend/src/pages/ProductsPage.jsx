@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/axios";
@@ -133,7 +133,7 @@ const ProductsPage = () => {
       {/* Premium Header Banner */}
       <div className="relative bg-slate-900 text-white overflow-hidden py-16 md:py-24">
         {/* Decorative background grid and shapes */}
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,rgb(var(--color-grid-line))_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--color-grid-line))_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-red-600 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-amber-600 rounded-full blur-[100px] opacity-15 pointer-events-none"></div>
 
@@ -144,7 +144,7 @@ const ProductsPage = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
             Danh Sách Sản Phẩm
           </h1>
-          <p className="text-slate-350 text-lg md:text-xl max-w-2xl mx-auto font-light text-slate-300">
+          <p className="text-slate-350 text-lg md:text-xl max-w-2xl mx-auto font-light">
             Khám phá nguồn thực phẩm sạch, tươi ngon thượng hạng được nhập khẩu
             trực tiếp từ các nông trang danh tiếng toàn cầu.
           </p>
@@ -155,9 +155,9 @@ const ProductsPage = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* FILTER SIDEBAR */}
           <aside className="w-full lg:w-1/4 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm sticky top-28">
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <div className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm sticky top-28">
+              <div className="flex items-center justify-between mb-6 p-2 border-b border-slate-100">
+                <h2 className="text-md font-bold text-slate-900 flex items-center gap-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -172,11 +172,11 @@ const ProductsPage = () => {
                       d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
                     />
                   </svg>
-                  Bộ lọc tìm kiếm
+                  <span>Bộ lọc</span>
                 </h2>
                 <button
                   onClick={handleClearFilters}
-                  className="text-xs font-semibold text-red-600 hover:text-red-750 transition-colors uppercase tracking-wider"
+                  className="text-[10px] font-semibold text-red-600 uppercase border border-red-600 px-2 py-1.5 rounded-lg hover:bg-red-600 hover:text-primary-50"
                 >
                   Xóa tất cả
                 </button>
@@ -414,7 +414,7 @@ const ProductsPage = () => {
                         </div>
 
                         {/* Content */}
-                        <div className="p-5 flex-1 flex flex-col justify-between">
+                        <div className="p-4 flex-1 flex flex-col justify-between">
                           <div>
                             {/* Tags */}
                             <div className="flex flex-wrap gap-1 mb-2.5">

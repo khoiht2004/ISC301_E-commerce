@@ -285,13 +285,13 @@ const CheckoutPage = () => {
                         <div className="flex justify-between">
                           <span className="text-slate-500">Số tài khoản:</span>
                           <span className="font-bold text-red-600 tracking-wider">
-                            0366585487
+                            01112172004
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Chủ tài khoản:</span>
                           <span className="font-semibold text-slate-800">
-                            NGÔ ĐÌNH NHẬT MINH
+                            HÀ TUẤN KHÔI
                           </span>
                         </div>
                       </div>

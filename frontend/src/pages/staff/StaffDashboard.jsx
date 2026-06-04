@@ -264,7 +264,7 @@ const StaffDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans text-slate-800">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-800">
       {/* 1. Left Sidebar: Header & Tabs & List */}
       <div className="w-80 bg-slate-900 text-white flex flex-col border-r border-slate-800 shrink-0">
         
@@ -561,7 +561,7 @@ const StaffDashboard = () => {
       </div>
 
       {/* 2. Middle/Right Area: Conversational Area */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#f1f5f9]">
+      <div className="flex-1 flex flex-col overflow-hidden bg-slate-100">
         {currentModule === 'news' ? (
           <StaffNewsPage />
         ) : currentModule === 'products' ? (
@@ -731,7 +731,7 @@ const StaffDashboard = () => {
             </p>
             
             {/* Quick stats board inside empty state */}
-            <div className="grid grid-cols-3 gap-6 mt-8 w-full max-w-md bg-[#f8fafc] border border-slate-200/80 rounded-2xl p-5 shadow-sm text-center">
+            <div className="grid grid-cols-3 gap-6 mt-8 w-full max-w-md bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm text-center">
               <div>
                 <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Đang chờ</p>
                 <p className="text-2xl font-black text-slate-950 mt-1">{waitingRequests.length}</p>

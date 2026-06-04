@@ -235,7 +235,7 @@ const PaymentPage = () => {
               />
               {/* Scan animation */}
               <div className="absolute inset-0 rounded-2xl border-2 border-blue-400/20 overflow-hidden pointer-events-none">
-                <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_8px_rgba(59,130,246,0.8)] absolute top-0 animate-[scan_2.5s_ease-in-out_infinite]" />
+                <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_8px_rgb(var(--color-blue-500)/0.8)] absolute top-0 animate-[scan_2.5s_ease-in-out_infinite]" />
               </div>
             </div>
 

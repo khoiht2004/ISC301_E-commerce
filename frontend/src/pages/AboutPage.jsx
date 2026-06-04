@@ -309,7 +309,7 @@ const AboutPage = () => {
             {/* Vision Card */}
             <div className="col-12 col-md-6">
               <motion.div
-                whileHover={{ y: -8, borderColor: "rgba(239, 68, 68, 0.4)" }}
+                whileHover={{ y: -8, borderColor: "rgb(var(--color-brand-500) / 0.4)" }}
                 className="h-full bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md flex flex-col transition-all duration-300 shadow-2xl relative overflow-hidden group"
               >
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/20 transition-all duration-300"></div>
@@ -330,7 +330,7 @@ const AboutPage = () => {
             {/* Mission Card */}
             <div className="col-12 col-md-6">
               <motion.div
-                whileHover={{ y: -8, borderColor: "rgba(239, 68, 68, 0.4)" }}
+                whileHover={{ y: -8, borderColor: "rgb(var(--color-brand-500) / 0.4)" }}
                 className="h-full bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md flex flex-col transition-all duration-300 shadow-2xl relative overflow-hidden group"
               >
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/20 transition-all duration-300"></div>

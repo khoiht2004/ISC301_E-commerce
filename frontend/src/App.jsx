@@ -1,35 +1,39 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import ProductsPage from './pages/ProductsPage'
-import ProductDetailPage from './pages/ProductDetailPage'
-import NewsPage from './pages/NewsPage'
-import NewsDetailPage from './pages/NewsDetailPage'
-import AboutPage from './pages/AboutPage'
-import CartPage from './pages/CartPage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import StaffDashboard from './pages/staff/StaffDashboard'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AccountPage from './pages/AccountPage'
-import CheckoutPage from './pages/CheckoutPage'
-import PaymentPage from './pages/PaymentPage'
-import OrderSuccessPage from './pages/OrderSuccessPage'
-import OrderTrackingPage from './pages/OrderTrackingPage'
-import MyOrdersPage from './pages/MyOrdersPage'
-import EcomNavbar from './components/layout/EcomNavbar'
-import EcomFooter from './components/layout/EcomFooter'
-import ChatWidget from './components/chat/ChatWidget'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { CartProvider } from './context/CartContext'
-import { ProtectedRoute, RoleProtectedRoute } from './components/auth/ProtectedRoute'
-import { Toaster } from 'react-hot-toast'
-import ScrollToTop from './components/common/ScrollToTop'
-
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import ProductsPage from "./pages/ProductsPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import NewsPage from "./pages/NewsPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
+import AboutPage from "./pages/AboutPage";
+import CartPage from "./pages/CartPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import StaffDashboard from "./pages/staff/StaffDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AccountPage from "./pages/AccountPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import PaymentPage from "./pages/PaymentPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import EcomNavbar from "./components/layout/EcomNavbar";
+import EcomFooter from "./components/layout/EcomFooter";
+import ChatWidget from "./components/chat/ChatWidget";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import {
+  ProtectedRoute,
+  RoleProtectedRoute,
+} from "./components/auth/ProtectedRoute";
+import { Toaster } from "react-hot-toast";
+import ScrollToTop from "./components/common/ScrollToTop";
 
 function AppContent() {
-  const location = useLocation()
-  const { user } = useAuth()
-  const isDashboard = location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin')
+  const location = useLocation();
+  const { user } = useAuth();
+  const isDashboard =
+    location.pathname.startsWith("/staff") ||
+    location.pathname.startsWith("/admin");
 
   return (
     <CartProvider user={user}>
@@ -52,19 +56,22 @@ function AppContent() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/payment/:orderCode" element={<PaymentPage />} />
-              <Route path="/order-success/:orderCode" element={<OrderSuccessPage />} />
+              <Route
+                path="/order-success/:orderCode"
+                element={<OrderSuccessPage />}
+              />
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/orders/:id" element={<OrderTrackingPage />} />
               <Route path="/account" element={<AccountPage />} />
             </Route>
 
             {/* Staff Routes */}
-            <Route element={<RoleProtectedRoute roles={['STAFF', 'ADMIN']} />}>
+            <Route element={<RoleProtectedRoute roles={["STAFF", "ADMIN"]} />}>
               <Route path="/staff/dashboard" element={<StaffDashboard />} />
             </Route>
 
             {/* Admin Routes */}
-            <Route element={<RoleProtectedRoute roles={['ADMIN']} />}>
+            <Route element={<RoleProtectedRoute roles={["ADMIN"]} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Route>
           </Routes>
@@ -73,7 +80,7 @@ function AppContent() {
         {!isDashboard && <ChatWidget />}
       </div>
     </CartProvider>
-  )
+  );
 }
 
 function App() {
@@ -85,7 +92,7 @@ function App() {
         <AppContent />
       </BrowserRouter>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

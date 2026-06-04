@@ -55,7 +55,7 @@ const NewsPage = () => {
     <div className="min-h-screen bg-slate-950 text-white pt-28 pb-20">
       {/* Banner/Header */}
       <div className="relative overflow-hidden bg-slate-900 border-b border-red-900/30 py-16 mb-12">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(185,28,28,0.15),transparent)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgb(var(--color-brand-700)/0.15),transparent)]"></div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <span className="text-red-500 font-bold tracking-widest text-xs uppercase bg-red-950/50 border border-red-900/50 px-4 py-1.5 rounded-full">
             Blog & Cẩm nang

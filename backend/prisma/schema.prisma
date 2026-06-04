@@ -82,7 +82,7 @@ model ProductTag {
 
   products ProductTagOnProduct[]
 
-  @@map("producttag")
+  @@map("product_tag")
 }
 
 model ProductTagOnProduct {
@@ -93,7 +93,7 @@ model ProductTagOnProduct {
   tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([productId, tagId])
-  @@map("producttagonproduct")
+  @@map("product_tag_on_product")
 }
 
 // ─── PRODUCT ──────────────────────────────────────────────────────────────────
@@ -157,10 +157,10 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, productId])
-  @@map("cartitem")
+  @@map("cart_item")
 }
 
-// ─── ORDER ─────────────────────────────────────────────────────────@───────────
+// ─── ORDER ────────────────────────────────────────────────────────────────────
 
 model Order {
   id              Int           @id @default(autoincrement())
@@ -201,7 +201,7 @@ model OrderItem {
   productId Int
   product   Product @relation(fields: [productId], references: [id])
 
-  @@map("orderitem")
+  @@map("order_item")
 }
 
 model Coupon {
@@ -253,7 +253,7 @@ model NewsComment {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("newscomment")
+  @@map("news_comment")
 }
 
 model NewsReaction {
@@ -268,7 +268,7 @@ model NewsReaction {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([newsId, userId])
-  @@map("newsreaction")
+  @@map("news_reaction")
 }
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
@@ -290,7 +290,7 @@ model SupportRequest {
 
   messages Message[]
 
-  @@map("supportrequest")
+  @@map("support_request")
 }
 
 model Message {
@@ -319,7 +319,7 @@ model PaymentTransaction {
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  @@map("paymenttransaction")
+  @@map("payment_transaction")
 }
 
 // ─── ENUMS ────────────────────────────────────────────────────────────────────

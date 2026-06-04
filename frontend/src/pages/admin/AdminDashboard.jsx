@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] bg-gray-50">
+    <div className="flex h-dvh bg-gray-50">
       {/* Admin Sidebar */}
       <div className="w-64 bg-gray-900 text-white flex flex-col">
         <div className="p-6 bg-red-800 flex items-center gap-3">
@@ -152,7 +152,7 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-100">
               <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-500">#001</td>
+                <td className="px-6 py-4 text-sm text-gray-500">ORD-001</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">
@@ -189,7 +189,7 @@ const AdminDashboard = () => {
                 </td>
               </tr>
               <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-500">#002</td>
+                <td className="px-6 py-4 text-sm text-gray-500">ORD-002</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">

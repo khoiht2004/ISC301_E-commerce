@@ -1,5 +1,6 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+/* eslint-disable react/prop-types */
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
