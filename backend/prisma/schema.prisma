@@ -18,7 +18,7 @@ model User {
   phone              String?
   avatar             String?
   address            String?
-  role               Role      @default(USER) // ADMIN | STAFF | USER
+  role               Role      @default(USER) // ADMIN | VENDOR | USER
   isOnline           Boolean   @default(false)
   isActive           Boolean   @default(true)
   isVerified         Boolean   @default(false)
