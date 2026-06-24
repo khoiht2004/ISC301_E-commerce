@@ -86,7 +86,7 @@ const CheckoutPage = () => {
     <div className="bg-slate-50 min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
-          <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
             Thanh toán
           </span>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-1">
@@ -107,7 +107,7 @@ const CheckoutPage = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-5 h-5 text-red-500"
+                    className="w-5 h-5 text-primary-500"
                   >
                     <path
                       strokeLinecap="round"
@@ -134,7 +134,7 @@ const CheckoutPage = () => {
                       value={formData.shippingAddress}
                       onChange={handleChange}
                       placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       required
                     />
                   </div>
@@ -148,7 +148,7 @@ const CheckoutPage = () => {
                       value={formData.customerPhone}
                       onChange={handleChange}
                       placeholder="09xx xxx xxx"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       required
                     />
                   </div>
@@ -162,7 +162,7 @@ const CheckoutPage = () => {
                       value={formData.customerEmail}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       required
                     />
                   </div>
@@ -175,7 +175,7 @@ const CheckoutPage = () => {
                       value={formData.note}
                       onChange={handleChange}
                       placeholder="Ghi chú về thời gian giao hàng, hướng dẫn chỉ đường..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all h-24 resize-none"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all h-24 resize-none"
                     />
                   </div>
                 </div>
@@ -190,7 +190,7 @@ const CheckoutPage = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-5 h-5 text-red-500"
+                    className="w-5 h-5 text-primary-500"
                   >
                     <path
                       strokeLinecap="round"
@@ -203,7 +203,7 @@ const CheckoutPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:border-red-200"}`}
+                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -218,7 +218,7 @@ const CheckoutPage = () => {
                         Thanh toán tiền mặt
                       </span>
                       {formData.paymentMethod === "COD" && (
-                        <div className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -240,7 +240,7 @@ const CheckoutPage = () => {
                   </label>
 
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:border-red-200"}`}
+                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -255,7 +255,7 @@ const CheckoutPage = () => {
                         Chuyển khoản ngân hàng
                       </span>
                       {formData.paymentMethod === "BANK_TRANSFER" && (
-                        <div className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -275,7 +275,7 @@ const CheckoutPage = () => {
                       Quét mã QR tự động xác nhận
                     </span>
                     {formData.paymentMethod === "BANK_TRANSFER" && (
-                      <div className="mt-3 p-3 bg-white/85 rounded-xl border border-red-100/50 text-xs text-slate-700 space-y-1">
+                      <div className="mt-3 p-3 bg-white/85 rounded-xl border border-primary-100/50 text-xs text-slate-700 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-slate-500">Ngân hàng:</span>
                           <span className="font-semibold text-slate-800">
@@ -284,7 +284,7 @@ const CheckoutPage = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Số tài khoản:</span>
-                          <span className="font-bold text-red-600 tracking-wider">
+                          <span className="font-bold text-primary-600 tracking-wider">
                             01112172004
                           </span>
                         </div>
@@ -304,7 +304,7 @@ const CheckoutPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
                 </button>
@@ -369,7 +369,7 @@ const CheckoutPage = () => {
                   <span className="text-base font-bold text-slate-800">
                     Tổng cộng
                   </span>
-                  <span className="text-xl font-extrabold text-red-600">
+                  <span className="text-xl font-extrabold text-primary-600">
                     {formatPrice(cartTotal)}
                   </span>
                 </div>
@@ -380,7 +380,7 @@ const CheckoutPage = () => {
                   type="submit"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
                 </button>

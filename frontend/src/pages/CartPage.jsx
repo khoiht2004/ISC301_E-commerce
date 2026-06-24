@@ -52,7 +52,7 @@ const CartPage = () => {
     return (
       <div className="pt-32 pb-16 min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 mx-auto"></div>
           <p className="text-slate-500 text-sm font-medium">
             Đang tải giỏ hàng...
           </p>
@@ -66,13 +66,13 @@ const CartPage = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
             Giỏ hàng
           </span>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-1 flex items-center gap-3">
             Giỏ Hàng Của Bạn
             {cartItems.length > 0 && (
-              <span className="text-sm font-medium bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-150">
+              <span className="text-sm font-medium bg-primary-100 text-primary-700 px-3 py-1 rounded-full border border-primary-150">
                 {cartItems.reduce((acc, item) => acc + item.quantity, 0)} sản
                 phẩm
               </span>
@@ -108,7 +108,7 @@ const CartPage = () => {
             </p>
             <Link
               to="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-red-600/10 hover:scale-[1.02] active:scale-[0.98] no-underline"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-primary-600/10 hover:scale-[1.02] active:scale-[0.98] no-underline"
             >
               Tiếp tục mua sắm
               <svg
@@ -167,7 +167,7 @@ const CartPage = () => {
                           <div>
                             <Link
                               to={`/products/${item.product.slug}`}
-                              className="font-bold text-slate-800 hover:text-red-600 transition-colors text-sm line-clamp-1 no-underline"
+                              className="font-bold text-slate-800 hover:text-primary-600 transition-colors text-sm line-clamp-1 no-underline"
                             >
                               {item.product.name}
                             </Link>
@@ -184,7 +184,7 @@ const CartPage = () => {
                               <span className="text-slate-300 text-xs">|</span>
                               <button
                                 onClick={() => removeItem(item.id)}
-                                className="text-[11px] font-semibold text-red-500 hover:text-red-700"
+                                className="text-[11px] font-semibold text-primary-500 hover:text-primary-700"
                               >
                                 Xóa
                               </button>
@@ -235,14 +235,14 @@ const CartPage = () => {
                         {/* Subtotal & Delete */}
                         <div className="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
                           <div className="text-right flex-1 md:flex-none">
-                            <span className="text-sm font-bold text-red-600 md:text-slate-800 block">
+                            <span className="text-sm font-bold text-primary-600 md:text-slate-800 block">
                               {formatPrice(itemSubtotal)}
                             </span>
                           </div>
 
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="hidden md:flex p-1.5 rounded-lg border border-slate-100 hover:border-red-150 hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors items-center justify-center"
+                            className="hidden md:flex p-1.5 rounded-lg border border-slate-100 hover:border-primary-150 hover:bg-primary-50 text-slate-400 hover:text-primary-600 transition-colors items-center justify-center"
                             title="Xóa khỏi giỏ hàng"
                           >
                             <svg
@@ -270,7 +270,7 @@ const CartPage = () => {
                 <div className="pt-6 border-t border-slate-100 flex justify-between items-center mt-4">
                   <Link
                     to="/products"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-red-600 uppercase tracking-wider transition-colors no-underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary-600 uppercase tracking-wider transition-colors no-underline"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -291,7 +291,7 @@ const CartPage = () => {
 
                   <button
                     onClick={clearCart}
-                    className="px-4 py-2 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-150 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all"
+                    className="px-4 py-2 bg-slate-50 hover:bg-primary-50 text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-150 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all"
                   >
                     Xóa toàn bộ giỏ hàng
                   </button>
@@ -329,7 +329,7 @@ const CartPage = () => {
                     <span className="text-base font-bold text-slate-800">
                       Tổng cộng
                     </span>
-                    <span className="text-xl font-extrabold text-red-600">
+                    <span className="text-xl font-extrabold text-primary-600">
                       {formatPrice(cartTotal)}
                     </span>
                   </div>
@@ -337,7 +337,7 @@ const CartPage = () => {
 
                 <button
                   onClick={handleCheckout}
-                  className="w-full py-4 bg-red-600 hover:bg-red-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-red-600/10 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wider mb-4"
+                  className="w-full py-4 bg-primary-600 hover:bg-primary-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-primary-600/10 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wider mb-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

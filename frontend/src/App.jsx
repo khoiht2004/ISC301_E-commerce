@@ -9,6 +9,7 @@ import CartPage from "./pages/CartPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import StaffDashboard from "./pages/staff/StaffDashboard";
+import { DASHBOARD_PATHS, ROLES } from "./constants/roles";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AccountPage from "./pages/AccountPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -41,6 +42,9 @@ function AppContent() {
         {!isDashboard && <EcomNavbar />}
         <main className="flex-1">
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<ProductsPage />} />
@@ -48,8 +52,6 @@ function AppContent() {
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:slug" element={<NewsDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
@@ -65,9 +67,16 @@ function AppContent() {
               <Route path="/account" element={<AccountPage />} />
             </Route>
 
-            {/* Staff Routes */}
-            <Route element={<RoleProtectedRoute roles={["STAFF", "ADMIN"]} />}>
-              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            {/* STAFF Routes */}
+            <Route
+              element={
+                <RoleProtectedRoute roles={[ROLES.STAFF, ROLES.ADMIN]} />
+              }
+            >
+              <Route
+                path={DASHBOARD_PATHS.staff}
+                element={<StaffDashboard />}
+              />
             </Route>
 
             {/* Admin Routes */}
@@ -77,7 +86,7 @@ function AppContent() {
           </Routes>
         </main>
         {!isDashboard && <EcomFooter />}
-        {!isDashboard && <ChatWidget />}
+        {/* {!isDashboard && <ChatWidget />} */}
       </div>
     </CartProvider>
   );

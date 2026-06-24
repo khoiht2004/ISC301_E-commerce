@@ -2,6 +2,7 @@ const { z } = require('zod');
 const slugify = require('slugify');
 const prisma = require('../config/prisma');
 const { successResponse, errorResponse, paginatedResponse } = require('../utils/response');
+const { ROLES } = require('../constants/roles');
 
 // ─── Validation ──────────────────────────────────────────────────────────────
 
@@ -14,6 +15,7 @@ const productSchema = z.object({
   stock: z.coerce.number().int().min(0).default(0),
   sku: z.string().optional().nullable(),
   categoryId: z.coerce.number().int().positive().optional().nullable(),
+  supplierId: z.coerce.number().int().positive().optional().nullable(),
   unit: z.string().min(1).optional().default('gram'),
   weight: z.coerce.number().int().positive().optional().nullable(),
   isPublished: z.coerce.boolean().optional().default(false),
@@ -49,8 +51,17 @@ const formatProduct = (p) => ({
 const PRODUCT_INCLUDE = {
   tags: { include: { tag: true } },
   category: true,
-  createdBy: { select: { id: true, fullName: true, avatar: true } },
+  supplier: true,
+  createdBy: { select: { id: true, fullName: true, avatar: true, userProfile: true } },
 };
+
+const applyStaffProductscope = (req, where = {}) => {
+  // Staff can manage all products now, no longer restricted by createdById
+  return where;
+};
+
+const canManageProduct = (req, product) =>
+  req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.STAFF || product.createdById === req.user?.id;
 
 // ─── Controllers ─────────────────────────────────────────────────────────────
 
@@ -76,11 +87,11 @@ const getProducts = async (req, res, next) => {
 
     const where = { isDeleted: false };
 
-    // Only show published for public; staff/admin can see all
+    // Only show published for public; STAFF/admin can see all
     if (isPublished !== undefined) {
       where.isPublished = isPublished === 'true';
     } else {
-      // default: only published for non-admin/staff
+      // default: only published for non-admin/STAFF
       where.isPublished = true;
     }
 
@@ -214,6 +225,7 @@ const updateProduct = async (req, res, next) => {
 
     const existing = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
     if (!existing) return errorResponse(res, 'Product not found', 404);
+    if (!canManageProduct(req, existing)) return errorResponse(res, 'You can only update your own products', 403);
 
     const data = productSchema.partial().parse(req.body);
     const { tagIds, ...productData } = data;
@@ -270,6 +282,7 @@ const deleteProduct = async (req, res, next) => {
 
     const existing = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
     if (!existing) return errorResponse(res, 'Product not found', 404);
+    if (!canManageProduct(req, existing)) return errorResponse(res, 'You can only delete your own products', 403);
 
     await prisma.product.update({ where: { id: productId }, data: { isDeleted: true, isPublished: false } });
     return successResponse(res, null, 'Product deleted successfully');
@@ -285,6 +298,7 @@ const togglePublish = async (req, res, next) => {
     const productId = parseInt(id);
     const product = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
     if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!canManageProduct(req, product)) return errorResponse(res, 'You can only publish your own products', 403);
 
     const updated = await prisma.product.update({
       where: { id: productId },
@@ -320,7 +334,7 @@ const getRelatedProducts = async (req, res, next) => {
   }
 };
 
-// GET /api/products/all  – staff/admin: get all including unpublished
+// GET /api/products/all  – STAFF/admin: get all including unpublished
 const getAllProductsAdmin = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, search } = req.query;
@@ -328,7 +342,8 @@ const getAllProductsAdmin = async (req, res, next) => {
     const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    const where = { isDeleted: false };
+    let where = { isDeleted: false };
+    where = applyStaffProductscope(req, where);
     if (search && search.trim()) {
       where.OR = [
         { name: { contains: search.trim() } },

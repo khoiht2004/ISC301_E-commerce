@@ -28,6 +28,18 @@
   --color-brand-950: 69 10 10;
   --color-brand-955: 45 8 8;
 
+  /* Primary Color Mapping */
+  --color-primary-50: var(--color-brand-50);
+  --color-primary-100: var(--color-brand-100);
+  --color-primary-200: var(--color-brand-200);
+  --color-primary-400: var(--color-brand-400);
+  --color-primary-500: var(--color-brand-500);
+  --color-primary-600: var(--color-brand-600);
+  --color-primary-700: var(--color-brand-700);
+  --color-primary-800: var(--color-brand-800);
+  --color-primary-900: var(--color-brand-900);
+  --color-primary-950: var(--color-brand-950);
+
   --color-surface-50: 248 250 252;
   --color-surface-100: 241 245 249;
   --color-surface-150: 235 240 246;
@@ -105,6 +117,16 @@
   --color-cyan-400: 34 211 238;
 
   --color-grid-line: 128 128 128;
+
+  --color-staff-bg: 2 6 23;
+  --color-staff-surface: 15 23 42;
+  --color-staff-surface-muted: 30 41 59;
+  --color-staff-border: 30 41 59;
+  --color-staff-text: 248 250 252;
+  --color-staff-muted: 148 163 184;
+  --color-staff-primary: 185 28 28;
+  --color-staff-primary-hover: 153 27 27;
+  --color-staff-primary-soft: 127 29 29;
 }
 
 /* Base styles */

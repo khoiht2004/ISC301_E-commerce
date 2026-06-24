@@ -208,14 +208,14 @@ const handleSePayWebhook = async (req, res) => {
         paymentStatus: 'PAID',
       });
 
-      // Thông báo đến staff/admin dashboard
-      io.to('staff_dashboard').emit('order_updated', {
+      // Thông báo đến STAFF/admin dashboard
+      io.to('STAFF_dashboard').emit('order_updated', {
         orderCode:     order.orderCode,
         paymentStatus: 'PAID',
         amount:        receivedAmount,
       });
 
-      console.log(`[SePay Webhook] 📡 Đã emit socket đến user_${order.userId} & staff_dashboard`);
+      console.log(`[SePay Webhook] 📡 Đã emit socket đến user_${order.userId} & STAFF_dashboard`);
     }
 
     console.log('[SePay Webhook] ════════════════════════════════════════\n');

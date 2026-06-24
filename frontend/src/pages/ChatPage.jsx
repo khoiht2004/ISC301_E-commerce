@@ -79,8 +79,8 @@ const ChatPage = () => {
           <div>
             <h2 className="text-white font-semibold text-sm">Chat Chung</h2>
             <div className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500 pulse-dot' : 'bg-red-500'}`} />
-              <span className={`text-xs ${connected ? 'text-emerald-400' : 'text-red-400'}`}>
+              <div className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500 pulse-dot' : 'bg-primary-500'}`} />
+              <span className={`text-xs ${connected ? 'text-emerald-400' : 'text-primary-400'}`}>
                 {connected ? 'Đang kết nối' : 'Mất kết nối'}
               </span>
             </div>
@@ -110,7 +110,7 @@ const ChatPage = () => {
 
       {/* Error Banner */}
       {error && (
-        <div className="mx-4 mt-3 px-4 py-2.5 bg-red-900/30 border border-red-700/50 rounded-xl text-red-400 text-sm flex items-center gap-2">
+        <div className="mx-4 mt-3 px-4 py-2.5 bg-primary-900/30 border border-primary-700/50 rounded-xl text-primary-400 text-sm flex items-center gap-2">
           <span>⚠️</span> {error}
         </div>
       )}

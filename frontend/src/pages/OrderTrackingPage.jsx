@@ -3,12 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { getSocket } from '../services/socketService';
 import { useAuth } from '../context/AuthContext';
+import OrderComplaintForm from '../components/order/OrderComplaintForm';
+import ProductReviewForm from '../components/order/ProductReviewForm';
 
 const OrderTrackingPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewProduct, setReviewProduct] = useState(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -51,7 +57,7 @@ const OrderTrackingPage = () => {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -60,7 +66,7 @@ const OrderTrackingPage = () => {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold text-slate-800">Không tìm thấy đơn hàng</h2>
-        <Link to="/" className="mt-4 text-red-600 hover:underline">Về trang chủ</Link>
+        <Link to="/" className="mt-4 text-primary-600 hover:underline">Về trang chủ</Link>
       </div>
     );
   }
@@ -99,7 +105,7 @@ const OrderTrackingPage = () => {
         
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-extrabold text-slate-800">Chi Tiết Đơn Hàng</h1>
-          <Link to="/my-orders" className="text-sm font-semibold text-red-600 hover:text-red-700">← Trở về danh sách</Link>
+          <Link to="/my-orders" className="text-sm font-semibold text-primary-600 hover:text-primary-700">← Trở về danh sách</Link>
         </div>
 
         {/* Status Tracker */}
@@ -116,7 +122,7 @@ const OrderTrackingPage = () => {
           </div>
 
           {order.orderStatus === 'CANCELLED' ? (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center font-bold">
+            <div className="bg-primary-50 text-primary-600 p-4 rounded-xl text-center font-bold">
               Đơn hàng này đã bị hủy.
             </div>
           ) : (
@@ -175,6 +181,19 @@ const OrderTrackingPage = () => {
                       <span className="text-slate-500">Số lượng: {item.quantity}</span>
                       <span className="font-bold text-slate-800">{formatPrice(item.price * item.quantity)}</span>
                     </div>
+                    {order.orderStatus === 'COMPLETED' && (
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          onClick={() => {
+                            setReviewProduct(item.product);
+                            setIsReviewModalOpen(true);
+                          }}
+                          className="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1 rounded-lg hover:bg-primary-100 transition-colors"
+                        >
+                          Đánh giá sản phẩm
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -182,7 +201,7 @@ const OrderTrackingPage = () => {
             
             <div className="border-t border-slate-100 mt-6 pt-4 flex justify-between items-center">
               <span className="font-bold text-slate-800">Tổng cộng</span>
-              <span className="text-xl font-extrabold text-red-600">{formatPrice(order.totalAmount)}</span>
+              <span className="text-xl font-extrabold text-primary-600">{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
 
@@ -218,7 +237,7 @@ const OrderTrackingPage = () => {
                   <span className="text-sm text-slate-500">Trạng thái</span>
                   <span className={`text-sm font-bold px-3 py-1 rounded-full ${
                     order.paymentStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                    order.paymentStatus === 'FAILED' ? 'bg-red-100 text-red-700' :
+                    order.paymentStatus === 'FAILED' ? 'bg-primary-100 text-primary-700' :
                     'bg-amber-100 text-amber-700'
                   }`}>
                     {getPaymentStatusText(order.paymentStatus)}
@@ -226,17 +245,52 @@ const OrderTrackingPage = () => {
                 </div>
                 {order.paymentStatus === 'PENDING' && order.paymentMethod === 'BANK_TRANSFER' && (
                   <div className="mt-4 pt-4 border-t border-slate-100">
-                    <Link to={`/order-success/${order.id}`} className="block w-full py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-center text-sm transition-all shadow-md">
+                    <Link to={`/order-success/${order.id}`} className="block w-full py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg text-center text-sm transition-all shadow-md">
                       Mở lại mã QR thanh toán
                     </Link>
                   </div>
                 )}
               </div>
             </div>
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+              <h3 className="font-bold text-lg text-slate-800 border-b border-slate-100 pb-4 mb-4">Hỗ trợ</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                Nếu bạn gặp vấn đề với đơn hàng, vui lòng liên hệ với chúng tôi hoặc gửi khiếu nại.
+              </p>
+              <button
+                onClick={() => setIsComplaintModalOpen(true)}
+                disabled={['PENDING', 'CANCELLED'].includes(order.orderStatus)}
+                className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 font-bold rounded-lg text-center text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Khiếu nại đơn hàng
+              </button>
+            </div>
           </div>
 
         </div>
       </div>
+
+      <OrderComplaintForm
+        isOpen={isComplaintModalOpen}
+        onClose={() => setIsComplaintModalOpen(false)}
+        orderId={order.id}
+        orderCode={order.orderCode}
+        onSuccess={() => {
+          setIsComplaintModalOpen(false);
+          // Optional: refetch order or show something
+        }}
+      />
+
+      <ProductReviewForm
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        orderId={order.id}
+        product={reviewProduct}
+        onSuccess={() => {
+          setIsReviewModalOpen(false);
+          setReviewProduct(null);
+        }}
+      />
     </div>
   );
 };

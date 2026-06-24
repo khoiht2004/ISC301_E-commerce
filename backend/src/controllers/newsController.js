@@ -12,14 +12,6 @@ const newsSchema = z.object({
   isPublished: z.union([z.boolean(), z.string()]).optional(),
 });
 
-const commentSchema = z.object({
-  content: z.string().min(1, 'Comment cannot be empty').max(2000, 'Comment too long'),
-});
-
-const reactionSchema = z.object({
-  type: z.enum(['LIKE', 'DISLIKE']),
-});
-
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 const parsePublished = (val) => {
@@ -33,7 +25,7 @@ const parsePublished = (val) => {
 /**
  * GET /api/news
  * Public: list published articles (paginated, searchable)
- * Staff/Admin query param: ?all=true to see unpublished too
+ * STAFF/Admin query param: ?all=true to see unpublished too
  */
 const getNews = async (req, res, next) => {
   try {
@@ -42,7 +34,7 @@ const getNews = async (req, res, next) => {
     const limitNum = parseInt(limit);
 
     const where = {};
-    // Only show published unless staff/admin requests all
+    // Only show published unless STAFF/admin requests all
     if (all !== 'true') {
       where.isPublished = true;
     }
@@ -58,8 +50,6 @@ const getNews = async (req, res, next) => {
         where,
         include: {
           createdBy: { select: { id: true, fullName: true, avatar: true } },
-          _count: { select: { comments: true, reactions: true } },
-          reactions: { select: { type: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (pageNum - 1) * limitNum,
@@ -68,15 +58,7 @@ const getNews = async (req, res, next) => {
       prisma.news.count({ where }),
     ]);
 
-    // Compute likes/dislikes count
-    const newsWithCounts = news.map((article) => {
-      const likes = article.reactions.filter((r) => r.type === 'LIKE').length;
-      const dislikes = article.reactions.filter((r) => r.type === 'DISLIKE').length;
-      const { reactions, ...rest } = article;
-      return { ...rest, likes, dislikes };
-    });
-
-    return paginatedResponse(res, newsWithCounts, total, pageNum, limitNum);
+    return paginatedResponse(res, news, total, pageNum, limitNum);
   } catch (err) {
     next(err);
   }
@@ -92,21 +74,12 @@ const getLatestNews = async (req, res, next) => {
       where: { isPublished: true },
       include: {
         createdBy: { select: { id: true, fullName: true, avatar: true } },
-        _count: { select: { comments: true, reactions: true } },
-        reactions: { select: { type: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 3,
     });
 
-    const newsWithCounts = news.map((article) => {
-      const likes = article.reactions.filter((r) => r.type === 'LIKE').length;
-      const dislikes = article.reactions.filter((r) => r.type === 'DISLIKE').length;
-      const { reactions, ...rest } = article;
-      return { ...rest, likes, dislikes };
-    });
-
-    return successResponse(res, newsWithCounts);
+    return successResponse(res, news);
   } catch (err) {
     next(err);
   }
@@ -124,8 +97,6 @@ const getNewsBySlug = async (req, res, next) => {
       where: { slug },
       include: {
         createdBy: { select: { id: true, fullName: true, avatar: true } },
-        _count: { select: { comments: true } },
-        reactions: { select: { type: true, userId: true } },
       },
     });
 
@@ -138,18 +109,14 @@ const getNewsBySlug = async (req, res, next) => {
       data: { views: { increment: 1 } },
     });
 
-    const likes = article.reactions.filter((r) => r.type === 'LIKE').length;
-    const dislikes = article.reactions.filter((r) => r.type === 'DISLIKE').length;
-    const { reactions, ...rest } = article;
-
-    return successResponse(res, { ...rest, views: article.views + 1, likes, dislikes });
+    return successResponse(res, { ...article, views: article.views + 1 });
   } catch (err) {
     next(err);
   }
 };
 
 /**
- * POST /api/news — Staff/Admin only
+ * POST /api/news — STAFF/Admin only
  */
 const createNews = async (req, res, next) => {
   try {
@@ -176,7 +143,7 @@ const createNews = async (req, res, next) => {
 };
 
 /**
- * PUT /api/news/:id — Staff/Admin only
+ * PUT /api/news/:id — STAFF/Admin only
  */
 const updateNews = async (req, res, next) => {
   try {
@@ -216,7 +183,7 @@ const updateNews = async (req, res, next) => {
 };
 
 /**
- * DELETE /api/news/:id — Staff/Admin only
+ * DELETE /api/news/:id — STAFF/Admin only
  */
 const deleteNews = async (req, res, next) => {
   try {
@@ -231,170 +198,6 @@ const deleteNews = async (req, res, next) => {
   }
 };
 
-// ─── COMMENTS ─────────────────────────────────────────────────────────────────
-
-/**
- * GET /api/news/:id/comments — Public
- */
-const getComments = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const newsId = parseInt(id);
-
-    const news = await prisma.news.findUnique({ where: { id: newsId } });
-    if (!news) return errorResponse(res, 'Article not found', 404);
-
-    const comments = await prisma.newsComment.findMany({
-      where: { newsId },
-      include: {
-        user: { select: { id: true, fullName: true, avatar: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return successResponse(res, comments);
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * POST /api/news/:id/comments — Auth required
- */
-const addComment = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const newsId = parseInt(id);
-    const { content } = commentSchema.parse(req.body);
-
-    const news = await prisma.news.findUnique({ where: { id: newsId } });
-    if (!news || !news.isPublished) return errorResponse(res, 'Article not found', 404);
-
-    // Sanitize: strip basic HTML tags
-    const sanitized = content.replace(/<[^>]*>/g, '').trim();
-
-    const comment = await prisma.newsComment.create({
-      data: { newsId, userId: req.user.id, content: sanitized },
-      include: {
-        user: { select: { id: true, fullName: true, avatar: true } },
-      },
-    });
-
-    return successResponse(res, comment, 'Comment added', 201);
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * DELETE /api/comments/:id — Auth required (own comment or ADMIN/STAFF)
- */
-const deleteComment = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const commentId = parseInt(id);
-
-    const comment = await prisma.newsComment.findUnique({ where: { id: commentId } });
-    if (!comment) return errorResponse(res, 'Comment not found', 404);
-
-    const isOwner = comment.userId === req.user.id;
-    const isModeratorRole = ['ADMIN', 'STAFF'].includes(req.user.role);
-
-    if (!isOwner && !isModeratorRole) {
-      return errorResponse(res, 'You do not have permission to delete this comment', 403);
-    }
-
-    await prisma.newsComment.delete({ where: { id: commentId } });
-    return successResponse(res, null, 'Comment deleted');
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ─── REACTIONS ────────────────────────────────────────────────────────────────
-
-/**
- * POST /api/news/:id/react — Auth required
- * Body: { type: "LIKE" | "DISLIKE" }
- * Logic:
- *   - If no reaction: create
- *   - If same type: remove (toggle off)
- *   - If different type: update
- */
-const reactToNews = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const newsId = parseInt(id);
-    const { type } = reactionSchema.parse(req.body);
-
-    const news = await prisma.news.findUnique({ where: { id: newsId } });
-    if (!news || !news.isPublished) return errorResponse(res, 'Article not found', 404);
-
-    const existing = await prisma.newsReaction.findUnique({
-      where: { newsId_userId: { newsId, userId: req.user.id } },
-    });
-
-    let action;
-    if (!existing) {
-      // Create new reaction
-      await prisma.newsReaction.create({
-        data: { newsId, userId: req.user.id, type },
-      });
-      action = 'added';
-    } else if (existing.type === type) {
-      // Same reaction — toggle off
-      await prisma.newsReaction.delete({
-        where: { newsId_userId: { newsId, userId: req.user.id } },
-      });
-      action = 'removed';
-    } else {
-      // Different reaction — update
-      await prisma.newsReaction.update({
-        where: { newsId_userId: { newsId, userId: req.user.id } },
-        data: { type },
-      });
-      action = 'updated';
-    }
-
-    // Return fresh counts
-    const [likes, dislikes, userReaction] = await Promise.all([
-      prisma.newsReaction.count({ where: { newsId, type: 'LIKE' } }),
-      prisma.newsReaction.count({ where: { newsId, type: 'DISLIKE' } }),
-      prisma.newsReaction.findUnique({
-        where: { newsId_userId: { newsId, userId: req.user.id } },
-      }),
-    ]);
-
-    return successResponse(res, {
-      likes,
-      dislikes,
-      userReaction: userReaction?.type || null,
-      action,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * GET /api/news/:id/my-reaction — Auth required
- * Returns current user's reaction on a news article
- */
-const getMyReaction = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const newsId = parseInt(id);
-
-    const reaction = await prisma.newsReaction.findUnique({
-      where: { newsId_userId: { newsId, userId: req.user.id } },
-    });
-
-    return successResponse(res, { userReaction: reaction?.type || null });
-  } catch (err) {
-    next(err);
-  }
-};
-
 module.exports = {
   getNews,
   getLatestNews,
@@ -402,9 +205,4 @@ module.exports = {
   createNews,
   updateNews,
   deleteNews,
-  getComments,
-  addComment,
-  deleteComment,
-  reactToNews,
-  getMyReaction,
 };

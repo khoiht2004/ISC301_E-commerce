@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const StaffLayout = () => {
+const staffMemberLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,34 +35,34 @@ const StaffLayout = () => {
   const menuItems = [
     {
       name: "Dashboard",
-      path: "/staff/dashboard",
+      path: "/STAFF/dashboard",
       icon: <LayoutDashboard size={18} />,
     },
     {
       name: "Quản lý sản phẩm",
-      path: "/staff/products",
+      path: "/STAFF/products",
       icon: <Package size={18} />,
     },
     {
       name: "Quản lý tin tức",
-      path: "/staff/news",
+      path: "/STAFF/news",
       icon: <FileText size={18} />,
     },
     {
       name: "Hỗ trợ khách hàng",
-      path: "/staff/support",
+      path: "/STAFF/support",
       icon: <MessageSquare size={18} />,
     },
     {
       name: "Đơn hàng",
-      path: "/staff/orders",
+      path: "/STAFF/orders",
       icon: <ClipboardList size={18} />,
     },
   ];
 
   const isPathActive = (path) => {
-    if (path === "/staff/dashboard") {
-      return location.pathname === "/staff/dashboard";
+    if (path === "/STAFF/dashboard") {
+      return location.pathname === "/STAFF/dashboard";
     }
     return location.pathname.startsWith(path);
   };
@@ -87,8 +87,8 @@ const StaffLayout = () => {
         {/* Sidebar Header */}
         <div className="p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="text-red-500" size={24} />
-            <span className="font-extrabold text-sm tracking-wider text-red-500 uppercase">
+            <Shield className="text-primary-500" size={24} />
+            <span className="font-extrabold text-sm tracking-wider text-primary-500 uppercase">
               Deat Lemi ADMIN
             </span>
           </div>
@@ -103,12 +103,12 @@ const StaffLayout = () => {
         {/* User profile info */}
         <div className="p-4 border-b border-slate-800 bg-slate-950/40">
           <div className="flex items-center gap-3 py-2 px-3 bg-slate-950/60 rounded-xl border border-slate-800/80">
-            <div className="w-9 h-9 rounded-full bg-red-800 flex items-center justify-center font-bold text-sm text-white shrink-0">
+            <div className="w-9 h-9 rounded-full bg-primary-800 flex items-center justify-center font-bold text-sm text-white shrink-0">
               {user?.fullName ? user.fullName[0].toUpperCase() : "S"}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold truncate text-slate-100">
-                {user?.fullName || "Staff User"}
+                {user?.fullName || "STAFF User"}
               </p>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5">
                 {user?.role || "STAFF"}
@@ -128,7 +128,7 @@ const StaffLayout = () => {
                 onClick={() => setIsSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl border transition-all no-underline ${
                   active
-                    ? "bg-red-800 border-red-700 text-white shadow-md shadow-red-950/20"
+                    ? "bg-primary-800 border-primary-700 text-white shadow-md shadow-primary-950/20"
                     : "bg-slate-900/50 border-transparent text-slate-450 hover:text-slate-200 hover:bg-slate-800/60 hover:border-slate-800/40"
                 }`}
               >
@@ -150,7 +150,7 @@ const StaffLayout = () => {
           </a>
           <button
             onClick={handleLogout}
-            className="p-2 bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 rounded-xl transition-all border border-slate-755"
+            className="p-2 bg-slate-800 hover:bg-primary-950 text-slate-400 hover:text-primary-400 rounded-xl transition-all border border-slate-755"
             title="Đăng xuất"
           >
             <LogOut size={16} />
@@ -183,7 +183,7 @@ const StaffLayout = () => {
               </p>
               <p className="text-[10px] text-slate-400">{user?.email}</p>
             </div>
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-red-400">
+            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-primary-400">
               {user?.fullName ? user.fullName[0].toUpperCase() : "S"}
             </div>
           </div>

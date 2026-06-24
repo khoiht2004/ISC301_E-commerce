@@ -22,7 +22,7 @@ const Hero = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="inline-block px-6 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 font-bold mb-6 tracking-widest text-sm">
+        <div className="inline-block px-6 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-500 font-bold mb-6 tracking-widest text-sm">
           PREMIUM MEAT SHOP
         </div>
 
@@ -33,10 +33,10 @@ const Hero = () => (
               Deat Lemi
             </div>
             <div className="text-3xl font-bold text-white mb-2">ĐI CHỢ</div>
-            <div className="text-5xl font-black text-red-600 leading-none">
+            <div className="text-5xl font-black text-primary-600 leading-none">
               Online
             </div>
-            <div className="absolute -bottom-4 bg-red-700 text-white px-6 py-2 rounded-full font-bold text-xs shadow-lg">
+            <div className="absolute -bottom-4 bg-primary-700 text-white px-6 py-2 rounded-full font-bold text-xs shadow-lg">
               MUA NGAY
             </div>
           </div>
@@ -195,7 +195,7 @@ const ProductCard = ({ product }) => {
               {product.tags.slice(0, 2).map((t) => (
                 <span
                   key={t.id}
-                  className="bg-red-650 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+                  className="bg-primary-650 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
                 >
                   {t.name}
                 </span>
@@ -214,7 +214,7 @@ const ProductCard = ({ product }) => {
           <div className="mb-4">
             {hasDiscount ? (
               <div className="flex items-center justify-center gap-2">
-                <span className="text-red-600 font-extrabold text-lg">
+                <span className="text-primary-600 font-extrabold text-lg">
                   {formatPrice(product.salePrice)}
                 </span>
                 <span className="text-slate-400 line-through text-sm">
@@ -232,7 +232,7 @@ const ProductCard = ({ product }) => {
       <div className="p-6 pt-0">
         <Link
           to={`/products/${product.slug}`}
-          className="block w-full py-3 rounded-lg border border-slate-200 font-bold text-sm text-slate-700 hover:bg-red-800 hover:text-white hover:border-red-800 text-center no-underline transition-all"
+          className="block w-full py-3 rounded-lg border border-slate-200 font-bold text-sm text-slate-700 hover:bg-primary-800 hover:text-white hover:border-primary-800 text-center no-underline transition-all"
         >
           XEM CHI TIẾT
         </Link>
@@ -271,11 +271,11 @@ const FeaturedProducts = () => {
         <h2 className="text-4xl font-bold mb-4 text-slate-900">
           Sản Phẩm Mới Nhất
         </h2>
-        <div className="w-20 h-1 bg-red-600 mx-auto mb-16"></div>
+        <div className="w-20 h-1 bg-primary-600 mx-auto mb-16"></div>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
           </div>
         ) : products.length === 0 ? (
           <div className="text-slate-500 italic mb-12">
@@ -291,7 +291,7 @@ const FeaturedProducts = () => {
 
         <Link
           to="/products"
-          className="inline-block bg-red-800 text-white font-bold px-10 py-4 rounded-lg hover:bg-red-900 transition-colors no-underline shadow-lg"
+          className="inline-block bg-primary-800 text-white font-bold px-10 py-4 rounded-lg hover:bg-primary-900 transition-colors no-underline shadow-lg"
         >
           XEM TẤT CẢ SẢN PHẨM
         </Link>
@@ -325,9 +325,9 @@ const NewsSection = () => {
           <h2 className="text-4xl font-bold mb-4 text-slate-900">
             Góc Tin Tức
           </h2>
-          <div className="w-20 h-1 bg-red-600 mx-auto mb-16"></div>
+          <div className="w-20 h-1 bg-primary-600 mx-auto mb-16"></div>
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
           </div>
         </div>
       </section>
@@ -343,7 +343,7 @@ const NewsSection = () => {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
           <div>
-            <span className="text-red-600 font-bold tracking-widest text-xs uppercase">
+            <span className="text-primary-600 font-bold tracking-widest text-xs uppercase">
               BÀI VIẾT MỚI NHẤT
             </span>
             <h2 className="text-3xl md:text-4xl font-black text-slate-950 mt-2 tracking-tight">
@@ -352,7 +352,7 @@ const NewsSection = () => {
           </div>
           <Link
             to="/news"
-            className="text-red-700 hover:text-red-800 font-bold text-sm tracking-wider uppercase border-b-2 border-red-700 pb-1 mt-4 md:mt-0 inline-block no-underline"
+            className="text-primary-700 hover:text-primary-800 font-bold text-sm tracking-wider uppercase border-b-2 border-primary-700 pb-1 mt-4 md:mt-0 inline-block no-underline"
           >
             Xem tất cả bài viết &rarr;
           </Link>
@@ -388,17 +388,17 @@ const NewsSection = () => {
                 />
               </Link>
               <div className="p-6 flex-1 flex flex-col">
-                <span className="text-[11px] font-bold text-red-600 mb-2">
+                <span className="text-[11px] font-bold text-primary-600 mb-2">
                   {new Date(news.createdAt).toLocaleDateString("vi-VN", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
                   })}
                 </span>
-                <h3 className="font-bold text-base mb-2 group-hover:text-red-700 transition-colors line-clamp-2">
+                <h3 className="font-bold text-base mb-2 group-hover:text-primary-700 transition-colors line-clamp-2">
                   <Link
                     to={`/news/${news.slug}`}
-                    className="text-slate-900 no-underline hover:text-red-700"
+                    className="text-slate-900 no-underline hover:text-primary-700"
                   >
                     {news.title}
                   </Link>

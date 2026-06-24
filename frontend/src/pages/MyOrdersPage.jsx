@@ -34,7 +34,7 @@ const MyOrdersPage = () => {
       case 'SHIPPING': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Đang giao hàng</span>;
       case 'DELIVERED': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Đã giao hàng</span>;
       case 'COMPLETED': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Hoàn thành</span>;
-      case 'CANCELLED': return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đã hủy</span>;
+      case 'CANCELLED': return <span className="bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs font-bold">Đã hủy</span>;
       default: return null;
     }
   };
@@ -43,7 +43,7 @@ const MyOrdersPage = () => {
     switch (status) {
       case 'PENDING': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Chưa thanh toán</span>;
       case 'PAID': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Đã thanh toán</span>;
-      case 'FAILED': return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Thanh toán lỗi</span>;
+      case 'FAILED': return <span className="bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs font-bold">Thanh toán lỗi</span>;
       default: return null;
     }
   };
@@ -51,7 +51,7 @@ const MyOrdersPage = () => {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -67,7 +67,7 @@ const MyOrdersPage = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
             <h2 className="text-xl font-bold text-slate-700 mb-2">Chưa có đơn hàng nào</h2>
-            <Link to="/products" className="inline-block mt-4 bg-red-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-red-700 transition-colors">
+            <Link to="/products" className="inline-block mt-4 bg-primary-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-primary-700 transition-colors">
               Bắt đầu mua sắm
             </Link>
           </div>
@@ -116,9 +116,9 @@ const MyOrdersPage = () => {
                 <div className="bg-slate-50 border-t border-slate-100 p-4 md:px-6 flex items-center justify-between">
                   <div>
                     <span className="text-sm text-slate-500 block">Tổng tiền:</span>
-                    <span className="text-lg font-extrabold text-red-600">{formatPrice(order.totalAmount)}</span>
+                    <span className="text-lg font-extrabold text-primary-600">{formatPrice(order.totalAmount)}</span>
                   </div>
-                  <Link to={`/orders/${order.id}`} className="bg-white border-2 border-slate-200 text-slate-700 hover:border-red-500 hover:text-red-600 font-bold py-2 px-6 rounded-xl transition-colors text-sm">
+                  <Link to={`/orders/${order.id}`} className="bg-white border-2 border-slate-200 text-slate-700 hover:border-primary-500 hover:text-primary-600 font-bold py-2 px-6 rounded-xl transition-colors text-sm">
                     Xem chi tiết
                   </Link>
                 </div>

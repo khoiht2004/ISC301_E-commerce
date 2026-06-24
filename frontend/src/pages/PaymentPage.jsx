@@ -145,7 +145,7 @@ const PaymentPage = () => {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-14 w-14 border-4 border-red-600 border-t-transparent mx-auto" />
+          <div className="animate-spin rounded-full h-14 w-14 border-4 border-primary-600 border-t-transparent mx-auto" />
           <p className="text-slate-500 font-medium">Đang tải thông tin thanh toán...</p>
         </div>
       </div>
@@ -155,13 +155,13 @@ const PaymentPage = () => {
   if (error) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
-        <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center text-red-500">
+        <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-500">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
         </div>
         <h2 className="text-xl font-bold text-slate-800">{error}</h2>
-        <Link to="/my-orders" className="px-6 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
+        <Link to="/my-orders" className="px-6 py-2.5 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors">
           Xem đơn hàng của tôi
         </Link>
       </div>
@@ -289,12 +289,12 @@ const PaymentPage = () => {
                 <div className="flex justify-between items-center pb-3 border-b border-slate-100">
                   <span className="text-sm text-slate-500">Số tài khoản</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-red-600 text-lg tracking-wider">
+                    <span className="font-black text-primary-600 text-lg tracking-wider">
                       {paymentData.accountNumber}
                     </span>
                     <button
                       onClick={() => handleCopy(paymentData.accountNumber)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       title="Sao chép"
                     >
                       <CopyIcon />
@@ -314,7 +314,7 @@ const PaymentPage = () => {
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-slate-500 flex items-center gap-1">
                     Nội dung chuyển khoản
-                    <span className="text-red-500 font-bold text-xs ml-1">(Bắt buộc)</span>
+                    <span className="text-primary-500 font-bold text-xs ml-1">(Bắt buộc)</span>
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="font-black text-blue-700 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl text-sm flex-1 break-all">

@@ -18,7 +18,7 @@ model User {
   phone              String?
   avatar             String?
   address            String?
-  role               Role      @default(USER) // ADMIN | VENDOR | USER
+  role               Role      @default(USER) // ADMIN | STAFF | USER
   isOnline           Boolean   @default(false)
   isActive           Boolean   @default(true)
   isVerified         Boolean   @default(false)
@@ -28,20 +28,53 @@ model User {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  orders        Order[]
-  addresses     Address[]
-  cart          Cart?
-  news          News[]
-  products      Product[]
-  newsComments  NewsComment[]
-  newsReactions NewsReaction[]
+  orders      Order[]
+  addresses   Address[]
+  cart        Cart?
+  news        News[]
+  products    Product[]
+  userProfile UserProfile?
+
+  reviews    ProductReview[]
+  complaints OrderComplaint[]
 
   // Relations for Support Chat
   supportRequests SupportRequest[] @relation("UserRequests")
-  assignedSupport SupportRequest[] @relation("StaffRequests")
+  assignedSupport SupportRequest[] @relation("StaffSupportRequests")
   messages        Message[]
 
   @@map("user")
+}
+
+model UserProfile {
+  id          Int       @id @default(autoincrement())
+  gender      String?
+  dateOfBirth DateTime?
+  bio         String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profile")
+}
+
+model Supplier {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String?
+  phone       String?
+  address     String?  @db.Text
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+  batches  ProductBatch[]
+
+  @@map("supplier")
 }
 
 model Address {
@@ -123,11 +156,59 @@ model Product {
   categoryId Int?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  supplierId Int?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
   tags       ProductTagOnProduct[]
   orderItems OrderItem[]
   cartItems  CartItem[]
+  batches    ProductBatch[]
+  reviews    ProductReview[]
 
+  @@index([createdById])
+  @@index([isDeleted, isPublished])
   @@map("product")
+}
+
+model ProductBatch {
+  id              Int       @id @default(autoincrement())
+  batchCode       String    @unique
+  importQuantity  Int
+  currentQuantity Int       @default(0)
+  costPrice       Int // Giá nhập
+  manufactureDate DateTime?
+  expirationDate  DateTime
+  importDate      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  supplierId Int
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  @@index([expirationDate])
+  @@map("product_batch")
+}
+
+model ProductReview {
+  id        Int      @id @default(autoincrement())
+  rating    Int      @default(5)
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  orderId Int?
+  order   Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@map("product_review")
 }
 
 // ─── CART ─────────────────────────────────────────────────────────────────────
@@ -184,6 +265,8 @@ model Order {
   user                User                 @relation(fields: [userId], references: [id])
   orderItems          OrderItem[]
   paymentTransactions PaymentTransaction[]
+  reviews             ProductReview[]
+  complaints          OrderComplaint[]
 
   @@map("order")
 }
@@ -202,6 +285,23 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   @@map("order_item")
+}
+
+model OrderComplaint {
+  id         Int             @id @default(autoincrement())
+  reason     String          @db.Text
+  status     ComplaintStatus @default(PENDING)
+  resolution String?         @db.Text
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_complaint")
 }
 
 model Coupon {
@@ -235,40 +335,7 @@ model News {
   createdById Int
   createdBy   User @relation(fields: [createdById], references: [id])
 
-  comments  NewsComment[]
-  reactions NewsReaction[]
-
   @@map("news")
-}
-
-model NewsComment {
-  id        Int      @id @default(autoincrement())
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  newsId Int
-  news   News @relation(fields: [newsId], references: [id], onDelete: Cascade)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("news_comment")
-}
-
-model NewsReaction {
-  id        Int          @id @default(autoincrement())
-  type      ReactionType
-  createdAt DateTime     @default(now())
-
-  newsId Int
-  news   News @relation(fields: [newsId], references: [id], onDelete: Cascade)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([newsId, userId])
-  @@map("news_reaction")
 }
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
@@ -286,7 +353,7 @@ model SupportRequest {
   user   User @relation("UserRequests", fields: [userId], references: [id])
 
   assignedStaffId Int?
-  assignedStaff   User? @relation("StaffRequests", fields: [assignedStaffId], references: [id])
+  assignedStaff   User? @relation("StaffSupportRequests", fields: [assignedStaffId], references: [id])
 
   messages Message[]
 
@@ -330,9 +397,11 @@ enum Role {
   USER
 }
 
-enum ReactionType {
-  LIKE
-  DISLIKE
+enum ComplaintStatus {
+  PENDING
+  RESOLVING
+  RESOLVED
+  REJECTED
 }
 
 enum SupportStatus {

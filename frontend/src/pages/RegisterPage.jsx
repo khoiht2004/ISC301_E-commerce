@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  UserPlus,
   Mail,
   Lock,
   User,
@@ -25,7 +24,6 @@ const RegisterPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
   const { register } = useAuth();
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -63,12 +61,9 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4 py-12">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-600 mb-4">
-            <UserPlus size={32} />
-          </div>
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             Tạo tài khoản mới
           </h2>
@@ -79,9 +74,9 @@ const RegisterPage = () => {
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start gap-3">
-              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div className="bg-primary-50 border-l-4 border-primary-500 p-4 rounded-md flex items-start gap-3">
+              <AlertCircle className="text-primary-500 shrink-0 mt-0.5" size={18} />
+              <p className="text-sm text-primary-700 font-medium">{error}</p>
             </div>
           )}
 
@@ -108,7 +103,7 @@ const RegisterPage = () => {
                   name="fullName"
                   type="text"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="Nguyễn Văn A"
                   value={formData.fullName}
                   onChange={handleChange}
@@ -128,7 +123,7 @@ const RegisterPage = () => {
                   name="email"
                   type="email"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
@@ -147,7 +142,7 @@ const RegisterPage = () => {
                 <input
                   name="phone"
                   type="tel"
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="0912 345 678"
                   value={formData.phone}
                   onChange={handleChange}
@@ -168,7 +163,7 @@ const RegisterPage = () => {
                     name="password"
                     type="password"
                     required
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
@@ -187,7 +182,7 @@ const RegisterPage = () => {
                     name="confirmPassword"
                     type="password"
                     required
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -200,7 +195,7 @@ const RegisterPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-red-200 mt-6"
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-primary-700 hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-primary-200 mt-6"
           >
             {isSubmitting ? (
               <Loader2 className="animate-spin" size={20} />
@@ -215,7 +210,7 @@ const RegisterPage = () => {
             Đã có tài khoản?{" "}
             <Link
               to="/login"
-              className="font-bold text-red-700 hover:text-red-800 underline transition duration-150"
+              className="font-bold text-primary-700 hover:text-primary-800 underline transition duration-150"
             >
               Đăng nhập ngay
             </Link>
