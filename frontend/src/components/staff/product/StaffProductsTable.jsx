@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */
 import { AlertCircle, Edit, Eye, Power, Trash2 } from "lucide-react";
 import { formatCurrency } from "../../../utils/formatCurrency";
+import { formatDate } from "../../../utils/helper";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1544025162-d76694265947?w=150&auto=format&fit=crop&q=80";
@@ -38,11 +38,10 @@ const StaffProductsTable = ({
         <table className="w-full text-left border-collapse text-xs md:text-sm whitespace-nowrap min-w-[800px]">
           <thead className="sticky top-0 z-10">
             <tr className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
-              <th className="p-3 bg-slate-50 border-b border-slate-200">Ảnh</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200">Sản phẩm</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200">SKU / Nhãn</th>
+              <th className="p-3 bg-slate-50 border-b border-slate-200">Thông tin</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200">Giá bán</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Tồn kho</th>
+              <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Tồn kho / Hạn SD</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Hiển thị</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200 text-right">Thao tác</th>
             </tr>
@@ -58,34 +57,43 @@ const StaffProductsTable = ({
                   key={product.id}
                   className="hover:bg-slate-50 transition-colors"
                 >
-                  <td className="p-3 shrink-0">
-                    <div className="w-14 h-14 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center">
-                      <img
-                        src={thumbnailSrc}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        onError={(event) => {
-                          event.target.src = FALLBACK_IMAGE;
-                        }}
-                      />
-                    </div>
-                  </td>
-                  <td className="p-3 max-w-[220px]">
-                    <button
-                      type="button"
-                      className="text-left font-bold text-slate-800 line-clamp-2 hover:text-primary-600 transition-colors"
-                      onClick={() => onEdit(product)}
-                    >
-                      {product.name}
-                    </button>
-                    <div className="text-[10px] text-slate-500 mt-1 truncate">
-                      {product.slug}
+                  <td className="p-3 max-w-[280px]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center">
+                        <img
+                          src={thumbnailSrc}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(event) => {
+                            event.target.src = FALLBACK_IMAGE;
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <button
+                          type="button"
+                          className="text-left font-bold text-slate-800 line-clamp-2 hover:text-primary-600 transition-colors"
+                          onClick={() => onEdit(product)}
+                        >
+                          {product.name}
+                        </button>
+                        <div className="text-[10px] text-slate-500 mt-1">
+                          Ngày tạo: {formatDate(product.createdAt)}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="p-3 max-w-[200px]">
-                    <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                      {product.sku || "Chưa có SKU"}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 w-max">
+                        {product.sku || "Chưa có SKU"}
+                      </span>
+                      {product.supplier && (
+                        <span className="text-[10px] text-primary-700 font-medium truncate">
+                          NCC: {product.supplier.name}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {product.tags?.map((tag) => (
                         <span
@@ -114,17 +122,24 @@ const StaffProductsTable = ({
                     )}
                   </td>
                   <td className="p-3 text-center">
-                    <span
-                      className={`font-bold px-2 py-0.5 rounded text-[11px] ${
-                        product.stock > 10
-                          ? "bg-emerald-100 text-emerald-700"
-                          : product.stock > 0
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-primary-100 text-primary-700"
-                      }`}
-                    >
-                      {product.stock}
-                    </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span
+                        className={`font-bold px-2 py-0.5 rounded text-[11px] ${
+                          product.stock > 10
+                            ? "bg-emerald-100 text-emerald-700"
+                            : product.stock > 0
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-primary-100 text-primary-700"
+                        }`}
+                      >
+                        {product.stock}
+                      </span>
+                      {product.batches?.length > 0 && (
+                        <span className="text-[10px] text-slate-500">
+                          HSD: {formatDate(product.batches[0].expirationDate)}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-3 text-center">
                     <button

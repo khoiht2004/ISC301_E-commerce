@@ -52,6 +52,7 @@ const PRODUCT_INCLUDE = {
   tags: { include: { tag: true } },
   category: true,
   supplier: true,
+  batches: { orderBy: { expirationDate: 'desc' } },
   createdBy: { select: { id: true, fullName: true, avatar: true, userProfile: true } },
 };
 

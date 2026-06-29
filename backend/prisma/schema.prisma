@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlserver"
   url      = env("DATABASE_URL")
 }
 
@@ -18,7 +18,7 @@ model User {
   phone              String?
   avatar             String?
   address            String?
-  role               Role      @default(USER) // ADMIN | STAFF | USER
+  role String @default("USER") // ADMIN | STAFF | USER
   isOnline           Boolean   @default(false)
   isActive           Boolean   @default(true)
   isVerified         Boolean   @default(false)
@@ -55,7 +55,7 @@ model UserProfile {
   updatedAt   DateTime  @updatedAt
 
   userId Int  @unique
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("user_profile")
 }
@@ -90,7 +90,7 @@ model Address {
   updatedAt DateTime @updatedAt
 
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("address")
 }
@@ -122,8 +122,8 @@ model ProductTagOnProduct {
   productId Int
   tagId     Int
 
-  product Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  product Product    @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([productId, tagId])
   @@map("product_tag_on_product")
@@ -151,13 +151,13 @@ model Product {
   updatedAt        DateTime @updatedAt
 
   createdById Int
-  createdBy   User @relation(fields: [createdById], references: [id])
+  createdBy   User @relation(fields: [createdById], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   supplierId Int?
-  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   tags       ProductTagOnProduct[]
   orderItems OrderItem[]
@@ -183,10 +183,10 @@ model ProductBatch {
   updatedAt       DateTime  @updatedAt
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   supplierId Int
-  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([expirationDate])
   @@map("product_batch")
@@ -200,13 +200,13 @@ model ProductReview {
   updatedAt DateTime @updatedAt
 
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   orderId Int?
-  order   Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  order   Order? @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("product_review")
 }
@@ -219,7 +219,7 @@ model Cart {
   updatedAt DateTime @updatedAt
 
   userId Int  @unique
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   items CartItem[]
 
@@ -232,10 +232,10 @@ model CartItem {
   createdAt DateTime @default(now())
 
   cartId Int
-  cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cart   Cart @relation(fields: [cartId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([cartId, productId])
   @@map("cart_item")
@@ -250,9 +250,9 @@ model Order {
   shippingFee     Int           @default(0)
   discountAmount  Int           @default(0)
   totalAmount     Int
-  paymentMethod   PaymentMethod @default(COD)
-  paymentStatus   PaymentStatus @default(PENDING)
-  orderStatus     OrderStatus   @default(PENDING)
+  paymentMethod String @default("COD")
+  paymentStatus String @default("PENDING")
+  orderStatus String @default("PENDING")
   shippingAddress String
   customerPhone   String
   customerEmail   String
@@ -262,7 +262,7 @@ model Order {
   paidAt          DateTime?
 
   userId              Int
-  user                User                 @relation(fields: [userId], references: [id])
+  user                User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   orderItems          OrderItem[]
   paymentTransactions PaymentTransaction[]
   reviews             ProductReview[]
@@ -279,10 +279,10 @@ model OrderItem {
   productImage String?
 
   orderId Int
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("order_item")
 }
@@ -290,16 +290,16 @@ model OrderItem {
 model OrderComplaint {
   id         Int             @id @default(autoincrement())
   reason     String          @db.Text
-  status     ComplaintStatus @default(PENDING)
+  status String @default("PENDING")
   resolution String?         @db.Text
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   orderId Int
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("order_complaint")
 }
@@ -325,7 +325,7 @@ model News {
   title       String
   slug        String   @unique
   excerpt     String?  @db.Text
-  content     String   @db.LongText
+  content     String   @db.Text
   thumbnail   String?
   views       Int      @default(0)
   isPublished Boolean  @default(false)
@@ -333,7 +333,7 @@ model News {
   updatedAt   DateTime @updatedAt
 
   createdById Int
-  createdBy   User @relation(fields: [createdById], references: [id])
+  createdBy   User @relation(fields: [createdById], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("news")
 }
@@ -342,7 +342,7 @@ model News {
 
 model SupportRequest {
   id         Int           @id @default(autoincrement())
-  status     SupportStatus @default(WAITING)
+  status String @default("WAITING")
   title      String?
   createdAt  DateTime      @default(now())
   acceptedAt DateTime?
@@ -350,10 +350,10 @@ model SupportRequest {
   updatedAt  DateTime      @updatedAt
 
   userId Int
-  user   User @relation("UserRequests", fields: [userId], references: [id])
+  user   User @relation("UserRequests", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   assignedStaffId Int?
-  assignedStaff   User? @relation("StaffSupportRequests", fields: [assignedStaffId], references: [id])
+  assignedStaff   User? @relation("StaffSupportRequests", fields: [assignedStaffId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   messages Message[]
 
@@ -366,10 +366,10 @@ model Message {
   createdAt DateTime @default(now())
 
   supportRequestId Int
-  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id], onDelete: Cascade)
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   senderId Int
-  sender   User @relation(fields: [senderId], references: [id])
+  sender   User @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("message")
 }
@@ -384,51 +384,21 @@ model PaymentTransaction {
   rawData       String   @db.Text
   createdAt     DateTime @default(now())
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("payment_transaction")
 }
 
 // ─── ENUMS ────────────────────────────────────────────────────────────────────
 
-enum Role {
-  ADMIN
-  STAFF
-  USER
-}
 
-enum ComplaintStatus {
-  PENDING
-  RESOLVING
-  RESOLVED
-  REJECTED
-}
 
-enum SupportStatus {
-  WAITING
-  ACTIVE
-  COMPLETED
-  CLOSED
-}
 
-enum PaymentMethod {
-  COD
-  BANK_TRANSFER
-  MOMO
-  VNPAY
-}
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-}
 
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPING
-  DELIVERED
-  COMPLETED
-  CANCELLED
-}
+
+
+
+
+
+

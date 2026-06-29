@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/axios";
@@ -244,6 +244,46 @@ const ProductDetailPage = () => {
                   {product.name}
                 </h1>
 
+                {/* Supplier Info */}
+                {product.supplier && (
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xl font-black shrink-0">
+                      {product.supplier.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-bold text-slate-800 mb-1">
+                        Nhà cung cấp: {product.supplier.name}
+                      </h4>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                        {product.supplier.phone && (
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold text-slate-700">
+                              SĐT:
+                            </span>
+                            <span>{product.supplier.phone}</span>
+                          </div>
+                        )}
+                        {product.supplier.email && (
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold text-slate-700">
+                              Email:
+                            </span>
+                            <span>{product.supplier.email}</span>
+                          </div>
+                        )}
+                        {product.supplier.address && (
+                          <div className="flex items-center gap-1 w-full mt-1">
+                            <span className="font-semibold text-slate-700">
+                              Địa chỉ:
+                            </span>
+                            <span>{product.supplier.address}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Stock Status Badge */}
                 <div className="flex items-center gap-2 mb-6">
                   <span
@@ -401,72 +441,7 @@ const ProductDetailPage = () => {
               "Chưa có thông tin mô tả chi tiết cho sản phẩm này."}
           </div>
 
-          {/* Supplier Info */}
-          {product.supplier && (
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-5 h-5 text-primary-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"
-                  />
-                </svg>
-                Thông tin nhà cung cấp
-              </h3>
-              <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                <div className="w-16 h-16 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-2xl font-black shrink-0">
-                  {product.supplier.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-base font-bold text-slate-800 mb-1">
-                    {product.supplier.name}
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-slate-600">
-                    {product.supplier.contactPerson && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-700">
-                          Người đại diện:
-                        </span>
-                        <span>{product.supplier.contactPerson}</span>
-                      </div>
-                    )}
-                    {product.supplier.phone && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-700">
-                          Điện thoại:
-                        </span>
-                        <span>{product.supplier.phone}</span>
-                      </div>
-                    )}
-                    {product.supplier.email && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-700">
-                          Email:
-                        </span>
-                        <span>{product.supplier.email}</span>
-                      </div>
-                    )}
-                    {product.supplier.address && (
-                      <div className="flex items-center gap-2 sm:col-span-2">
-                        <span className="font-semibold text-slate-700">
-                          Địa chỉ:
-                        </span>
-                        <span>{product.supplier.address}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
         </div>
 
         {/* REVIEWS */}

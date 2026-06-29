@@ -11,6 +11,7 @@ import StaffProductsTable from "../../components/staff/product/StaffProductsTabl
 import StaffSoldProductsTable from "../../components/staff/product/StaffSoldProductsTable";
 import { STAFF_PRODUCT_TABS } from "../../constants/staffProductTabs";
 import { useStaffProductStats } from "../../hooks/useStaffProductStats";
+import { useStaffProducts } from "../../hooks/useStaffProducts";
 
 const emptyForm = {
   name: "",
@@ -20,6 +21,7 @@ const emptyForm = {
   sku: "",
   shortDescription: "",
   description: "",
+  supplierId: "",
   isPublished: false,
   selectedTagIds: [],
   thumbnailFile: null,
@@ -34,46 +36,36 @@ const resolveLocalImage = (image) => {
 };
 
 const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
-  const { stats, soldProducts, refreshStaffProductStats } =
-    useStaffProductStats();
-  const [products, setProducts] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { stats, soldProducts, refreshStaffProductStats } = useStaffProductStats();
+  
+  const {
+    products,
+    tags,
+    suppliers,
+    loading,
+    creatingTag,
+    submitting,
+    fetchProducts,
+    fetchTags,
+    fetchSuppliers,
+    createTag,
+    togglePublish,
+    submitProduct,
+    deleteProduct,
+  } = useStaffProducts(refreshStaffProductStats);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [newTagName, setNewTagName] = useState("");
-  const [creatingTag, setCreatingTag] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/products/all", { params: { limit: 100 } });
-      setProducts(res.data.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Không thể tải danh sách sản phẩm");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTags = async () => {
-    try {
-      const res = await api.get("/tags");
-      if (res.data?.success) setTags(res.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   useEffect(() => {
     fetchProducts();
     fetchTags();
-  }, []);
+    fetchSuppliers();
+  }, [fetchProducts, fetchTags, fetchSuppliers]);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -116,6 +108,7 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
       sku: product.sku || "",
       shortDescription: product.shortDescription || "",
       description: product.description || "",
+      supplierId: product.supplierId || "",
       isPublished: product.isPublished || false,
       selectedTagIds: product.tags ? product.tags.map((tag) => tag.id) : [],
       thumbnailPreview: resolveLocalImage(product.thumbnail),
@@ -170,8 +163,12 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
   const handleRemoveImagePreview = (index) => {
     setForm((current) => ({
       ...current,
-      imageFiles: current.imageFiles.filter((_, itemIndex) => itemIndex !== index),
-      imagePreviews: current.imagePreviews.filter((_, itemIndex) => itemIndex !== index),
+      imageFiles: current.imageFiles.filter(
+        (_, itemIndex) => itemIndex !== index,
+      ),
+      imagePreviews: current.imagePreviews.filter(
+        (_, itemIndex) => itemIndex !== index,
+      ),
     }));
   };
 
@@ -185,44 +182,14 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
   };
 
   const handleCreateTag = async () => {
-    if (!newTagName.trim()) return;
-
-    setCreatingTag(true);
-    try {
-      const res = await api.post("/tags", { name: newTagName.trim() });
-      if (res.data?.success) {
-        toast.success(`Đã tạo nhãn "${newTagName.trim()}"`);
-        setNewTagName("");
-        await fetchTags();
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Không thể tạo nhãn mới");
-    } finally {
-      setCreatingTag(false);
+    const success = await createTag(newTagName);
+    if (success) {
+      setNewTagName("");
     }
   };
 
   const handleTogglePublish = async (id) => {
-    try {
-      const res = await api.patch(`/products/${id}/publish`);
-      if (res.data?.success) {
-        toast.success(
-          `Đã ${res.data.data.isPublished ? "công khai" : "gỡ bỏ"} sản phẩm`,
-        );
-        setProducts((current) =>
-          current.map((product) =>
-            product.id === id
-              ? { ...product, isPublished: res.data.data.isPublished }
-              : product,
-          ),
-        );
-        refreshStaffProductStats();
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Không thể cập nhật trạng thái xuất bản");
-    }
+    await togglePublish(id);
   };
 
   const handleSubmit = async (event) => {
@@ -238,7 +205,6 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
       return;
     }
 
-    setSubmitting(true);
     const formData = new FormData();
     formData.append("name", form.name.trim());
     formData.append("price", form.price);
@@ -247,52 +213,21 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
     if (form.sku) formData.append("sku", form.sku.trim());
     formData.append("shortDescription", form.shortDescription.trim());
     formData.append("description", form.description.trim());
+    if (form.supplierId) formData.append("supplierId", form.supplierId);
     formData.append("isPublished", form.isPublished ? "true" : "false");
     formData.append("tagIds", JSON.stringify(form.selectedTagIds));
 
     if (form.thumbnailFile) formData.append("thumbnail", form.thumbnailFile);
     form.imageFiles.forEach((file) => formData.append("images", file));
 
-    try {
-      if (editingId) {
-        await api.put(`/products/${editingId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Cập nhật sản phẩm thành công");
-      } else {
-        await api.post("/products", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Thêm sản phẩm mới thành công");
-      }
-
+    const success = await submitProduct(editingId, formData);
+    if (success) {
       handleCloseDialog();
-      fetchProducts();
-      refreshStaffProductStats();
-    } catch (err) {
-      console.error(err);
-      toast.error(
-        err.response?.data?.message || "Có lỗi xảy ra khi lưu sản phẩm",
-      );
-    } finally {
-      setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) {
-      return;
-    }
-
-    try {
-      await api.delete(`/products/${id}`);
-      toast.success("Đã xóa sản phẩm thành công");
-      fetchProducts();
-      refreshStaffProductStats();
-    } catch (err) {
-      console.error(err);
-      toast.error("Không thể xóa sản phẩm");
-    }
+    await deleteProduct(id);
   };
 
   return (
@@ -311,13 +246,13 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
         <button
           type="button"
           onClick={handleOpenCreateDialog}
-          className="bg-primary-600 hover:bg-primary-600-hover text-white font-bold px-5 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 border border-primary-600 transition-all shrink-0"
+          className="bg-primary-600 hover:bg-primary-600-hover text-white font-bold px-6 py-2 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 border border-primary-600 transition-all shrink-0"
         >
           <Plus size={16} /> Thêm sản phẩm mới
         </button>
       </div>
 
-      <ProductStatsGrid products={products} stats={stats} />
+      <ProductStatsGrid stats={stats} />
 
       <div className="flex flex-col lg:flex-row gap-3 mb-3">
         <ProductTabs activeTab={activeTab} onChange={setActiveTab} />
@@ -345,6 +280,7 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
         editingId={editingId}
         form={form}
         tags={tags}
+        suppliers={suppliers}
         newTagName={newTagName}
         creatingTag={creatingTag}
         submitting={submitting}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "../services/axios";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 
 const formatPrice = (price) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
@@ -26,7 +26,7 @@ const paymentStatusMap = {
 const OrderSuccessPage = () => {
   const { orderCode } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -124,8 +124,8 @@ const OrderSuccessPage = () => {
           </h1>
           <p className="text-slate-500 mb-8 text-base">
             Cảm ơn bạn đã mua sắm tại{" "}
-            <span className="font-bold text-primary-600">Deat Lemi Shop</span>. Mã
-            đơn hàng:{" "}
+            <span className="font-bold text-primary-600">Deat Lemi Shop</span>.
+            Mã đơn hàng:{" "}
             <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md text-sm">
               {order.orderCode}
             </span>

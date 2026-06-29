@@ -1,18 +1,14 @@
 import { Archive, ClipboardList, Package, ShoppingBag } from "lucide-react";
 import StatCard from "../StatCard";
 
-const ProductStatsGrid = ({ products, stats }) => {
-  const publishedCount =
-    stats?.publishedProductCount ??
-    products.filter((product) => product.isPublished).length;
-  const totalStock =
-    stats?.totalStock ??
-    products.reduce((sum, product) => sum + product.stock, 0);
+const ProductStatsGrid = ({ stats }) => {
+  const publishedCount = stats?.publishedProductCount ?? 0;
+  const totalStock = stats?.totalStock ?? 0;
 
   const statCards = [
     {
       label: "Tổng sản phẩm",
-      value: stats?.productCount ?? products.length,
+      value: stats?.productCount ?? 0,
       helper: `${publishedCount} sản phẩm đang bán`,
       icon: Package,
     },

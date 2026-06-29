@@ -160,7 +160,7 @@ const EcomNavbar = () => {
                 </Link>
 
                 <Link
-                  to="/account/orders"
+                  to="/my-orders"
                   className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
