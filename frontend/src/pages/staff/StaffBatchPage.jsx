@@ -29,7 +29,7 @@ const StaffBatchPage = () => {
     costPrice: "",
     manufactureDate: "",
     expirationDate: "",
-    productId: "",
+    productName: "",
     supplierId: "",
   });
 
@@ -56,7 +56,7 @@ const StaffBatchPage = () => {
         costPrice: "",
         manufactureDate: "",
         expirationDate: "",
-        productId: "",
+        productName: "",
         supplierId: "",
       });
       fetchBatches(searchQuery);
@@ -109,7 +109,7 @@ const StaffBatchPage = () => {
         <div className="mb-6 relative max-w-md shrink-0">
           <input
             type="text"
-            placeholder="Tìm kiếm theo mã lô, tên sản phẩm..."
+            placeholder="Tìm kiếm theo mã lô, tên nguyên liệu..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
@@ -134,7 +134,7 @@ const StaffBatchPage = () => {
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
                 <th className="px-6 py-4">Mã Lô</th>
-                <th className="px-6 py-4">Sản Phẩm</th>
+                <th className="px-6 py-4">Nguyên Liệu</th>
                 <th className="px-6 py-4">Tồn Kho</th>
                 <th className="px-6 py-4">Giá Nhập</th>
                 <th className="px-6 py-4">Hạn SD</th>
@@ -211,8 +211,8 @@ const StaffBatchPage = () => {
             >
               <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-slate-900 line-clamp-1 mr-2">
-                  {batch.product?.name}
+                <h3 className="font-bold text-slate-900 line-clamp-1 mr-2" title={batch.rawMaterialName}>
+                  {batch.rawMaterialName}
                 </h3>
                 <span className="bg-amber-100 text-amber-700 text-[10px] font-extrabold px-2 py-1 rounded shrink-0">
                   Sắp hết hạn
@@ -229,25 +229,30 @@ const StaffBatchPage = () => {
                 </strong>
               </p>
 
-              <div className="bg-slate-50 rounded-lg p-3 text-xs mb-4">
-                <div className="flex justify-between mb-1">
+              <div className="bg-slate-50 rounded-lg p-3 text-xs mb-4 space-y-1">
+                <div className="flex justify-between">
                   <span className="text-slate-500">Tồn kho lô:</span>
                   <span className="font-bold">{batch.currentQuantity}</span>
                 </div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-slate-500">Giá nhập:</span>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Giá nhập nguyên liệu:</span>
                   <span className="font-bold">
                     {formatPrice(batch.costPrice)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Giá bán hiện tại:</span>
-                  <span className="font-bold">
-                    {formatPrice(
-                      batch.product?.salePrice || batch.product?.price,
-                    )}
-                  </span>
-                </div>
+                {batch.processedProducts && batch.processedProducts.length > 0 && (
+                  <div className="border-t border-slate-200/60 pt-1.5 mt-1.5">
+                    <span className="text-slate-500 block mb-1">Sản phẩm chế biến liên quan:</span>
+                    <div className="space-y-1">
+                      {batch.processedProducts.map((p) => (
+                        <div key={p.id} className="flex justify-between text-[11px]">
+                          <span className="text-slate-700 truncate max-w-[130px]" title={p.name}>• {p.name}</span>
+                          <span className="font-semibold text-slate-900">{formatPrice(p.salePrice || p.price)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button className="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-2 rounded-lg text-sm transition-colors">

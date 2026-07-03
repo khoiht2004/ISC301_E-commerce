@@ -36,23 +36,18 @@ const StaffBatchDialog = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Sản phẩm *
+                Tên nguyên liệu *
               </label>
-              <select
+              <input
                 required
-                value={formData.productId}
+                type="text"
+                placeholder="Nhập tên nguyên liệu..."
+                value={formData.productName || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, productId: e.target.value })
+                  setFormData({ ...formData, productName: e.target.value })
                 }
-                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-              >
-                <option value="">Chọn sản phẩm</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm text-slate-900"
+              />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -78,7 +73,7 @@ const StaffBatchDialog = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Số lượng nhập *
+                Số lượng nhập (kg)*
               </label>
               <input
                 required

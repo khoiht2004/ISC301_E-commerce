@@ -19,6 +19,87 @@ const CheckoutPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [useProfileAddress, setUseProfileAddress] = useState(!!user?.address);
+
+  // Vietnam Administrative Divisions States
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+
+  const [selectedProvince, setSelectedProvince] = useState({ code: "", name: "" });
+  const [selectedDistrict, setSelectedDistrict] = useState({ code: "", name: "" });
+  const [selectedWard, setSelectedWard] = useState({ code: "", name: "" });
+  const [streetAddress, setStreetAddress] = useState("");
+
+  // Load Provinces
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const response = await fetch("https://provinces.open-api.vn/api/p/");
+        const data = await response.json();
+        setProvinces(data);
+      } catch (err) {
+        console.error("Error fetching provinces:", err);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  // Load Districts
+  useEffect(() => {
+    if (!selectedProvince.code) {
+      setDistricts([]);
+      setWards([]);
+      return;
+    }
+    const fetchDistricts = async () => {
+      try {
+        const response = await fetch(`https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`);
+        const data = await response.json();
+        setDistricts(data.districts || []);
+        setWards([]);
+      } catch (err) {
+        console.error("Error fetching districts:", err);
+      }
+    };
+    fetchDistricts();
+  }, [selectedProvince.code]);
+
+  // Load Wards
+  useEffect(() => {
+    if (!selectedDistrict.code) {
+      setWards([]);
+      return;
+    }
+    const fetchWards = async () => {
+      try {
+        const response = await fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`);
+        const data = await response.json();
+        setWards(data.wards || []);
+      } catch (err) {
+        console.error("Error fetching wards:", err);
+      }
+    };
+    fetchWards();
+  }, [selectedDistrict.code]);
+
+  // Sync combined shipping address
+  useEffect(() => {
+    if (useProfileAddress) {
+      setFormData((prev) => ({ ...prev, shippingAddress: user?.address || "" }));
+    } else {
+      const parts = [];
+      if (streetAddress.trim()) parts.push(streetAddress.trim());
+      if (selectedWard.name) parts.push(selectedWard.name);
+      if (selectedDistrict.name) parts.push(selectedDistrict.name);
+      if (selectedProvince.name) parts.push(selectedProvince.name);
+
+      setFormData((prev) => ({
+        ...prev,
+        shippingAddress: parts.join(", "),
+      }));
+    }
+  }, [useProfileAddress, streetAddress, selectedWard.name, selectedDistrict.name, selectedProvince.name, user?.address]);
 
   useEffect(() => {
     if (!user) {
@@ -124,20 +205,124 @@ const CheckoutPage = () => {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Địa chỉ nhận hàng
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingAddress"
-                      value={formData.shippingAddress}
-                      onChange={handleChange}
-                      placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      required
-                    />
-                  </div>
+                  {user?.address && (
+                    <div className="md:col-span-2 mb-2">
+                      <label className="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100/80 p-3 rounded-xl border border-slate-200/60 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={useProfileAddress}
+                          onChange={(e) => setUseProfileAddress(e.target.checked)}
+                          className="w-4 h-4 rounded text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-slate-700">
+                          Sử dụng địa chỉ mặc định trong hồ sơ
+                        </span>
+                      </label>
+                      {useProfileAddress && (
+                        <div className="mt-2 text-xs text-slate-500 italic px-3">
+                          Địa chỉ giao hàng: <strong className="text-slate-800 font-semibold">{user.address}</strong>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!useProfileAddress && (
+                    <>
+                      {/* Tỉnh / Thành phố */}
+                      <div className="grid grid-cols-3 gap-4 md:col-span-2">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Tỉnh / Thành phố
+                          </label>
+                          <select
+                            value={selectedProvince.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = provinces.find((p) => String(p.code) === code)?.name || "";
+                              setSelectedProvince({ code, name });
+                              setSelectedDistrict({ code: "", name: "" });
+                              setSelectedWard({ code: "", name: "" });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn tỉnh / thành</option>
+                            {provinces.map((p) => (
+                              <option key={p.code} value={p.code}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Quận / Huyện */}
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Quận / Huyện
+                          </label>
+                          <select
+                            value={selectedDistrict.code}
+                            disabled={!selectedProvince.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = districts.find((d) => String(d.code) === code)?.name || "";
+                              setSelectedDistrict({ code, name });
+                              setSelectedWard({ code: "", name: "" });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn quận / huyện</option>
+                            {districts.map((d) => (
+                              <option key={d.code} value={d.code}>
+                                {d.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Phường / Xã */}
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Phường / Xã
+                          </label>
+                          <select
+                            value={selectedWard.code}
+                            disabled={!selectedDistrict.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = wards.find((w) => String(w.code) === code)?.name || "";
+                              setSelectedWard({ code, name });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn phường / xã</option>
+                            {wards.map((w) => (
+                              <option key={w.code} value={w.code}>
+                                {w.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Số nhà, tên đường */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                          Số nhà, tên đường
+                        </label>
+                        <input
+                          type="text"
+                          value={streetAddress}
+                          onChange={(e) => setStreetAddress(e.target.value)}
+                          placeholder="Nhập số nhà, số ngõ, tên đường..."
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm text-slate-900"
+                          required={!useProfileAddress}
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
                       Số điện thoại

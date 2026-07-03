@@ -7,6 +7,7 @@ const StaffProductDialog = ({
   form,
   tags,
   suppliers = [],
+  batches = [],
   newTagName,
   creatingTag,
   submitting,
@@ -79,7 +80,7 @@ const StaffProductDialog = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                   Đơn giá gốc (VND) *
@@ -126,7 +127,9 @@ const StaffProductDialog = ({
                   }
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                   Nhà cung cấp
@@ -141,6 +144,26 @@ const StaffProductDialog = ({
                   <option value="">-- Không chọn --</option>
                   {suppliers.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  Lô nguyên liệu
+                </label>
+                <select
+                  className="w-full bg-white border border-slate-200 focus:border-primary-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600 transition-all text-slate-900 shadow-sm"
+                  value={form.rawBatchId}
+                  onChange={(event) =>
+                    onFieldChange("rawBatchId", event.target.value)
+                  }
+                >
+                  <option value="">-- Không liên kết --</option>
+                  {batches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.batchCode} - {b.rawMaterialName} (HSD: {new Date(b.expirationDate).toLocaleDateString('vi-VN')})
+                    </option>
                   ))}
                 </select>
               </div>

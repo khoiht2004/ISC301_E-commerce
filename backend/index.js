@@ -1,4 +1,5 @@
 require('dotenv').config();
+// Restart trigger for updated Prisma Client
 const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');

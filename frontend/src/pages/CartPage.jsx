@@ -137,7 +137,7 @@ const CartPage = () => {
                   <div className="col-span-6">Sản phẩm</div>
                   <div className="col-span-2 text-center">Giá</div>
                   <div className="col-span-2 text-center">Số lượng</div>
-                  <div className="col-span-2 text-right">Tổng cộng</div>
+                  <div className="col-span-2 text-right">Hành động</div>
                 </div>
 
                 <div className="divide-y divide-slate-100">
@@ -233,13 +233,7 @@ const CartPage = () => {
                         </div>
 
                         {/* Subtotal & Delete */}
-                        <div className="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
-                          <div className="text-right flex-1 md:flex-none">
-                            <span className="text-sm font-bold text-primary-600 md:text-slate-800 block">
-                              {formatPrice(itemSubtotal)}
-                            </span>
-                          </div>
-
+                        <div className="col-span-1 flex items-center justify-between md:justify-end gap-4">
                           <button
                             onClick={() => removeItem(item.id)}
                             className="hidden md:flex p-1.5 rounded-lg border border-slate-100 hover:border-primary-150 hover:bg-primary-50 text-slate-400 hover:text-primary-600 transition-colors items-center justify-center"

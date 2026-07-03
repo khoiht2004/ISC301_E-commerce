@@ -28,6 +28,7 @@ const emptyForm = {
   thumbnailPreview: "",
   imageFiles: [],
   imagePreviews: [],
+  rawBatchId: "",
 };
 
 const resolveLocalImage = (image) => {
@@ -42,12 +43,14 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
     products,
     tags,
     suppliers,
+    batches,
     loading,
     creatingTag,
     submitting,
     fetchProducts,
     fetchTags,
     fetchSuppliers,
+    fetchBatches,
     createTag,
     togglePublish,
     submitProduct,
@@ -65,7 +68,8 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
     fetchProducts();
     fetchTags();
     fetchSuppliers();
-  }, [fetchProducts, fetchTags, fetchSuppliers]);
+    fetchBatches();
+  }, [fetchProducts, fetchTags, fetchSuppliers, fetchBatches]);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -113,6 +117,7 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
       selectedTagIds: product.tags ? product.tags.map((tag) => tag.id) : [],
       thumbnailPreview: resolveLocalImage(product.thumbnail),
       imagePreviews: (product.images || []).map(resolveLocalImage),
+      rawBatchId: product.rawBatchId || "",
     });
     setEditingId(product.id);
     setIsDialogOpen(true);
@@ -216,6 +221,11 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
     if (form.supplierId) formData.append("supplierId", form.supplierId);
     formData.append("isPublished", form.isPublished ? "true" : "false");
     formData.append("tagIds", JSON.stringify(form.selectedTagIds));
+    if (form.rawBatchId) {
+      formData.append("rawBatchId", form.rawBatchId);
+    } else {
+      formData.append("rawBatchId", "");
+    }
 
     if (form.thumbnailFile) formData.append("thumbnail", form.thumbnailFile);
     form.imageFiles.forEach((file) => formData.append("images", file));
@@ -281,6 +291,7 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
         form={form}
         tags={tags}
         suppliers={suppliers}
+        batches={batches}
         newTagName={newTagName}
         creatingTag={creatingTag}
         submitting={submitting}

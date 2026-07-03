@@ -6,9 +6,19 @@ export const useStaffProducts = (refreshStatsCallback) => {
   const [products, setProducts] = useState([]);
   const [tags, setTags] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [creatingTag, setCreatingTag] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const fetchBatches = useCallback(async () => {
+    try {
+      const res = await api.get("/staff/batches", { params: { limit: 100 } });
+      if (res.data?.success) setBatches(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -142,5 +152,7 @@ export const useStaffProducts = (refreshStatsCallback) => {
     togglePublish,
     submitProduct,
     deleteProduct,
+    batches,
+    fetchBatches,
   };
 };

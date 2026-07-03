@@ -28,6 +28,10 @@ const productSchema = z.object({
     },
     z.array(z.coerce.number().int()).optional().default([])
   ),
+  rawBatchId: z.preprocess(
+    (val) => (val === '' || val === 'null' || val === undefined ? null : val),
+    z.coerce.number().int().positive().optional().nullable()
+  ),
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -52,8 +56,8 @@ const PRODUCT_INCLUDE = {
   tags: { include: { tag: true } },
   category: true,
   supplier: true,
-  batches: { orderBy: { expirationDate: 'desc' } },
   createdBy: { select: { id: true, fullName: true, avatar: true, userProfile: true } },
+  rawBatch: true,
 };
 
 const applyStaffProductscope = (req, where = {}) => {

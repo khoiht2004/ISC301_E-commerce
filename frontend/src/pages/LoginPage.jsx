@@ -14,8 +14,8 @@ import api from "../services/axios";
 import { DASHBOARD_PATHS, ROLES } from "../constants/roles";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("staff@meatshop.vn");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("admin@meatshop.vn");
+  const [password, setPassword] = useState("Admin@123");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -51,7 +51,7 @@ const LoginPage = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
       );
     } finally {
       setIsSubmitting(false);

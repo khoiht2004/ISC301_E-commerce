@@ -39,6 +39,19 @@ const StaffProductCreatePage = () => {
   // Tag Management Inline state
   const [newTagName, setNewTagName] = useState("");
   const [creatingTag, setCreatingTag] = useState(false);
+  const [rawBatchId, setRawBatchId] = useState("");
+  const [batches, setBatches] = useState([]);
+
+  const fetchBatches = async () => {
+    try {
+      const res = await api.get("/staff/batches", { params: { limit: 100 } });
+      if (res.data?.success) {
+        setBatches(res.data.data || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchTags = async () => {
     try {
@@ -53,6 +66,7 @@ const StaffProductCreatePage = () => {
 
   useEffect(() => {
     fetchTags();
+    fetchBatches();
   }, []);
 
   const handleThumbnailChange = (e) => {
@@ -144,6 +158,11 @@ const StaffProductCreatePage = () => {
     formData.append("description", description.trim());
     formData.append("isPublished", isPublished ? "true" : "false");
     formData.append("tagIds", JSON.stringify(selectedTagIds));
+    if (rawBatchId) {
+      formData.append("rawBatchId", rawBatchId);
+    } else {
+      formData.append("rawBatchId", "");
+    }
 
     if (thumbnailFile) {
       formData.append("thumbnail", thumbnailFile);
@@ -313,6 +332,26 @@ const StaffProductCreatePage = () => {
                     value={stock}
                     onChange={(e) => setStock(e.target.value)}
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                    Lô nguyên liệu
+                  </label>
+                  <select
+                    className="w-full bg-slate-950 border border-slate-805 focus:border-primary-600 rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary-600 transition-all text-slate-200"
+                    value={rawBatchId}
+                    onChange={(e) => setRawBatchId(e.target.value)}
+                  >
+                    <option value="">-- Không liên kết --</option>
+                    {batches.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.batchCode} - {b.rawMaterialName} (HSD: {new Date(b.expirationDate).toLocaleDateString('vi-VN')})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

@@ -40,6 +40,7 @@ const StaffProductsTable = ({
             <tr className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
               <th className="p-3 bg-slate-50 border-b border-slate-200">Sản phẩm</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200">Thông tin</th>
+              <th className="p-3 bg-slate-50 border-b border-slate-200">Lô hàng</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200">Giá bán</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Tồn kho / Hạn SD</th>
               <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Hiển thị</th>
@@ -97,13 +98,29 @@ const StaffProductsTable = ({
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {product.tags?.map((tag) => (
                         <span
-                          key={tag.id}
+                           key={tag.id}
                           className="text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.2 rounded-full"
                         >
                           {tag.name}
                         </span>
                       ))}
                     </div>
+                  </td>
+                  <td className="p-3">
+                    {product.rawBatch ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-mono text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-250 px-1.5 py-0.5 rounded w-max">
+                          {product.rawBatch.batchCode}
+                        </span>
+                        {product.rawBatch.rawMaterialName && (
+                          <span className="text-[10px] text-slate-500 font-medium truncate block max-w-[150px]" title={product.rawBatch.rawMaterialName}>
+                            NL: {product.rawBatch.rawMaterialName}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-slate-400 text-xs italic">— Không liên kết —</span>
+                    )}
                   </td>
                   <td className="p-3">
                     {hasDiscount ? (

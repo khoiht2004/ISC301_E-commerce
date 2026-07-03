@@ -95,7 +95,7 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <Toaster position="top-right" toastOptions={{ duration: 800 }} />
       <BrowserRouter>
         <ScrollToTop />
         <AppContent />
