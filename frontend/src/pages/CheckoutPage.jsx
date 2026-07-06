@@ -19,6 +19,87 @@ const CheckoutPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [useProfileAddress, setUseProfileAddress] = useState(!!user?.address);
+
+  // Vietnam Administrative Divisions States
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+
+  const [selectedProvince, setSelectedProvince] = useState({ code: "", name: "" });
+  const [selectedDistrict, setSelectedDistrict] = useState({ code: "", name: "" });
+  const [selectedWard, setSelectedWard] = useState({ code: "", name: "" });
+  const [streetAddress, setStreetAddress] = useState("");
+
+  // Load Provinces
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const response = await fetch("https://provinces.open-api.vn/api/p/");
+        const data = await response.json();
+        setProvinces(data);
+      } catch (err) {
+        console.error("Error fetching provinces:", err);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  // Load Districts
+  useEffect(() => {
+    if (!selectedProvince.code) {
+      setDistricts([]);
+      setWards([]);
+      return;
+    }
+    const fetchDistricts = async () => {
+      try {
+        const response = await fetch(`https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`);
+        const data = await response.json();
+        setDistricts(data.districts || []);
+        setWards([]);
+      } catch (err) {
+        console.error("Error fetching districts:", err);
+      }
+    };
+    fetchDistricts();
+  }, [selectedProvince.code]);
+
+  // Load Wards
+  useEffect(() => {
+    if (!selectedDistrict.code) {
+      setWards([]);
+      return;
+    }
+    const fetchWards = async () => {
+      try {
+        const response = await fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`);
+        const data = await response.json();
+        setWards(data.wards || []);
+      } catch (err) {
+        console.error("Error fetching wards:", err);
+      }
+    };
+    fetchWards();
+  }, [selectedDistrict.code]);
+
+  // Sync combined shipping address
+  useEffect(() => {
+    if (useProfileAddress) {
+      setFormData((prev) => ({ ...prev, shippingAddress: user?.address || "" }));
+    } else {
+      const parts = [];
+      if (streetAddress.trim()) parts.push(streetAddress.trim());
+      if (selectedWard.name) parts.push(selectedWard.name);
+      if (selectedDistrict.name) parts.push(selectedDistrict.name);
+      if (selectedProvince.name) parts.push(selectedProvince.name);
+
+      setFormData((prev) => ({
+        ...prev,
+        shippingAddress: parts.join(", "),
+      }));
+    }
+  }, [useProfileAddress, streetAddress, selectedWard.name, selectedDistrict.name, selectedProvince.name, user?.address]);
 
   useEffect(() => {
     if (!user) {
@@ -86,7 +167,7 @@ const CheckoutPage = () => {
     <div className="bg-slate-50 min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
-          <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
             Thanh toán
           </span>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-1">
@@ -107,7 +188,7 @@ const CheckoutPage = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-5 h-5 text-red-500"
+                    className="w-5 h-5 text-primary-500"
                   >
                     <path
                       strokeLinecap="round"
@@ -124,20 +205,124 @@ const CheckoutPage = () => {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Địa chỉ nhận hàng
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingAddress"
-                      value={formData.shippingAddress}
-                      onChange={handleChange}
-                      placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
-                      required
-                    />
-                  </div>
+                  {user?.address && (
+                    <div className="md:col-span-2 mb-2">
+                      <label className="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100/80 p-3 rounded-xl border border-slate-200/60 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={useProfileAddress}
+                          onChange={(e) => setUseProfileAddress(e.target.checked)}
+                          className="w-4 h-4 rounded text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-slate-700">
+                          Sử dụng địa chỉ mặc định trong hồ sơ
+                        </span>
+                      </label>
+                      {useProfileAddress && (
+                        <div className="mt-2 text-xs text-slate-500 italic px-3">
+                          Địa chỉ giao hàng: <strong className="text-slate-800 font-semibold">{user.address}</strong>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!useProfileAddress && (
+                    <>
+                      {/* Tỉnh / Thành phố */}
+                      <div className="grid grid-cols-3 gap-4 md:col-span-2">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Tỉnh / Thành phố
+                          </label>
+                          <select
+                            value={selectedProvince.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = provinces.find((p) => String(p.code) === code)?.name || "";
+                              setSelectedProvince({ code, name });
+                              setSelectedDistrict({ code: "", name: "" });
+                              setSelectedWard({ code: "", name: "" });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn tỉnh / thành</option>
+                            {provinces.map((p) => (
+                              <option key={p.code} value={p.code}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Quận / Huyện */}
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Quận / Huyện
+                          </label>
+                          <select
+                            value={selectedDistrict.code}
+                            disabled={!selectedProvince.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = districts.find((d) => String(d.code) === code)?.name || "";
+                              setSelectedDistrict({ code, name });
+                              setSelectedWard({ code: "", name: "" });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn quận / huyện</option>
+                            {districts.map((d) => (
+                              <option key={d.code} value={d.code}>
+                                {d.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Phường / Xã */}
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Phường / Xã
+                          </label>
+                          <select
+                            value={selectedWard.code}
+                            disabled={!selectedDistrict.code}
+                            onChange={(e) => {
+                              const code = e.target.value;
+                              const name = wards.find((w) => String(w.code) === code)?.name || "";
+                              setSelectedWard({ code, name });
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm bg-white text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                            required={!useProfileAddress}
+                          >
+                            <option value="">Chọn phường / xã</option>
+                            {wards.map((w) => (
+                              <option key={w.code} value={w.code}>
+                                {w.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Số nhà, tên đường */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                          Số nhà, tên đường
+                        </label>
+                        <input
+                          type="text"
+                          value={streetAddress}
+                          onChange={(e) => setStreetAddress(e.target.value)}
+                          placeholder="Nhập số nhà, số ngõ, tên đường..."
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm text-slate-900"
+                          required={!useProfileAddress}
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
                       Số điện thoại
@@ -148,7 +333,7 @@ const CheckoutPage = () => {
                       value={formData.customerPhone}
                       onChange={handleChange}
                       placeholder="09xx xxx xxx"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       required
                     />
                   </div>
@@ -162,7 +347,7 @@ const CheckoutPage = () => {
                       value={formData.customerEmail}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       required
                     />
                   </div>
@@ -175,7 +360,7 @@ const CheckoutPage = () => {
                       value={formData.note}
                       onChange={handleChange}
                       placeholder="Ghi chú về thời gian giao hàng, hướng dẫn chỉ đường..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all h-24 resize-none"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all h-24 resize-none"
                     />
                   </div>
                 </div>
@@ -190,7 +375,7 @@ const CheckoutPage = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-5 h-5 text-red-500"
+                    className="w-5 h-5 text-primary-500"
                   >
                     <path
                       strokeLinecap="round"
@@ -203,7 +388,7 @@ const CheckoutPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:border-red-200"}`}
+                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -218,7 +403,7 @@ const CheckoutPage = () => {
                         Thanh toán tiền mặt
                       </span>
                       {formData.paymentMethod === "COD" && (
-                        <div className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -240,7 +425,7 @@ const CheckoutPage = () => {
                   </label>
 
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:border-red-200"}`}
+                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -255,7 +440,7 @@ const CheckoutPage = () => {
                         Chuyển khoản ngân hàng
                       </span>
                       {formData.paymentMethod === "BANK_TRANSFER" && (
-                        <div className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -275,7 +460,7 @@ const CheckoutPage = () => {
                       Quét mã QR tự động xác nhận
                     </span>
                     {formData.paymentMethod === "BANK_TRANSFER" && (
-                      <div className="mt-3 p-3 bg-white/85 rounded-xl border border-red-100/50 text-xs text-slate-700 space-y-1">
+                      <div className="mt-3 p-3 bg-white/85 rounded-xl border border-primary-100/50 text-xs text-slate-700 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-slate-500">Ngân hàng:</span>
                           <span className="font-semibold text-slate-800">
@@ -284,7 +469,7 @@ const CheckoutPage = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Số tài khoản:</span>
-                          <span className="font-bold text-red-600 tracking-wider">
+                          <span className="font-bold text-primary-600 tracking-wider">
                             01112172004
                           </span>
                         </div>
@@ -304,7 +489,7 @@ const CheckoutPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
                 </button>
@@ -369,7 +554,7 @@ const CheckoutPage = () => {
                   <span className="text-base font-bold text-slate-800">
                     Tổng cộng
                   </span>
-                  <span className="text-xl font-extrabold text-red-600">
+                  <span className="text-xl font-extrabold text-primary-600">
                     {formatPrice(cartTotal)}
                   </span>
                 </div>
@@ -380,7 +565,7 @@ const CheckoutPage = () => {
                   type="submit"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
                 </button>

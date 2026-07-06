@@ -221,8 +221,8 @@ const handleSePayWebhook = async (req, res) => {
         paymentStatus: 'PAID',
       });
 
-      // Gửi đến staff dashboard
-      io.to('staff_dashboard').emit('order_updated', {
+      // Gửi đến STAFF Dashboard
+      io.to('STAFF_dashboard').emit('order_updated', {
         orderCode:     order.orderCode,
         paymentStatus: 'PAID',
         amount:        receivedAmount,

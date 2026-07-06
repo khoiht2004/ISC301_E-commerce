@@ -9,7 +9,7 @@ const AccountPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -30,7 +30,7 @@ const AccountPage = () => {
           
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             {/* Header / Avatar */}
-            <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 py-10 text-white flex items-center gap-6">
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-10 text-white flex items-center gap-6">
               <div className="w-24 h-24 bg-white/20 rounded-full border-4 border-white/30 flex items-center justify-center overflow-hidden shrink-0">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
@@ -40,7 +40,7 @@ const AccountPage = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{user.fullName}</h2>
-                <p className="text-red-100 mt-1">{user.role}</p>
+                <p className="text-primary-100 mt-1">{user.role}</p>
               </div>
             </div>
 
@@ -73,7 +73,7 @@ const AccountPage = () => {
               </div>
 
               <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end gap-4">
-                <Link to="/my-orders" className="px-6 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg font-bold hover:bg-red-100 transition-colors">
+                <Link to="/my-orders" className="px-6 py-2 bg-primary-50 text-primary-600 border border-primary-100 rounded-lg font-bold hover:bg-primary-100 transition-colors">
                   Lịch sử đơn hàng
                 </Link>
                 <button className="px-6 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors">

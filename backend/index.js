@@ -1,4 +1,5 @@
 require('dotenv').config();
+// Restart trigger for updated Prisma Client
 const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');
@@ -26,8 +27,8 @@ io.on('connection', (socket) => {
   socket.on('join_user_room', (userId) => {
     socket.join(`user_${userId}`);
   });
-  socket.on('join_staff_dashboard', () => {
-    socket.join('staff_dashboard');
+  socket.on('join_STAFF_dashboard', () => {
+    socket.join('STAFF_dashboard');
   });
 });
 

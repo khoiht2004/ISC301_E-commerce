@@ -26,7 +26,7 @@ const MessageItem = ({ message, currentUser }) => {
         )}
         <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed break-words shadow-sm ${
           isOwn
-            ? 'bg-red-800 text-white rounded-tr-sm'
+            ? 'bg-primary-800 text-white rounded-tr-sm'
             : 'bg-white text-slate-700 rounded-tl-sm border border-slate-100'
         }`}>
           {message.content}
@@ -51,7 +51,7 @@ const MessageList = ({ messages, currentUser, loading }) => {
           {[0, 1, 2].map(i => (
             <div
               key={i}
-              className="w-1.5 h-1.5 bg-red-800 rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-primary-800 rounded-full animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}

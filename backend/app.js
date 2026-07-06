@@ -10,10 +10,13 @@ const tagRoutes = require("./src/routes/tag.routes");
 const cartRoutes = require("./src/routes/cart.routes");
 const orderRoutes = require("./src/routes/order.routes");
 const newsRoutes = require("./src/routes/news.routes");
-const commentRoutes = require("./src/routes/comment.routes");
 const supportRoutes = require("./src/routes/support.routes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const sepayRoutes = require("./src/routes/sepay.routes"); // POST /api/payment/sepay-webhook
+const staffRoutes = require("./src/routes/staff.routes");
+const reviewRoutes = require("./src/routes/review.routes");
+const complaintRoutes = require("./src/routes/complaint.routes");
+const supplierRoutes = require("./src/routes/supplier.routes");
 
 // Middleware
 const errorHandler = require("./src/middlewares/errorHandler");
@@ -53,10 +56,13 @@ app.use("/api/tags", tagRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/news", newsRoutes);
-app.use("/api/comments", commentRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/staff", staffRoutes);
 app.use("/api/payment", sepayRoutes); // POST /api/payment/sepay-webhook (SePay webhook riêng)
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/suppliers", supplierRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 

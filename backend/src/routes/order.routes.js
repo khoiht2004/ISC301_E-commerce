@@ -2,14 +2,11 @@ const router = require('express').Router();
 const {
   createOrder,
   getMyOrders,
-  getAllOrders,
-  updateOrderStatus,
-  updatePaymentStatus,
   getOrderById,
   getPaymentStatus,
   getOrderByCode,
 } = require('../controllers/orderController');
-const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 router.use(authenticateToken);
 
@@ -24,10 +21,5 @@ router.get('/:orderCode/payment-status', getPaymentStatus);
 
 // Wildcard by numeric id — phải đặt CUỐI
 router.get('/:id', getOrderById);
-
-// ─── Staff / Admin Routes ─────────────────────────────────────────────────────
-router.get('/', authorizeRoles('ADMIN', 'STAFF'), getAllOrders);
-router.put('/:id/status', authorizeRoles('ADMIN', 'STAFF'), updateOrderStatus);
-router.put('/:id/payment-status', authorizeRoles('ADMIN', 'STAFF'), updatePaymentStatus);
 
 module.exports = router;

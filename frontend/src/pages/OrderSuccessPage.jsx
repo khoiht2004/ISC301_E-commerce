@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "../services/axios";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 
 const formatPrice = (price) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
@@ -14,19 +14,19 @@ const statusMap = {
   SHIPPING: { label: "Đang giao", color: "bg-amber-100 text-amber-700" },
   DELIVERED: { label: "Đã giao", color: "bg-emerald-100 text-emerald-700" },
   COMPLETED: { label: "Hoàn thành", color: "bg-emerald-100 text-emerald-700" },
-  CANCELLED: { label: "Đã hủy", color: "bg-red-100 text-red-600" },
+  CANCELLED: { label: "Đã hủy", color: "bg-primary-100 text-primary-600" },
 };
 
 const paymentStatusMap = {
   PENDING: { label: "Chưa Thanh Toán", color: "bg-amber-100 text-amber-700" },
   PAID: { label: "Đã Thanh Toán", color: "bg-emerald-100 text-emerald-700" },
-  FAILED: { label: "Thanh Toán Lỗi", color: "bg-red-100 text-red-600" },
+  FAILED: { label: "Thanh Toán Lỗi", color: "bg-primary-100 text-primary-600" },
 };
 
 const OrderSuccessPage = () => {
   const { orderCode } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +65,7 @@ const OrderSuccessPage = () => {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600" />
       </div>
     );
   }
@@ -76,7 +76,7 @@ const OrderSuccessPage = () => {
         <h2 className="text-2xl font-bold text-slate-800">
           Không tìm thấy đơn hàng
         </h2>
-        <Link to="/" className="text-red-600 hover:underline font-semibold">
+        <Link to="/" className="text-primary-600 hover:underline font-semibold">
           Về trang chủ
         </Link>
       </div>
@@ -124,8 +124,8 @@ const OrderSuccessPage = () => {
           </h1>
           <p className="text-slate-500 mb-8 text-base">
             Cảm ơn bạn đã mua sắm tại{" "}
-            <span className="font-bold text-red-600">Deat Lemi Shop</span>. Mã
-            đơn hàng:{" "}
+            <span className="font-bold text-primary-600">Deat Lemi Shop</span>.
+            Mã đơn hàng:{" "}
             <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md text-sm">
               {order.orderCode}
             </span>
@@ -179,7 +179,7 @@ const OrderSuccessPage = () => {
             {/* Tổng tiền */}
             <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
               <span className="font-bold text-slate-800">Tổng cộng</span>
-              <span className="text-xl font-extrabold text-red-600">
+              <span className="text-xl font-extrabold text-primary-600">
                 {formatPrice(order.totalAmount)}
               </span>
             </div>
@@ -203,7 +203,7 @@ const OrderSuccessPage = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to={`/orders/${order.id}`}
-              className="w-full sm:w-auto px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-red-600/20 hover:shadow-red-600/30"
+              className="w-full sm:w-auto px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-primary-600/20 hover:shadow-primary-600/30"
             >
               Theo dõi đơn hàng
             </Link>

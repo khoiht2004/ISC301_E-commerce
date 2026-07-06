@@ -34,49 +34,52 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="flex h-dvh bg-gray-50">
+    <div className="flex h-dvh bg-slate-50">
       {/* Admin Sidebar */}
-      <div className="w-64 bg-gray-900 text-white flex flex-col">
-        <div className="p-6 bg-red-800 flex items-center gap-3">
+      <div className="w-64 bg-slate-900 text-white flex flex-col">
+        <div className="p-6 bg-primary-800 flex items-center gap-3">
           <ShieldCheck size={24} />
           <span className="font-bold tracking-wider">ADMIN PANEL</span>
         </div>
         <nav className="flex-1 p-4 space-y-2 mt-4">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "overview" ? "bg-red-700" : "hover:bg-gray-800"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "overview" ? "bg-primary-700" : "hover:bg-slate-800"}`}
           >
             <LayoutDashboard size={18} /> Tổng quan
           </button>
           <button
             onClick={() => setActiveTab("users")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "users" ? "bg-red-700" : "hover:bg-gray-800"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "users" ? "bg-primary-700" : "hover:bg-slate-800"}`}
           >
             <Users size={18} /> Quản lý Users
           </button>
           <button
             onClick={() => setActiveTab("products")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "products" ? "bg-red-700" : "hover:bg-gray-800"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeTab === "products" ? "bg-primary-700" : "hover:bg-slate-800"}`}
           >
             <ShoppingBag size={18} /> Sản phẩm
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition">
             <BarChart3 size={18} /> Báo cáo
           </button>
+          <a href="/staff/dashboard" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition text-white no-underline">
+            <ShieldCheck size={18} /> Cổng Nghiệp Vụ (Staff)
+          </a>
         </nav>
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-xs font-bold">
               AD
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-bold truncate">{user?.fullName}</p>
-              <p className="text-[10px] text-gray-400">Administrator</p>
+              <p className="text-[10px] text-slate-400">Administrator</p>
             </div>
           </div>
           <button
             onClick={logout}
-            className="w-full flex items-center justify-center gap-2 py-2 bg-gray-800 hover:bg-red-900 rounded-lg transition text-xs font-bold"
+            className="w-full flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-primary-900 rounded-lg transition text-xs font-bold"
           >
             ĐĂNG XUẤT
           </button>
@@ -86,7 +89,7 @@ const AdminDashboard = () => {
       {/* Admin Main Content */}
       <div className="flex-1 p-8">
         <header className="mb-8 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-slate-800">
             {activeTab === "overview"
               ? "Dashboard Overview"
               : activeTab === "users"
@@ -97,7 +100,7 @@ const AdminDashboard = () => {
             <button className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 text-sm font-medium transition shadow-sm">
               <Settings size={16} /> Cài đặt
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 text-sm font-bold transition shadow-md">
+            <button className="flex items-center gap-2 px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-800 text-sm font-bold transition shadow-md">
               <UserPlus size={16} /> Thêm mới
             </button>
           </div>
@@ -129,45 +132,45 @@ const AdminDashboard = () => {
         )}
 
         {/* Mock Content for Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
           <table className="w-full text-left">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Thông tin
                 </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Vai trò
                 </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Trạng thái
                 </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Thao tác
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-500">ORD-001</td>
+            <tbody className="divide-y divide-slate-100">
+              <tr className="hover:bg-slate-50 transition">
+                <td className="px-6 py-4 text-sm text-slate-500">ORD-001</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm">
                       SA
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">
+                      <p className="text-sm font-bold text-slate-900">
                         Super Admin
                       </p>
-                      <p className="text-xs text-gray-500">admin@meatshop.vn</p>
+                      <p className="text-xs text-slate-500">admin@meatshop.vn</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold">
+                  <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-[10px] font-bold">
                     ADMIN
                   </span>
                 </td>
@@ -179,28 +182,28 @@ const AdminDashboard = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    <button className="p-2 text-gray-400 hover:text-blue-600 transition">
+                    <button className="p-2 text-slate-400 hover:text-blue-600 transition">
                       <Edit size={16} />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600 transition">
+                    <button className="p-2 text-slate-400 hover:text-primary-600 transition">
                       <Trash2 size={16} />
                     </button>
                   </div>
                 </td>
               </tr>
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-500">ORD-002</td>
+              <tr className="hover:bg-slate-50 transition">
+                <td className="px-6 py-4 text-sm text-slate-500">ORD-002</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
                       NS
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">
-                        Nguyễn Văn Staff
+                      <p className="text-sm font-bold text-slate-900">
+                        Nguyễn Văn STAFF
                       </p>
-                      <p className="text-xs text-gray-500">
-                        staff1@meatshop.vn
+                      <p className="text-xs text-slate-500">
+                        STAFF1@meatshop.vn
                       </p>
                     </div>
                   </div>
@@ -218,10 +221,10 @@ const AdminDashboard = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    <button className="p-2 text-gray-400 hover:text-blue-600 transition">
+                    <button className="p-2 text-slate-400 hover:text-blue-600 transition">
                       <Edit size={16} />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600 transition">
+                    <button className="p-2 text-slate-400 hover:text-primary-600 transition">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -236,12 +239,12 @@ const AdminDashboard = () => {
 };
 
 const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-start">
     <div>
-      <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-      <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+      <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+      <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
     </div>
-    <div className="p-3 bg-gray-50 rounded-lg">{icon}</div>
+    <div className="p-3 bg-slate-50 rounded-lg">{icon}</div>
   </div>
 );
 

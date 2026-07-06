@@ -162,6 +162,8 @@ const login = async (req, res, next) => {
     const data = loginSchema.parse(req.body);
 
     const user = await prisma.user.findUnique({ where: { email: data.email } });
+    console.log(user);
+
     if (!user) {
       return errorResponse(res, 'Invalid email or password', 401);
     }
@@ -176,7 +178,7 @@ const login = async (req, res, next) => {
 
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      return errorResponse(res, 'Invalid email or password', 401);
+      return errorResponse(res, 'Invalid email or password 123', 401);
     }
 
     const accessToken = generateAccessToken(user);
@@ -235,7 +237,7 @@ const logout = async (req, res, next) => {
     // Attempt to get user from token via middleware if possible,
     // Or from the body if they pass the refresh token
     const { refreshToken } = req.body;
-    
+
     if (refreshToken) {
       await prisma.user.updateMany({
         where: { refreshToken },

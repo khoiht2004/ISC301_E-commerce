@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { toast } from "react-hot-toast";
+import { DASHBOARD_PATHS, ROLES } from "../../constants/roles";
+import { ShoppingCart, UserRound } from "lucide-react";
 
 const EcomNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -54,7 +56,7 @@ const EcomNavbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md py-3" : "bg-transparent py-5"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-md py-2`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
@@ -64,10 +66,8 @@ const EcomNavbar = () => {
             alt="logo"
             className="w-10 h-10 object-cover"
           />
-          <span
-            className={`text-xl font-bold tracking-tight ${isScrolled ? "text-slate-900" : "text-white"}`}
-          >
-            Deat Lemi <span className="text-red-600">Shop</span>
+          <span className={`text-xl font-bold tracking-tight text-slate-90`}>
+            Deat Lemi <span className="text-primary-600">Shop</span>
           </span>
         </Link>
 
@@ -79,10 +79,8 @@ const EcomNavbar = () => {
               to={link.path}
               className={`font-medium no-underline transition-colors ${
                 location.pathname === link.path
-                  ? "text-red-600"
-                  : isScrolled
-                    ? "text-slate-600 hover:text-red-600"
-                    : "text-white/80 hover:text-white"
+                  ? "text-primary-600"
+                  : "text-slate-600 hover:text-primary-600"
               }`}
             >
               {link.name}
@@ -97,7 +95,7 @@ const EcomNavbar = () => {
             {user ? (
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`flex items-center gap-2 p-2 rounded-full transition-colors ${isScrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"}`}
+                className={`flex items-center gap-2 p-2 rounded-full transition-colors text-slate-700 hover:bg-slate-100`}
               >
                 {user.avatar ? (
                   <img
@@ -106,20 +104,7 @@ const EcomNavbar = () => {
                     className="w-6 h-6 rounded-full object-cover"
                   />
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                    />
-                  </svg>
+                  <UserRound />
                 )}
                 <span className="hidden sm:block text-sm font-medium">
                   {user.fullName.split(" ")[0]}
@@ -128,22 +113,9 @@ const EcomNavbar = () => {
             ) : (
               <Link
                 to="/login"
-                className={`inline-flex items-center justify-center p-2 rounded-full transition-colors no-underline ${isScrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"}`}
+                className={`inline-flex items-center justify-center p-2 rounded-full transition-colors no-underline text-slate-700 hover:bg-slate-100`}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                  />
-                </svg>
+                <UserRound />
               </Link>
             )}
 
@@ -159,37 +131,37 @@ const EcomNavbar = () => {
                   </p>
                 </div>
 
-                {user.role === "ADMIN" && (
+                {user.role === ROLES.ADMIN && (
                   <Link
-                    to="/admin/dashboard"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                    to={DASHBOARD_PATHS.admin}
+                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     Admin Dashboard
                   </Link>
                 )}
 
-                {user.role === "STAFF" && (
+                {user.role === ROLES.STAFF && (
                   <Link
-                    to="/staff/dashboard"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                    to={DASHBOARD_PATHS.staff}
+                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
-                    Staff Dashboard
+                    STAFF Dashboard
                   </Link>
                 )}
 
                 <Link
                   to="/account"
-                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Chi tiết tài khoản
                 </Link>
 
                 <Link
-                  to="/account/orders"
-                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                  to="/my-orders"
+                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Đơn hàng của tôi
@@ -199,7 +171,7 @@ const EcomNavbar = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
+                  className="w-full text-left block px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 font-medium transition-colors"
                 >
                   Đăng xuất
                 </button>
@@ -216,24 +188,11 @@ const EcomNavbar = () => {
                 navigate("/cart");
               }
             }}
-            className={`relative p-2 rounded-full transition-colors no-underline ${isScrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"}`}
+            className={`relative p-2 rounded-full transition-colors no-underline text-slate-700 hover:bg-slate-100`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
+            <ShoppingCart />
             {cartCount > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-red-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
                 {cartCount}
               </span>
             )}
@@ -242,7 +201,7 @@ const EcomNavbar = () => {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`md:hidden p-2 transition-colors ${isScrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"} rounded-full`}
+            className={`md:hidden p-2 transition-colors text-slate-700 hover:bg-slate-100 rounded-full`}
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
@@ -295,9 +254,9 @@ const EcomNavbar = () => {
               to={link.path}
               className={`font-medium no-underline py-2 transition-colors ${
                 location.pathname === link.path
-                  ? "text-red-600"
+                  ? "text-primary-600"
                   : isScrolled
-                    ? "text-slate-600 hover:text-red-600"
+                    ? "text-slate-600 hover:text-primary-600"
                     : "text-white/80 hover:text-white"
               }`}
             >

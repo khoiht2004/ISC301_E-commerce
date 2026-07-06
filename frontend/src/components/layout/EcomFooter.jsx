@@ -8,11 +8,11 @@ const EcomFooter = () => {
           {/* Logo & Info */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 no-underline mb-6">
-              <div className="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+              <div className="w-10 h-10 bg-primary-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">
                 A
               </div>
               <span className="text-xl font-bold tracking-tight text-white">
-                Deat Lemi <span className="text-red-600">Shop</span>
+                Deat Lemi <span className="text-primary-600">Shop</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed mb-6">
@@ -95,7 +95,7 @@ const EcomFooter = () => {
           <div>
             <h4 className="text-white font-bold mb-6">Liên hệ</h4>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-700/20 flex items-center justify-center text-red-500">
+              <div className="w-10 h-10 rounded-full bg-primary-700/20 flex items-center justify-center text-primary-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

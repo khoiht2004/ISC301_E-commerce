@@ -7,7 +7,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 /**
  * @route   GET /api/support/waiting
  * @desc    Get all pending support requests (WAITING)
- * @access  Staff/Admin
+ * @access  STAFF/Admin
  */
 router.get('/waiting', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {
@@ -26,8 +26,8 @@ router.get('/waiting', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), asyn
 
 /**
  * @route   GET /api/support/active
- * @desc    Get all active support requests assigned to current staff
- * @access  Staff/Admin
+ * @desc    Get all active support requests assigned to current STAFF
+ * @access  STAFF/Admin
  */
 router.get('/active', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {
@@ -54,7 +54,7 @@ router.get('/active', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async
 /**
  * @route   GET /api/support/history
  * @desc    Get all resolved support requests (COMPLETED/CLOSED)
- * @access  Staff/Admin
+ * @access  STAFF/Admin
  */
 router.get('/history', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {
@@ -78,7 +78,7 @@ router.get('/history', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), asyn
 /**
  * @route   GET /api/support/:id/messages
  * @desc    Get all messages for a specific support request
- * @access  Authenticated (User involved or Staff/Admin)
+ * @access  Authenticated (User involved or STAFF/Admin)
  */
 router.get('/:id/messages', authenticateToken, async (req, res, next) => {
   try {
@@ -95,7 +95,7 @@ router.get('/:id/messages', authenticateToken, async (req, res, next) => {
       return errorResponse(res, 'Support request not found', 404);
     }
 
-    // Verify ownership: must be the user who requested support or a staff/admin
+    // Verify ownership: must be the user who requested support or a STAFF/admin
     if (req.user.role === 'USER' && request.userId !== req.user.id) {
       return errorResponse(res, 'Unauthorized to access these messages', 403);
     }
@@ -117,7 +117,7 @@ router.get('/:id/messages', authenticateToken, async (req, res, next) => {
 /**
  * @route   POST /api/support/:id/accept
  * @desc    Accept a waiting support request
- * @access  Staff/Admin
+ * @access  STAFF/Admin
  */
 router.post('/:id/accept', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {
@@ -166,7 +166,7 @@ router.post('/:id/accept', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), 
 /**
  * @route   POST /api/support/:id/complete
  * @desc    Mark an active support request as completed
- * @access  Staff/Admin
+ * @access  STAFF/Admin
  */
 router.post('/:id/complete', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {
@@ -202,7 +202,7 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('STAFF', 'ADMIN')
 /**
  * @route   POST /api/support/:id/close
  * @desc    Close a support request completely
- * @access  Staff/Admin
+ * @access  STAFF/Admin
  */
 router.post('/:id/close', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), async (req, res, next) => {
   try {

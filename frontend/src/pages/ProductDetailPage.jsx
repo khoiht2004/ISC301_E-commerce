@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/axios";
 import { toast } from "react-hot-toast";
+import ProductReviews from "../components/product/ProductReviews";
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -112,7 +113,7 @@ const ProductDetailPage = () => {
   // Render tag colors
   const getTagColorClass = (tagSlug) => {
     const schemes = {
-      "thit-bo": "bg-red-50 text-red-700 border-red-200",
+      "thit-bo": "bg-primary-50 text-primary-700 border-primary-200",
       "thit-heo": "bg-pink-50 text-pink-700 border-pink-200",
       "thit-ga": "bg-amber-50 text-amber-700 border-amber-200",
       "xuc-xich": "bg-orange-50 text-orange-700 border-orange-200",
@@ -127,7 +128,7 @@ const ProductDetailPage = () => {
     return (
       <div className="pt-32 pb-16 min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 mx-auto"></div>
           <p className="text-slate-500 text-sm font-medium">
             Đang tải thông tin sản phẩm...
           </p>
@@ -153,14 +154,14 @@ const ProductDetailPage = () => {
         <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-8">
           <Link
             to="/"
-            className="hover:text-red-600 no-underline transition-colors"
+            className="hover:text-primary-600 no-underline transition-colors"
           >
             Trang chủ
           </Link>
           <span>/</span>
           <Link
             to="/products"
-            className="hover:text-red-600 no-underline transition-colors"
+            className="hover:text-primary-600 no-underline transition-colors"
           >
             Sản phẩm
           </Link>
@@ -183,7 +184,7 @@ const ProductDetailPage = () => {
                   className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                 />
                 {onSale && (
-                  <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-md">
+                  <span className="absolute top-4 left-4 bg-primary-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-md">
                     Giảm -{discountPercent}%
                   </span>
                 )}
@@ -198,7 +199,7 @@ const ProductDetailPage = () => {
                       onClick={() => setActiveImage(img)}
                       className={`relative w-20 h-16 flex-shrink-0 rounded-xl overflow-hidden border transition-all ${
                         activeImage === img
-                          ? "border-red-600 ring-2 ring-red-500/20"
+                          ? "border-primary-600 ring-2 ring-primary-500/20"
                           : "border-slate-200 hover:border-slate-350"
                       }`}
                     >
@@ -243,10 +244,50 @@ const ProductDetailPage = () => {
                   {product.name}
                 </h1>
 
+                {/* Supplier Info */}
+                {product.supplier && (
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xl font-black shrink-0">
+                      {product.supplier.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-bold text-slate-800 mb-1">
+                        Nhà cung cấp: {product.supplier.name}
+                      </h4>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                        {product.supplier.phone && (
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold text-slate-700">
+                              SĐT:
+                            </span>
+                            <span>{product.supplier.phone}</span>
+                          </div>
+                        )}
+                        {product.supplier.email && (
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold text-slate-700">
+                              Email:
+                            </span>
+                            <span>{product.supplier.email}</span>
+                          </div>
+                        )}
+                        {product.supplier.address && (
+                          <div className="flex items-center gap-1 w-full mt-1">
+                            <span className="font-semibold text-slate-700">
+                              Địa chỉ:
+                            </span>
+                            <span>{product.supplier.address}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Stock Status Badge */}
                 <div className="flex items-center gap-2 mb-6">
                   <span
-                    className={`w-2.5 h-2.5 rounded-full ${product.stock > 0 ? "bg-emerald-500" : "bg-red-500"}`}
+                    className={`w-2.5 h-2.5 rounded-full ${product.stock > 0 ? "bg-emerald-500" : "bg-primary-500"}`}
                   ></span>
                   <span className="text-sm font-medium text-slate-600">
                     {product.stock > 0
@@ -269,10 +310,10 @@ const ProductDetailPage = () => {
                       </div>
                       <div className="h-8 w-px bg-slate-200"></div>
                       <div>
-                        <p className="text-xs font-medium text-red-500 uppercase tracking-wider mb-1">
+                        <p className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-1">
                           Giá khuyến mãi
                         </p>
-                        <span className="text-3xl font-extrabold text-red-600 leading-tight">
+                        <span className="text-3xl font-extrabold text-primary-600 leading-tight">
                           {formatPrice(product.salePrice)}
                         </span>
                       </div>
@@ -294,7 +335,7 @@ const ProductDetailPage = () => {
                   <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">
                     Mô tả ngắn
                   </h3>
-                  <p className="text-slate-650 text-sm leading-relaxed font-light text-slate-600">
+                  <p className="text-slate-650 text-sm leading-relaxed font-light ">
                     {product.shortDescription ||
                       "Sản phẩm nhập khẩu chất lượng cao từ Deat Lemi Shop. Đảm bảo vệ sinh an toàn thực phẩm và giữ trọn hương vị tươi ngon nhất."}
                   </p>
@@ -330,7 +371,7 @@ const ProductDetailPage = () => {
                     <button
                       onClick={handleAddToCart}
                       disabled={addingToCart}
-                      className="flex-1 px-8 py-3.5 bg-red-600 hover:bg-red-750 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-md shadow-red-600/10 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex-1 px-8 py-3.5 bg-primary-600 hover:bg-primary-750 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-md shadow-primary-600/10 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {addingToCart ? (
                         <>
@@ -395,10 +436,20 @@ const ProductDetailPage = () => {
           <h2 className="text-xl font-bold text-slate-800 pb-3 border-b border-slate-100 mb-5">
             Thông Tin Chi Tiết Sản Phẩm
           </h2>
-          <div className="prose max-w-none text-slate-600 text-sm leading-relaxed font-light whitespace-pre-wrap">
+          <div className="prose max-w-none text-slate-600 text-sm leading-relaxed font-light whitespace-pre-wrap mb-8">
             {product.description ||
               "Chưa có thông tin mô tả chi tiết cho sản phẩm này."}
           </div>
+
+
+        </div>
+
+        {/* REVIEWS */}
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 mb-12">
+          <h2 className="text-xl font-bold text-slate-800 pb-3 border-b border-slate-100 mb-5">
+            Đánh Giá Của Khách Hàng
+          </h2>
+          <ProductReviews productId={product.id} />
         </div>
 
         {/* RELATED PRODUCTS */}
@@ -406,7 +457,7 @@ const ProductDetailPage = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
                   Có thể bạn quan tâm
                 </span>
                 <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 mt-1">
@@ -415,7 +466,7 @@ const ProductDetailPage = () => {
               </div>
               <Link
                 to="/products"
-                className="text-xs font-bold text-slate-500 hover:text-red-600 uppercase tracking-wider transition-colors no-underline"
+                className="text-xs font-bold text-slate-500 hover:text-primary-600 uppercase tracking-wider transition-colors no-underline"
               >
                 Xem tất cả
               </Link>
@@ -451,14 +502,14 @@ const ProductDetailPage = () => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         {pOnSale && (
-                          <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm">
+                          <span className="absolute top-2 left-2 bg-primary-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm">
                             Sale
                           </span>
                         )}
                       </div>
                       <div className="p-4 flex-1 flex flex-col justify-between">
                         <div>
-                          <h3 className="font-bold text-slate-800 text-sm mb-1 group-hover:text-red-600 transition-colors line-clamp-1">
+                          <h3 className="font-bold text-slate-800 text-sm mb-1 group-hover:text-primary-600 transition-colors line-clamp-1">
                             {p.name}
                           </h3>
                           <div className="flex flex-wrap gap-1 mb-2">
@@ -479,7 +530,7 @@ const ProductDetailPage = () => {
                                 <span className="text-[10px] text-slate-400 line-through leading-none">
                                   {formatPrice(p.price)}
                                 </span>
-                                <span className="text-sm font-bold text-red-600 leading-tight mt-0.5">
+                                <span className="text-sm font-bold text-primary-600 leading-tight mt-0.5">
                                   {formatPrice(p.salePrice)}
                                 </span>
                               </>
@@ -489,7 +540,7 @@ const ProductDetailPage = () => {
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-semibold text-red-600 group-hover:underline flex items-center gap-0.5">
+                          <span className="text-xs font-semibold text-primary-600 group-hover:underline flex items-center gap-0.5">
                             Xem
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

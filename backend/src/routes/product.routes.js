@@ -18,7 +18,7 @@ router.get('/', getProducts);
 router.get('/related', getRelatedProducts);
 router.get('/slug/:slug', getProductBySlug);
 
-// ─── Staff/Admin Routes ───────────────────────────────────────────────────────
+// ─── STAFF/Admin Routes ───────────────────────────────────────────────────────
 router.get('/all', authenticateToken, authorizeRoles('ADMIN', 'STAFF'), getAllProductsAdmin);
 router.get('/:id', getProductById);
 

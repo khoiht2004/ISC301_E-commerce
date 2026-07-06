@@ -26,7 +26,7 @@ const setupChatSocket = (io) => {
         
         if (role === 'STAFF' || role === 'ADMIN') {
           socket.join('staff_room');
-          console.log(`🏰 Staff ${socket.userId} joined staff_room`);
+          console.log(`Staff ${socket.userId} joined staff_room`);
         }
       } catch (err) {
         console.error('Authentication update error:', err);
@@ -68,7 +68,7 @@ const setupChatSocket = (io) => {
             }
           });
           
-          console.log(`📢 Broadcasting new_support_request to staff_room`);
+          console.log(`Broadcasting new_support_request to staff_room`);
           chatNamespace.to('staff_room').emit('new_support_request', request);
         }
 
@@ -82,7 +82,7 @@ const setupChatSocket = (io) => {
 
     // ── STAFF: Get Pending Requests ──────────────────────────────────────────
     socket.on('get_pending_requests', async () => {
-      console.log(`📋 Staff requested pending requests list`);
+      console.log(`📋 STAFF requested pending requests list`);
       try {
         const requests = await prisma.supportRequest.findMany({
           where: { status: 'WAITING' },
@@ -98,7 +98,7 @@ const setupChatSocket = (io) => {
 
     // ── STAFF: Accept Support Request ────────────────────────────────────────
     socket.on('accept_support_request', async ({ requestId, staffId }) => {
-      console.log(`🤝 Staff ${staffId} accepting request ${requestId}`);
+      console.log(`🤝 STAFF ${staffId} accepting request ${requestId}`);
       try {
         const rid = parseInt(requestId);
         const sid = parseInt(staffId);
