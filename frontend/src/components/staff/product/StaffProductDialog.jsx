@@ -132,24 +132,6 @@ const StaffProductDialog = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                  Nhà cung cấp
-                </label>
-                <select
-                  className="w-full bg-white border border-slate-200 focus:border-primary-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600 transition-all text-slate-900 shadow-sm"
-                  value={form.supplierId}
-                  onChange={(event) =>
-                    onFieldChange("supplierId", event.target.value)
-                  }
-                >
-                  <option value="">-- Không chọn --</option>
-                  {suppliers.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                   Lô nguyên liệu
                 </label>
                 <select
@@ -166,6 +148,38 @@ const StaffProductDialog = ({
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  Nhà cung cấp
+                </label>
+                {form.rawBatchId ? (
+                  (() => {
+                    const selectedBatch = batches.find((b) => b.id === parseInt(form.rawBatchId));
+                    const supplierName = selectedBatch?.supplier?.name || "Đang tải nhà cung cấp...";
+                    return (
+                      <div className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 font-semibold shadow-sm h-[46px] flex items-center select-none">
+                        {supplierName}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <select
+                    className="w-full bg-white border border-slate-200 focus:border-primary-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600 transition-all text-slate-900 shadow-sm"
+                    value={form.supplierId}
+                    onChange={(event) =>
+                      onFieldChange("supplierId", event.target.value)
+                    }
+                  >
+                    <option value="">-- Không chọn --</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
 

@@ -8,6 +8,7 @@ const StaffBatchDialog = ({
   setFormData,
   products,
   suppliers,
+  isEdit = false,
 }) => {
   if (!isOpen) return null;
 
@@ -15,7 +16,9 @@ const StaffBatchDialog = ({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-slate-100 shrink-0">
-          <h3 className="text-xl font-bold text-slate-900">Nhập lô hàng mới</h3>
+          <h3 className="text-xl font-bold text-slate-900">
+            {isEdit ? "Cập nhật lô hàng" : "Nhập lô hàng mới"}
+          </h3>
         </div>
 
         <form onSubmit={onSubmit} className="p-6 space-y-4 overflow-y-auto">
@@ -105,6 +108,26 @@ const StaffBatchDialog = ({
               />
             </div>
           </div>
+          {isEdit && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Số lượng tồn hiện tại (kg) *
+              </label>
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.currentQuantity ?? ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    currentQuantity: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -154,7 +177,7 @@ const StaffBatchDialog = ({
             onClick={onSubmit}
             className="px-5 py-2 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-md"
           >
-            Lưu lô hàng
+            {isEdit ? "Cập nhật" : "Lưu lô hàng"}
           </button>
         </div>
       </div>

@@ -337,22 +337,20 @@ const StaffDashboard = () => {
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        selectedTicket.status === "ACTIVE"
-                          ? "bg-green-500 animate-pulse"
-                          : selectedTicket.status === "COMPLETED"
-                            ? "bg-blue-500"
-                            : "bg-slate-400"
-                      }`}
+                      className={`w-2.5 h-2.5 rounded-full ${selectedTicket.status === "ACTIVE"
+                        ? "bg-green-500 animate-pulse"
+                        : selectedTicket.status === "COMPLETED"
+                          ? "bg-blue-500"
+                          : "bg-slate-400"
+                        }`}
                     />
                     <span
-                      className={`text-xs font-bold ${
-                        selectedTicket.status === "ACTIVE"
-                          ? "text-green-600"
-                          : selectedTicket.status === "COMPLETED"
-                            ? "text-blue-600"
-                            : "text-slate-500"
-                      }`}
+                      className={`text-xs font-bold ${selectedTicket.status === "ACTIVE"
+                        ? "text-green-600"
+                        : selectedTicket.status === "COMPLETED"
+                          ? "text-blue-600"
+                          : "text-slate-500"
+                        }`}
                     >
                       {selectedTicket.status === "ACTIVE"
                         ? "Đang hỗ trợ trực tiếp"
@@ -447,11 +445,10 @@ const StaffDashboard = () => {
                       )}
 
                       <div
-                        className={`p-3 rounded-2xl shadow-sm leading-relaxed text-sm ${
-                          msg.senderId === user.id
-                            ? "bg-primary-700 text-white rounded-tr-none"
-                            : "bg-white text-slate-800 rounded-tl-none border border-slate-200"
-                        }`}
+                        className={`p-3 rounded-2xl shadow-sm leading-relaxed text-sm ${msg.senderId === user.id
+                          ? "bg-primary-700 text-white rounded-tr-none"
+                          : "bg-white text-slate-800 rounded-tl-none border border-slate-200"
+                          }`}
                       >
                         <p>{msg.content}</p>
                         <div className="flex justify-between items-center mt-1.5 pt-1 border-t border-white/10">

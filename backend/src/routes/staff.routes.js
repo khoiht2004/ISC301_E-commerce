@@ -24,10 +24,11 @@ router.put('/orders/:id/status', updateOrderStatus);
 router.put('/orders/:id/payment-status', updatePaymentStatus);
 
 // ─── Batch Management ────────────────────────────────────────────────────────
-const { getAllBatches, getBatchSuggestions, createBatch, updateBatch } = require('../controllers/staff/batchController');
+const { getAllBatches, getBatchSuggestions, createBatch, updateBatch, deleteBatch } = require('../controllers/staff/batchController');
 router.get('/batches', getAllBatches);
 router.get('/batches/suggestions', getBatchSuggestions);
 router.post('/batches', createBatch);
 router.put('/batches/:id', updateBatch);
+router.delete('/batches/:id', deleteBatch);
 
 module.exports = router;
