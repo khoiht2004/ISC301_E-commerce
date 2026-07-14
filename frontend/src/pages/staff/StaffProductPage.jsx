@@ -94,7 +94,20 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
   };
 
   const handleFieldChange = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      const updated = { ...current, [field]: value };
+      if (field === "rawBatchId") {
+        if (value) {
+          const selectedBatch = batches.find((b) => b.id === parseInt(value));
+          if (selectedBatch) {
+            updated.supplierId = selectedBatch.supplierId || "";
+          }
+        } else {
+          updated.supplierId = "";
+        }
+      }
+      return updated;
+    });
   };
 
   const handleOpenCreateDialog = () => {

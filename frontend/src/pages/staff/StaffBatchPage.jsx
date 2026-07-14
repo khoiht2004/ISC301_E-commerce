@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/axios";
 import { toast } from "react-hot-toast";
-import { Plus, AlertTriangle, Search } from "lucide-react";
+import { Plus, AlertTriangle, Search, Pencil, Trash2 } from "lucide-react";
 import { formatDate, formatPrice } from "../../utils/helper";
 import StaffBatchDialog from "../../components/staff/batch/StaffBatchDialog";
 import { useStaffBatches } from "../../hooks/useStaffBatches";
@@ -17,12 +17,15 @@ const StaffBatchPage = () => {
     fetchSuggestions,
     fetchDependencies,
     createBatch,
+    updateBatch,
+    deleteBatch,
   } = useStaffBatches();
 
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'suggestions'
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingBatch, setEditingBatch] = useState(null);
   const [formData, setFormData] = useState({
     batchCode: "",
     importQuantity: "",
@@ -45,21 +48,65 @@ const StaffBatchPage = () => {
     fetchDependencies();
   }, [fetchDependencies]);
 
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setEditingBatch(null);
+    setFormData({
+      batchCode: "",
+      importQuantity: "",
+      costPrice: "",
+      manufactureDate: "",
+      expirationDate: "",
+      productName: "",
+      supplierId: "",
+    });
+  };
+
   const handleCreateBatch = async (e) => {
     e.preventDefault();
-    const success = await createBatch(formData);
+
+    if (formData.manufactureDate && formData.expirationDate) {
+      const mDate = new Date(formData.manufactureDate);
+      const eDate = new Date(formData.expirationDate);
+      if (eDate <= mDate) {
+        toast.error("Hạn sử dụng phải sau ngày sản xuất");
+        return;
+      }
+    }
+
+    let success = false;
+    if (editingBatch) {
+      success = await updateBatch(editingBatch.id, formData);
+    } else {
+      success = await createBatch(formData);
+    }
     if (success) {
-      setShowAddModal(false);
-      setFormData({
-        batchCode: "",
-        importQuantity: "",
-        costPrice: "",
-        manufactureDate: "",
-        expirationDate: "",
-        productName: "",
-        supplierId: "",
-      });
+      handleCloseModal();
       fetchBatches(searchQuery);
+    }
+  };
+
+  const handleEditClick = (batch) => {
+    setEditingBatch(batch);
+    setFormData({
+      batchCode: batch.batchCode,
+      importQuantity: batch.importQuantity,
+      currentQuantity: batch.currentQuantity,
+      costPrice: batch.costPrice,
+      manufactureDate: batch.manufactureDate ? batch.manufactureDate.substring(0, 10) : "",
+      expirationDate: batch.expirationDate ? batch.expirationDate.substring(0, 10) : "",
+      productName: batch.rawMaterialName || (batch.product?.name || ""),
+      supplierId: batch.supplierId,
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDeleteClick = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa lô hàng này? Tất cả các liên kết sản phẩm liên quan sẽ bị gỡ bỏ.")) {
+      const success = await deleteBatch(id);
+      if (success) {
+        fetchBatches(searchQuery);
+      }
     }
   };
 
@@ -75,7 +122,19 @@ const StaffBatchPage = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setEditingBatch(null);
+            setFormData({
+              batchCode: "",
+              importQuantity: "",
+              costPrice: "",
+              manufactureDate: "",
+              expirationDate: "",
+              productName: "",
+              supplierId: "",
+            });
+            setShowAddModal(true);
+          }}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 shadow-md shadow-primary-600/20"
         >
           <Plus size={16} /> Nhập lô mới
@@ -140,6 +199,7 @@ const StaffBatchPage = () => {
                 <th className="px-6 py-4">Hạn SD</th>
                 <th className="px-6 py-4">Ngày SX</th>
                 <th className="px-6 py-4">Ngày Nhập</th>
+                <th className="px-6 py-4 text-center">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -153,7 +213,7 @@ const StaffBatchPage = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="font-bold text-slate-800">
-                      {batch.product?.name}
+                      {batch.rawMaterialName}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -187,12 +247,30 @@ const StaffBatchPage = () => {
                   <td className="px-6 py-4 text-slate-500">
                     {formatDate(batch.importDate)}
                   </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEditClick(batch)}
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        title="Sửa lô hàng"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(batch.id)}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        title="Xóa lô hàng"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
               {batches.length === 0 && (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-6 py-12 text-center text-slate-400"
                   >
                     Không tìm thấy lô hàng nào
@@ -270,12 +348,13 @@ const StaffBatchPage = () => {
 
       <StaffBatchDialog
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={handleCloseModal}
         onSubmit={handleCreateBatch}
         formData={formData}
         setFormData={setFormData}
         products={products}
         suppliers={suppliers}
+        isEdit={!!editingBatch}
       />
     </div>
   );

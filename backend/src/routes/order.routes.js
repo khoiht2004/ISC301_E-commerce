@@ -5,6 +5,7 @@ const {
   getOrderById,
   getPaymentStatus,
   getOrderByCode,
+  cancelOrder,
 } = require('../controllers/orderController');
 const { authenticateToken } = require('../middlewares/auth');
 
@@ -18,6 +19,7 @@ router.get('/my-orders', getMyOrders);
 // These must come BEFORE /:id to avoid Express matching them as numeric IDs
 router.get('/code/:orderCode', getOrderByCode);
 router.get('/:orderCode/payment-status', getPaymentStatus);
+router.put('/:id/cancel', cancelOrder);
 
 // Wildcard by numeric id — phải đặt CUỐI
 router.get('/:id', getOrderById);

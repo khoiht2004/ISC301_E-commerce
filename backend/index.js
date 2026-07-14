@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');
 const { setupChatSocket } = require('./src/sockets/chat.socket');
+const prisma = require('./src/config/prisma');
 
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -57,6 +58,45 @@ server.listen(PORT, () => {
   console.log('🥩 ════════════════════════════════════════');
   console.log('');
 });
+
+// Background job to clean up expired prepaid orders (15 minutes timeout)
+setInterval(async () => {
+  try {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    // Find orders that are in PENDING_VALIDATION status, prepaid, not paid, and created > 15 mins ago
+    const expiredOrders = await prisma.order.findMany({
+      where: {
+        orderStatus: 'PENDING_VALIDATION',
+        paymentMethod: { not: 'COD' },
+        paymentStatus: { not: 'PAID' },
+        createdAt: { lte: fifteenMinutesAgo }
+      }
+    });
+
+    if (expiredOrders.length > 0) {
+      console.log(`[Order Timeout] Found ${expiredOrders.length} expired order(s). Processing...`);
+      for (const order of expiredOrders) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            orderStatus: 'PAYMENT_FAILED',
+            paymentStatus: 'FAILED'
+          }
+        });
+        console.log(`[Order Timeout] Order ${order.orderCode} marked as PAYMENT_FAILED due to payment timeout.`);
+        
+        // Notify client via socket if online
+        io.to(`user_${order.userId}`).emit('order_timeout', {
+          orderCode: order.orderCode,
+          orderStatus: 'PAYMENT_FAILED',
+          paymentStatus: 'FAILED'
+        });
+      }
+    }
+  } catch (error) {
+    console.error('[Order Timeout Job Error]', error);
+  }
+}, 60 * 1000); // Check every 60 seconds
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

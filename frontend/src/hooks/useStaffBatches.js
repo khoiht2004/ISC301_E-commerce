@@ -59,6 +59,28 @@ export const useStaffBatches = () => {
     }
   };
 
+  const updateBatch = async (id, formData) => {
+    try {
+      await api.put(`/staff/batches/${id}`, formData);
+      toast.success("Cập nhật lô hàng thành công");
+      return true;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Có lỗi xảy ra khi cập nhật");
+      return false;
+    }
+  };
+
+  const deleteBatch = async (id) => {
+    try {
+      await api.delete(`/staff/batches/${id}`);
+      toast.success("Xóa lô hàng thành công");
+      return true;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Có lỗi xảy ra khi xóa");
+      return false;
+    }
+  };
+
   return {
     batches,
     suggestions,
@@ -69,5 +91,7 @@ export const useStaffBatches = () => {
     fetchSuggestions,
     fetchDependencies,
     createBatch,
+    updateBatch,
+    deleteBatch,
   };
 };

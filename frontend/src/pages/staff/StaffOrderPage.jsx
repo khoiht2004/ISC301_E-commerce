@@ -160,30 +160,46 @@ const StaffOrderPage = () => {
                     <select
                       className={`text-xs font-bold border-0 rounded-lg px-2 py-1 focus:ring-2 cursor-pointer ${
                         order.orderStatus === "DELIVERED" ||
-                        order.orderStatus === "COMPLETED"
+                        order.orderStatus === "COMPLETED" ||
+                        order.orderStatus === "CONFIRMED"
                           ? "bg-emerald-100 text-emerald-700"
-                          : order.orderStatus === "CANCELLED"
+                          : order.orderStatus === "CANCELLED" ||
+                            order.orderStatus === "INVALID_ADDRESS" ||
+                            order.orderStatus === "PAYMENT_FAILED"
                             ? "bg-primary-100 text-primary-700"
-                            : order.orderStatus === "PENDING"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-blue-100 text-blue-700"
+                            : order.orderStatus === "RETURNED" ||
+                              order.orderStatus === "RETURN_REQUESTED"
+                              ? "bg-red-100 text-red-700"
+                              : order.orderStatus === "OUT_OF_STOCK"
+                                ? "bg-orange-100 text-orange-700"
+                                : order.orderStatus === "PENDING_VALIDATION"
+                                  ? "bg-slate-100 text-slate-700"
+                                  : "bg-blue-100 text-blue-700"
                       }`}
                       value={order.orderStatus}
                       onChange={(e) =>
                         handleUpdateOrderStatus(order.id, e.target.value)
                       }
                       disabled={[
-                        "DELIVERED",
-                        "COMPLETED",
                         "CANCELLED",
+                        "PAYMENT_FAILED",
+                        "INVALID_ADDRESS",
+                        "RETURNED",
                       ].includes(order.orderStatus)}
                     >
                       <option value="PENDING">Chờ thanh toán</option>
+                      <option value="PENDING_VALIDATION">Đang xác thực</option>
+                      <option value="INVALID_ADDRESS">Địa chỉ không hợp lệ</option>
+                      <option value="PAYMENT_FAILED">Thanh toán thất bại</option>
+                      <option value="OUT_OF_STOCK">Hết hàng (Chờ CSKH)</option>
+                      <option value="CONFIRMED">Đã xác thực</option>
                       <option value="PROCESSING">Đang xử lý</option>
                       <option value="SHIPPING">Đang giao hàng</option>
                       <option value="DELIVERED">Đã giao hàng</option>
                       <option value="COMPLETED">Đã hoàn thành</option>
                       <option value="CANCELLED">Đã hủy</option>
+                      <option value="RETURNED">Trả hàng / Hoàn tiền</option>
+                      <option value="RETURN_REQUESTED">Yêu cầu trả hàng</option>
                     </select>
                   </td>
                 </tr>

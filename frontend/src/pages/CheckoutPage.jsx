@@ -19,7 +19,18 @@ const CheckoutPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [useProfileAddress, setUseProfileAddress] = useState(!!user?.address);
+  const [isChecking, setIsChecking] = useState(true);
+
+  const hasFullProfileAddress = !!(
+    user?.address &&
+    user?.province_id &&
+    user?.district_id &&
+    user?.ward_id &&
+    user?.street_address &&
+    user?.phone
+  );
+
+  const [useProfileAddress, setUseProfileAddress] = useState(hasFullProfileAddress);
 
   // Vietnam Administrative Divisions States
   const [provinces, setProvinces] = useState([]);
@@ -105,17 +116,29 @@ const CheckoutPage = () => {
     if (!user) {
       toast.error("Vui lòng đăng nhập để thanh toán");
       navigate("/login");
-    } else {
-      fetchCart();
+      return;
     }
-  }, [user, navigate, fetchCart]);
 
-  useEffect(() => {
-    if (cartItems.length === 0 && !loading) {
-      toast.error("Giỏ hàng trống");
-      navigate("/cart");
-    }
-  }, [cartItems, loading, navigate]);
+    const checkCartOnMount = async () => {
+      try {
+        const { data } = await axios.get("/cart");
+        if (!data.data || !data.data.items || data.data.items.length === 0) {
+          toast.error("Giỏ hàng trống");
+          navigate("/cart");
+        } else {
+          // Sync with the global CartContext
+          await fetchCart();
+          setIsChecking(false);
+        }
+      } catch (err) {
+        console.error("Error checking cart:", err);
+        toast.error("Không thể tải thông tin giỏ hàng");
+        navigate("/cart");
+      }
+    };
+
+    checkCartOnMount();
+  }, [user, navigate, fetchCart]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -133,9 +156,19 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Build granular payload fields for step-by-step automatic validation
+    const payload = {
+      ...formData,
+      province_id: useProfileAddress ? user.province_id : selectedProvince.code,
+      district_id: useProfileAddress ? user.district_id : selectedDistrict.code,
+      ward_id: useProfileAddress ? user.ward_id : selectedWard.code,
+      street_address: useProfileAddress ? user.street_address : streetAddress,
+      receiver_phone: useProfileAddress ? user.phone : formData.customerPhone,
+    };
+
     try {
       setIsSubmitting(true);
-      const { data } = await axios.post("/orders", formData);
+      const { data } = await axios.post("/orders", payload);
 
       if (data.success) {
         toast.success("Đặt hàng thành công!");
@@ -161,7 +194,7 @@ const CheckoutPage = () => {
     }).format(price);
   };
 
-  if (loading || cartItems.length === 0) return null;
+  if (loading || isChecking || cartItems.length === 0) return null;
 
   return (
     <div className="bg-slate-50 min-h-screen pt-24 pb-16">
@@ -207,20 +240,28 @@ const CheckoutPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {user?.address && (
                     <div className="md:col-span-2 mb-2">
-                      <label className="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100/80 p-3 rounded-xl border border-slate-200/60 transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={useProfileAddress}
-                          onChange={(e) => setUseProfileAddress(e.target.checked)}
-                          className="w-4 h-4 rounded text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer"
-                        />
-                        <span className="text-sm font-medium text-slate-700">
-                          Sử dụng địa chỉ mặc định trong hồ sơ
-                        </span>
-                      </label>
-                      {useProfileAddress && (
-                        <div className="mt-2 text-xs text-slate-500 italic px-3">
-                          Địa chỉ giao hàng: <strong className="text-slate-800 font-semibold">{user.address}</strong>
+                      {hasFullProfileAddress ? (
+                        <>
+                          <label className="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100/80 p-3 rounded-xl border border-slate-200/60 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={useProfileAddress}
+                              onChange={(e) => setUseProfileAddress(e.target.checked)}
+                              className="w-4 h-4 rounded text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer"
+                            />
+                            <span className="text-sm font-medium text-slate-700">
+                              Sử dụng địa chỉ mặc định trong hồ sơ
+                            </span>
+                          </label>
+                          {useProfileAddress && (
+                            <div className="mt-2 text-xs text-slate-500 italic px-3">
+                              Địa chỉ giao hàng: <strong className="text-slate-800 font-semibold">{user.address}</strong>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-sm">
+                          ⚠️ Địa chỉ mặc định trong hồ sơ chưa đầy đủ thông tin hành chính. Vui lòng chọn địa chỉ giao hàng chi tiết bên dưới để cập nhật lại.
                         </div>
                       )}
                     </div>

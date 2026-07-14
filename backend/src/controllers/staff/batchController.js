@@ -79,6 +79,10 @@ const createBatch = async (req, res, next) => {
       return errorResponse(res, 'Missing required fields', 400);
     }
 
+    if (manufactureDate && new Date(expirationDate) <= new Date(manufactureDate)) {
+      return errorResponse(res, 'Hạn sử dụng phải sau ngày sản xuất', 400);
+    }
+
     const batch = await prisma.productBatch.create({
       data: {
         batchCode,
@@ -105,46 +109,92 @@ const createBatch = async (req, res, next) => {
 const updateBatch = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { currentQuantity, costPrice, expirationDate } = req.body;
+    const batchId = parseInt(id);
+    const {
+      batchCode,
+      importQuantity,
+      currentQuantity,
+      costPrice,
+      manufactureDate,
+      expirationDate,
+      productName,
+      rawMaterialName,
+      supplierId
+    } = req.body;
 
-    const existingBatch = await prisma.productBatch.findUnique({ where: { id: parseInt(id) } });
+    const existingBatch = await prisma.productBatch.findUnique({ where: { id: batchId } });
     if (!existingBatch) return errorResponse(res, 'Batch not found', 404);
 
-    const data = {};
-    if (costPrice !== undefined) data.costPrice = parseInt(costPrice);
-    if (expirationDate !== undefined) data.expirationDate = new Date(expirationDate);
-    if (currentQuantity !== undefined) {
-      const diff = parseInt(currentQuantity) - existingBatch.currentQuantity;
-
-      // Skip update if there is no change in quantity
-      if (diff !== 0) {
-        // Use transaction to update both batch and product stock safely
-        batch = await prisma.$transaction(async (tx) => {
-          const updated = await tx.productBatch.update({
-            where: { id: parseInt(id) },
-            data
-          });
-
-          // Sync product stock
-          await tx.product.update({
-            where: { id: existingBatch.productId },
-            data: { stock: { increment: diff } }
-          });
-
-          return updated;
-        });
-      } else {
-        batch = await prisma.productBatch.update({
-          where: { id: parseInt(id) },
-          data
-        });
-      }
+    // If batchCode changes, check if the new batchCode is already in use
+    if (batchCode && batchCode !== existingBatch.batchCode) {
+      const codeExists = await prisma.productBatch.findUnique({ where: { batchCode } });
+      if (codeExists) return errorResponse(res, 'Batch code already exists', 400);
     }
 
-    return successResponse(res, batch, 'Batch updated successfully');
+    // Validate dates
+    const mDate = manufactureDate !== undefined ? (manufactureDate ? new Date(manufactureDate) : null) : (existingBatch.manufactureDate ? new Date(existingBatch.manufactureDate) : null);
+    const eDate = expirationDate !== undefined ? new Date(expirationDate) : (existingBatch.expirationDate ? new Date(existingBatch.expirationDate) : null);
+
+    if (mDate && eDate && eDate <= mDate) {
+      return errorResponse(res, 'Hạn sử dụng phải sau ngày sản xuất', 400);
+    }
+
+    const data = {};
+    if (batchCode !== undefined) data.batchCode = batchCode;
+    if (importQuantity !== undefined) data.importQuantity = parseInt(importQuantity);
+    if (currentQuantity !== undefined) data.currentQuantity = parseInt(currentQuantity);
+    if (costPrice !== undefined) data.costPrice = parseInt(costPrice);
+    if (manufactureDate !== undefined) {
+      data.manufactureDate = manufactureDate ? new Date(manufactureDate) : null;
+    }
+    if (expirationDate !== undefined) data.expirationDate = new Date(expirationDate);
+    
+    const matName = rawMaterialName || productName;
+    if (matName !== undefined) data.rawMaterialName = matName.trim();
+    
+    if (supplierId !== undefined) data.supplierId = parseInt(supplierId);
+
+    const updatedBatch = await prisma.productBatch.update({
+      where: { id: batchId },
+      data,
+      include: {
+        supplier: { select: { id: true, name: true } },
+        processedProducts: { select: { id: true, name: true } }
+      }
+    });
+
+    return successResponse(res, updatedBatch, 'Batch updated successfully');
+  } catch (err) {
+    if (err.code === 'P2002') {
+      return errorResponse(res, 'Batch code already exists', 400);
+    }
+    next(err);
+  }
+};
+
+// DELETE /api/staff/batches/:id
+const deleteBatch = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const batchId = parseInt(id);
+
+    const existingBatch = await prisma.productBatch.findUnique({ where: { id: batchId } });
+    if (!existingBatch) return errorResponse(res, 'Batch not found', 404);
+
+    // Disconnect products referring to this batch first to avoid foreign key violation
+    await prisma.product.updateMany({
+      where: { rawBatchId: batchId },
+      data: { rawBatchId: null }
+    });
+
+    await prisma.productBatch.delete({
+      where: { id: batchId }
+    });
+
+    return successResponse(res, null, 'Batch deleted successfully');
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { getAllBatches, getBatchSuggestions, createBatch, updateBatch };
+module.exports = { getAllBatches, getBatchSuggestions, createBatch, updateBatch, deleteBatch };

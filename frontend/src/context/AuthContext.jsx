@@ -114,8 +114,18 @@ export const AuthProvider = ({ children }) => {
     if (socket) socket.close();
   };
 
+  const updateProfile = async (data) => {
+    const headers = {};
+    if (data instanceof FormData) {
+      headers['Content-Type'] = 'multipart/form-data';
+    }
+    const res = await api.put('/auth/profile', data, { headers });
+    setUser(res.data.data);
+    return res.data.data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, connected }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, socket, connected }}>
       {children}
     </AuthContext.Provider>
   );

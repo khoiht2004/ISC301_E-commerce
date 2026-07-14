@@ -265,6 +265,11 @@ const getMe = async (req, res, next) => {
         phone: true,
         avatar: true,
         address: true,
+        province_id: true,
+        district_id: true,
+        ward_id: true,
+        street_address: true,
+        receiver_phone: true,
         role: true,
         isActive: true,
         isVerified: true,
@@ -285,21 +290,37 @@ const getMe = async (req, res, next) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    const { fullName, phone, address } = req.body;
+    const { fullName, phone, address, province_id, district_id, ward_id, street_address, receiver_phone } = req.body;
     const updateData = {};
 
     if (fullName) updateData.fullName = fullName;
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
+    if (province_id !== undefined) updateData.province_id = province_id;
+    if (district_id !== undefined) updateData.district_id = district_id;
+    if (ward_id !== undefined) updateData.ward_id = ward_id;
+    if (street_address !== undefined) updateData.street_address = street_address;
+    if (receiver_phone !== undefined) updateData.receiver_phone = receiver_phone;
     if (req.file) updateData.avatar = `/${req.file.path.replace(/\\\\/g, '/')}`;
 
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: updateData,
       select: {
-        id: true, fullName: true, email: true,
-        phone: true, avatar: true, address: true,
-        role: true, createdAt: true, updatedAt: true,
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        avatar: true,
+        address: true,
+        province_id: true,
+        district_id: true,
+        ward_id: true,
+        street_address: true,
+        receiver_phone: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 

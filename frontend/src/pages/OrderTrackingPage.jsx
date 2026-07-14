@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { getSocket } from '../services/socketService';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
 import OrderComplaintForm from '../components/order/OrderComplaintForm';
 import ProductReviewForm from '../components/order/ProductReviewForm';
 
@@ -16,17 +17,18 @@ const OrderTrackingPage = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewProduct, setReviewProduct] = useState(null);
 
+  const fetchOrder = async () => {
+    try {
+      const { data } = await axios.get(`/orders/${id}`);
+      setOrder(data.data);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const { data } = await axios.get(`/orders/${id}`);
-        setOrder(data.data);
-      } catch (error) {
-        console.error('Error fetching order:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchOrder();
   }, [id]);
 
@@ -54,6 +56,17 @@ const OrderTrackingPage = () => {
     };
   }, [user, order]);
 
+  const handleCancelOrder = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) return;
+    try {
+      await axios.put(`/orders/${order.id}/cancel`);
+      toast.success('Hủy đơn hàng thành công');
+      fetchOrder();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể hủy đơn hàng');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -78,11 +91,18 @@ const OrderTrackingPage = () => {
   const getOrderStatusText = (status) => {
     switch (status) {
       case 'PENDING': return 'Chờ thanh toán';
+      case 'PENDING_VALIDATION': return 'Đang xác thực';
+      case 'INVALID_ADDRESS': return 'Địa chỉ không hợp lệ';
+      case 'PAYMENT_FAILED': return 'Thanh toán thất bại';
+      case 'OUT_OF_STOCK': return 'Hết hàng (Chờ CSKH)';
+      case 'CONFIRMED': return 'Đã xác thực';
       case 'PROCESSING': return 'Đang xử lý';
       case 'SHIPPING': return 'Đang giao hàng';
       case 'DELIVERED': return 'Đã giao hàng';
       case 'COMPLETED': return 'Hoàn thành';
       case 'CANCELLED': return 'Đã hủy';
+      case 'RETURNED': return 'Trả hàng / Hoàn tiền';
+      case 'RETURN_REQUESTED': return 'Đang yêu cầu trả hàng';
       default: return status;
     }
   };
@@ -96,8 +116,9 @@ const OrderTrackingPage = () => {
     }
   };
 
-  const orderSteps = ['PENDING', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED'];
-  const currentStepIndex = orderSteps.indexOf(order.orderStatus);
+  const orderSteps = ['PENDING_VALIDATION', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED'];
+  const normalizedStatus = order.orderStatus === 'PENDING' ? 'PENDING_VALIDATION' : order.orderStatus;
+  const currentStepIndex = orderSteps.indexOf(normalizedStatus);
 
   return (
     <div className="bg-slate-50 min-h-screen py-12">
@@ -121,9 +142,20 @@ const OrderTrackingPage = () => {
             </div>
           </div>
 
-          {order.orderStatus === 'CANCELLED' ? (
-            <div className="bg-primary-50 text-primary-600 p-4 rounded-xl text-center font-bold">
-              Đơn hàng này đã bị hủy.
+          {['CANCELLED', 'INVALID_ADDRESS', 'PAYMENT_FAILED', 'OUT_OF_STOCK', 'RETURNED', 'RETURN_REQUESTED'].includes(order.orderStatus) ? (
+            <div className={`p-4 rounded-xl text-center font-bold ${
+              order.orderStatus === 'OUT_OF_STOCK'
+                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                : ['RETURNED', 'RETURN_REQUESTED'].includes(order.orderStatus)
+                  ? 'bg-rose-50 text-rose-700 border border-rose-100'
+                  : 'bg-primary-50 text-primary-600 border border-primary-100'
+            }`}>
+              {order.orderStatus === 'CANCELLED' && 'Đơn hàng này đã bị hủy.'}
+              {order.orderStatus === 'INVALID_ADDRESS' && 'Đơn hàng có địa chỉ không hợp lệ. Vui lòng tạo đơn hàng mới với thông tin địa chỉ chính xác.'}
+              {order.orderStatus === 'PAYMENT_FAILED' && 'Thanh toán thất bại hoặc quá hạn 15 phút. Đơn hàng đã bị hủy.'}
+              {order.orderStatus === 'OUT_OF_STOCK' && 'Đơn hàng tạm thời hết hàng trong kho. Bộ phận CSKH đang tiến hành xử lý thủ công.'}
+              {order.orderStatus === 'RETURNED' && 'Đơn hàng này đã được Trả hàng / Hoàn tiền thành công.'}
+              {order.orderStatus === 'RETURN_REQUESTED' && 'Bạn đã gửi yêu cầu Trả hàng / Hoàn tiền. Cửa hàng đang xem xét xử lý.'}
             </div>
           ) : (
             <div className="relative pt-4">
@@ -259,12 +291,26 @@ const OrderTrackingPage = () => {
               </p>
               <button
                 onClick={() => setIsComplaintModalOpen(true)}
-                disabled={['PENDING', 'CANCELLED'].includes(order.orderStatus)}
+                disabled={['PENDING', 'CANCELLED', 'RETURNED', 'RETURN_REQUESTED'].includes(order.orderStatus)}
                 className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 font-bold rounded-lg text-center text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Khiếu nại đơn hàng
+                {order.orderStatus === 'RETURN_REQUESTED' ? 'Đang yêu cầu trả hàng' : 'Khiếu nại đơn hàng'}
               </button>
             </div>
+            {['PENDING', 'PENDING_VALIDATION', 'CONFIRMED', 'PROCESSING', 'OUT_OF_STOCK'].includes(order.orderStatus) && (
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+                <h3 className="font-bold text-lg text-slate-800 border-b border-slate-100 pb-4 mb-4">Hủy Đơn Hàng</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                  Bạn có thể hủy đơn hàng nếu đơn hàng chưa được giao cho đơn vị vận chuyển.
+                </p>
+                <button
+                  onClick={handleCancelOrder}
+                  className="w-full py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 font-bold rounded-lg text-center text-sm transition-all"
+                >
+                  Yêu cầu hủy đơn hàng
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
