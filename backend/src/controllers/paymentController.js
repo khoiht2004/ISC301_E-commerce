@@ -13,6 +13,7 @@ const {
   extractOrderCode,
   validateWebhookPayload,
 } = require('../services/sepayService');
+const { performFinalCheck } = require('../services/orderValidationService');
 
 // ─── GET /api/payment/qr/:orderCode ──────────────────────────────────────────
 
@@ -187,7 +188,6 @@ const handleSePayWebhook = async (req, res) => {
         where: { id: order.id },
         data: {
           paymentStatus: 'PAID',
-          orderStatus:   'PROCESSING',
           paidAt:        new Date(),
         },
       });
@@ -209,7 +209,10 @@ const handleSePayWebhook = async (req, res) => {
 
     console.log('[SePay Webhook] DB Update Successful. Database Result:', JSON.stringify(updatedResult, null, 2));
 
-    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} đã được xác nhận PAID & status = PROCESSING`);
+    // Run Step 2.3: Final Check (Inventory check & transition to CONFIRMED or OUT_OF_STOCK)
+    const finalizedOrder = await performFinalCheck(order.id);
+
+    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} đã được xác nhận PAID & status = ${finalizedOrder.orderStatus}`);
     console.log(`[SePay Webhook]    Gateway: ${gateway} | Amount: ${receivedAmount} | Ref: ${referenceNumber}`);
 
     // 10. Emit realtime socket

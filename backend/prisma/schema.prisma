@@ -18,6 +18,11 @@ model User {
   phone              String?
   avatar             String?
   address            String?
+  province_id        String?
+  district_id        String?
+  ward_id            String?
+  street_address     String?
+  receiver_phone     String?
   role String @default("USER") // ADMIN | STAFF | USER
   isOnline           Boolean   @default(false)
   isActive           Boolean   @default(true)
@@ -258,6 +263,11 @@ model Order {
   paymentStatus String @default("PENDING")
   orderStatus String @default("PENDING")
   shippingAddress String
+  province_id     String?
+  district_id     String?
+  ward_id         String?
+  street_address  String?
+  receiver_phone  String?
   customerPhone   String
   customerEmail   String
   note            String?       @db.Text

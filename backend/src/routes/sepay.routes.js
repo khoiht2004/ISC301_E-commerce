@@ -13,6 +13,7 @@
 const router  = require('express').Router();
 const prisma  = require('../config/prisma');
 const { logSePayWebhook }  = require('../middlewares/sepayLogger');
+const { performFinalCheck } = require('../services/orderValidationService');
 
 // ─── Middleware: Xác thực API token của SePay ──────────────────────────────────
 /**
@@ -174,7 +175,6 @@ const handleSePayWebhook = async (req, res) => {
         where: { id: order.id },
         data: {
           paymentStatus: 'PAID',       // đã thanh toán
-          orderStatus:   'PROCESSING', // chuyển sang xử lý
           paidAt:        new Date(),   // ghi nhận thời điểm thanh toán
         },
       });
@@ -196,7 +196,10 @@ const handleSePayWebhook = async (req, res) => {
       return { updatedOrder, paymentTx };
     });
 
-    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} → PAID & PROCESSING`);
+    // Run Step 2.3: Final Check (Inventory check & transition to CONFIRMED or OUT_OF_STOCK)
+    const finalizedOrder = await performFinalCheck(order.id);
+
+    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} → PAID & ${finalizedOrder.orderStatus}`);
     console.log(`[SePay Webhook]    Gateway: ${gateway} | Amount: ${receivedAmount} VND | TxID: ${transactionId}`);
 
     // ── Bước 9: Emit socket realtime (nếu có io) ─────────────────────────────

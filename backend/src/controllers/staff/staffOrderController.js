@@ -2,7 +2,21 @@ const prisma = require('../../config/prisma');
 const { successResponse, errorResponse, paginatedResponse } = require('../../utils/response');
 const { cancelOrderService } = require('../../services/orderService');
 
-const VALID_ORDER_STATUSES = ['PENDING', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED', 'CANCELLED'];
+const VALID_ORDER_STATUSES = [
+  'PENDING', 
+  'PENDING_VALIDATION', 
+  'INVALID_ADDRESS', 
+  'PAYMENT_FAILED', 
+  'OUT_OF_STOCK', 
+  'CONFIRMED', 
+  'PROCESSING', 
+  'SHIPPING', 
+  'DELIVERED', 
+  'COMPLETED', 
+  'CANCELLED',
+  'RETURNED',
+  'RETURN_REQUESTED'
+];
 const VALID_PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED'];
 
 // GET /api/staff/orders
@@ -52,14 +66,17 @@ const updateOrderStatus = async (req, res, next) => {
     const order = await prisma.order.findUnique({ where: { id: parseInt(id) } });
     if (!order) return errorResponse(res, 'Order not found', 404);
 
-    // Prevent updating completed/cancelled orders
-    if (['DELIVERED', 'CANCELLED'].includes(order.orderStatus)) {
+    // Prevent updating already cancelled or returned orders
+    if (['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
       return errorResponse(res, `Cannot update a ${order.orderStatus} order`, 400);
     }
 
-    // If cancelling, restore stock
-    if (status === 'CANCELLED') {
-      await cancelOrderService(order.id);
+    // If cancelling or returning, restore stock (only if old status was holding stock)
+    if (['CANCELLED', 'RETURNED'].includes(status)) {
+      const HELD_STOCK_STATUSES = ['CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED', 'RETURN_REQUESTED'];
+      if (HELD_STOCK_STATUSES.includes(order.orderStatus)) {
+        await cancelOrderService(order.id);
+      }
     }
 
     const updated = await prisma.order.update({

@@ -16,21 +16,34 @@ const createComplaint = async (req, res, next) => {
     });
     if (!order) return errorResponse(res, 'Order not found', 404);
 
+    if (!['DELIVERED', 'COMPLETED'].includes(order.orderStatus)) {
+      return errorResponse(res, 'Chỉ có thể yêu cầu hoàn hàng cho đơn hàng đã giao hoặc đã hoàn thành', 400);
+    }
+
     const existing = await prisma.orderComplaint.findFirst({
       where: { orderId, userId: req.user.id },
     });
-    if (existing) return errorResponse(res, 'You have already submitted a complaint for this order', 400);
+    if (existing) return errorResponse(res, 'Bạn đã gửi yêu cầu cho đơn hàng này rồi', 400);
 
-    const complaint = await prisma.orderComplaint.create({
-      data: {
-        userId: req.user.id,
-        orderId,
-        reason,
-        status: 'PENDING',
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      const newComplaint = await tx.orderComplaint.create({
+        data: {
+          userId: req.user.id,
+          orderId,
+          reason,
+          status: 'PENDING',
+        },
+      });
+
+      await tx.order.update({
+        where: { id: orderId },
+        data: { orderStatus: 'RETURN_REQUESTED' },
+      });
+
+      return newComplaint;
     });
 
-    return successResponse(res, complaint, 'Complaint submitted successfully', 201);
+    return successResponse(res, result, 'Gửi yêu cầu trả hàng / hoàn tiền thành công', 201);
   } catch (err) {
     next(err);
   }

@@ -1,7 +1,22 @@
 const prisma = require('../config/prisma');
+const { validateAddress, performFinalCheck } = require('./orderValidationService');
 
 const createOrderService = async (userId, bodyData) => {
-  const { shippingAddress, customerPhone, customerEmail, note, paymentMethod, shippingFee, discountAmount, items: directItems } = bodyData;
+  const {
+    shippingAddress,
+    customerPhone,
+    customerEmail,
+    note,
+    paymentMethod,
+    shippingFee,
+    discountAmount,
+    items: directItems,
+    province_id,
+    district_id,
+    ward_id,
+    street_address,
+    receiver_phone
+  } = bodyData;
 
   let orderItems;
 
@@ -11,7 +26,6 @@ const createOrderService = async (userId, bodyData) => {
       directItems.map(async ({ productId, quantity }) => {
         const product = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
         if (!product) throw new Error(`Product ${productId} not found`);
-        if (product.stock < quantity) throw new Error(`Insufficient stock for ${product.name}`);
         return { product, quantity };
       })
     );
@@ -24,9 +38,9 @@ const createOrderService = async (userId, bodyData) => {
 
     if (!cart || !cart.items || cart.items.length === 0) throw new Error('Giỏ hàng trống');
 
-    const invalidItems = cart.items.filter((i) => i.product.isDeleted || i.product.stock < i.quantity);
+    const invalidItems = cart.items.filter((i) => i.product.isDeleted);
     if (invalidItems.length > 0) {
-      throw new Error('Một số sản phẩm đã hết hàng hoặc không còn bán');
+      throw new Error('Một số sản phẩm không còn bán');
     }
 
     orderItems = cart.items.map(({ product, quantity }) => ({ product, quantity }));
@@ -40,7 +54,10 @@ const createOrderService = async (userId, bodyData) => {
   // Generate unique order code
   const orderCode = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-  // Create order + items in transaction
+  // Step 2.1: Address Validation Check
+  const addressValidation = validateAddress({ province_id, district_id, ward_id, street_address, receiver_phone });
+
+  // Create order + items in transaction (without stock decrement, done in Step 2.3)
   const order = await prisma.$transaction(async (tx) => {
     const newOrder = await tx.order.create({
       data: {
@@ -55,8 +72,13 @@ const createOrderService = async (userId, bodyData) => {
         customerEmail,
         note,
         paymentMethod,
-        paymentStatus: 'PENDING',
-        orderStatus: paymentMethod === 'COD' ? 'PROCESSING' : 'PENDING',
+        paymentStatus: paymentMethod === 'COD' ? 'UNPAID' : 'PENDING',
+        orderStatus: addressValidation.isValid ? 'PENDING_VALIDATION' : 'INVALID_ADDRESS',
+        province_id,
+        district_id,
+        ward_id,
+        street_address,
+        receiver_phone,
         orderItems: {
           create: orderItems.map(({ product, quantity }) => ({
             productId: product.id,
@@ -72,20 +94,19 @@ const createOrderService = async (userId, bodyData) => {
       },
     });
 
-    // Update user profile info (autofill for future checkouts)
-    await tx.user.update({
-      where: { id: userId },
-      data: {
-        address: shippingAddress,
-        phone: customerPhone,
-      }
-    });
-
-    // Decrement stock
-    for (const { product, quantity } of orderItems) {
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock: { decrement: quantity } },
+    // Update user profile info (autofill for future checkouts) if address is valid
+    if (addressValidation.isValid) {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          address: shippingAddress,
+          phone: customerPhone,
+          province_id,
+          district_id,
+          ward_id,
+          street_address,
+          receiver_phone,
+        }
       });
     }
 
@@ -99,6 +120,19 @@ const createOrderService = async (userId, bodyData) => {
 
     return newOrder;
   });
+
+  // If address validation failed, throw error containing the saved order so controller can reply.
+  if (!addressValidation.isValid) {
+    const err = new Error(addressValidation.message);
+    err.statusCode = 400;
+    err.order = order;
+    throw err;
+  }
+
+  // Step 2.2 & 2.3 for COD orders: Process stock check and confirmed status synchronously.
+  if (paymentMethod === 'COD') {
+    return await performFinalCheck(order.id);
+  }
 
   return order;
 };
