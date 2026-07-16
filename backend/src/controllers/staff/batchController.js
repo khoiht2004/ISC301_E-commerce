@@ -60,7 +60,7 @@ const getBatchSuggestions = async (req, res, next) => {
       orderBy: { expirationDate: 'asc' }
     });
 
-    return successResponse(res, batches, 'Suggested batches fetched');
+    return successResponse(res, batches, 'Đã lấy danh sách lô hàng gợi ý');
   } catch (err) {
     next(err);
   }
@@ -76,7 +76,7 @@ const createBatch = async (req, res, next) => {
 
     // Validate
     if (!batchCode || !importQuantity || !costPrice || !expirationDate || !matName || !supplierId) {
-      return errorResponse(res, 'Missing required fields', 400);
+      return errorResponse(res, 'Vui lòng điền đầy đủ thông tin bắt buộc', 400);
     }
 
     if (manufactureDate && new Date(expirationDate) <= new Date(manufactureDate)) {
@@ -96,10 +96,10 @@ const createBatch = async (req, res, next) => {
       }
     });
 
-    return successResponse(res, batch, 'Batch created successfully', 201);
+    return successResponse(res, batch, 'Tạo lô hàng thành công', 201);
   } catch (err) {
     if (err.code === 'P2002') {
-      return errorResponse(res, 'Batch code already exists', 400);
+      return errorResponse(res, 'Mã lô hàng đã tồn tại', 400);
     }
     next(err);
   }
@@ -123,12 +123,12 @@ const updateBatch = async (req, res, next) => {
     } = req.body;
 
     const existingBatch = await prisma.productBatch.findUnique({ where: { id: batchId } });
-    if (!existingBatch) return errorResponse(res, 'Batch not found', 404);
+    if (!existingBatch) return errorResponse(res, 'Không tìm thấy lô hàng', 404);
 
     // If batchCode changes, check if the new batchCode is already in use
     if (batchCode && batchCode !== existingBatch.batchCode) {
       const codeExists = await prisma.productBatch.findUnique({ where: { batchCode } });
-      if (codeExists) return errorResponse(res, 'Batch code already exists', 400);
+      if (codeExists) return errorResponse(res, 'Mã lô hàng đã tồn tại', 400);
     }
 
     // Validate dates
@@ -163,10 +163,10 @@ const updateBatch = async (req, res, next) => {
       }
     });
 
-    return successResponse(res, updatedBatch, 'Batch updated successfully');
+    return successResponse(res, updatedBatch, 'Cập nhật lô hàng thành công');
   } catch (err) {
     if (err.code === 'P2002') {
-      return errorResponse(res, 'Batch code already exists', 400);
+      return errorResponse(res, 'Mã lô hàng đã tồn tại', 400);
     }
     next(err);
   }
@@ -179,19 +179,22 @@ const deleteBatch = async (req, res, next) => {
     const batchId = parseInt(id);
 
     const existingBatch = await prisma.productBatch.findUnique({ where: { id: batchId } });
-    if (!existingBatch) return errorResponse(res, 'Batch not found', 404);
+    if (!existingBatch) return errorResponse(res, 'Không tìm thấy lô hàng', 404);
 
-    // Disconnect products referring to this batch first to avoid foreign key violation
-    await prisma.product.updateMany({
-      where: { rawBatchId: batchId },
-      data: { rawBatchId: null }
+    // Gỡ liên kết sản phẩm + xóa lô hàng phải thành công/thất bại cùng nhau
+    await prisma.$transaction(async (tx) => {
+      // Disconnect products referring to this batch first to avoid foreign key violation
+      await tx.product.updateMany({
+        where: { rawBatchId: batchId },
+        data: { rawBatchId: null }
+      });
+
+      await tx.productBatch.delete({
+        where: { id: batchId }
+      });
     });
 
-    await prisma.productBatch.delete({
-      where: { id: batchId }
-    });
-
-    return successResponse(res, null, 'Batch deleted successfully');
+    return successResponse(res, null, 'Xóa lô hàng thành công');
   } catch (err) {
     next(err);
   }

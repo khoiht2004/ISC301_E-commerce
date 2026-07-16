@@ -136,7 +136,7 @@ const StaffNewsPage = () => {
 
         <button
           onClick={handleOpenCreateModal}
-          className="bg-primary-600 hover:bg-primary-700 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg border border-primary-600 transition-all shrink-0 align-self-start"
+          className="bg-primary-600 hover:bg-primary-700 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg border border-primary-600 transition-all shrink-0 align-self-start"
         >
           <Plus size={16} /> Viết Bài Mới
         </button>

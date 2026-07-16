@@ -4,7 +4,7 @@ const prisma = require('../config/prisma');
 const { successResponse, errorResponse } = require('../utils/response');
 
 const tagSchema = z.object({
-  name: z.string().min(1, 'Tag name is required'),
+  name: z.string().min(1, 'Tên tag là bắt buộc'),
 });
 
 // GET /api/tags - public
@@ -31,10 +31,10 @@ const createTag = async (req, res, next) => {
     const existing = await prisma.productTag.findFirst({
       where: { OR: [{ name }, { slug }] },
     });
-    if (existing) return errorResponse(res, 'Tag already exists', 409);
+    if (existing) return errorResponse(res, 'Tag đã tồn tại', 409);
 
     const tag = await prisma.productTag.create({ data: { name, slug } });
-    return successResponse(res, tag, 'Tag created', 201);
+    return successResponse(res, tag, 'Tạo tag thành công', 201);
   } catch (err) {
     next(err);
   }
@@ -45,7 +45,7 @@ const deleteTag = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.productTag.delete({ where: { id: parseInt(id) } });
-    return successResponse(res, null, 'Tag deleted');
+    return successResponse(res, null, 'Xóa tag thành công');
   } catch (err) {
     next(err);
   }

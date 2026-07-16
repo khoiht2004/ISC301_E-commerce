@@ -12,6 +12,8 @@ import StaffNewsPage from "./StaffNewsPage";
 import StaffProductPage from "./StaffProductPage";
 import StaffOrderPage from "./StaffOrderPage";
 import StaffBatchPage from "./StaffBatchPage";
+import StaffOverviewPage from "./StaffOverviewPage";
+import StaffUserManagementPage from "./StaffUserManagementPage";
 import StaffSidebar from "../../components/staff/StaffSidebar";
 
 const StaffDashboard = () => {
@@ -313,7 +315,11 @@ const StaffDashboard = () => {
 
       {/* 2. Middle/Right Area: Conversational Area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-100">
-        {currentModule === "news" ? (
+        {currentModule === "overview" ? (
+          <StaffOverviewPage />
+        ) : currentModule === "users" ? (
+          <StaffUserManagementPage />
+        ) : currentModule === "news" ? (
           <StaffNewsPage />
         ) : currentModule === "products" ? (
           <StaffProductPage />

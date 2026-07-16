@@ -384,17 +384,17 @@ async function main() {
         excerpt:
           "Thịt bò Mỹ nhập khẩu ngày càng phổ biến trong các bữa ăn Việt. Hãy cùng tìm hiểu cách phân biệt và chọn lựa những phần thịt bò ngon nhất.",
         content: `
-          <p>Thịt bò Mỹ nhập khẩu luôn được ưa chuộng nhờ độ mềm ngọt, vân mỡ đều và chất lượng dinh dưỡng cao. Tuy nhiên, để chọn được những khay thịt tươi ngon và phù hợp với từng món ăn, bạn cần lưu ý một số bí quyết sau:</p>
-          <h3>1. Quan sát màu sắc thịt</h3>
-          <p>Thịt bò Mỹ tươi ngon thường có màu đỏ tươi sáng, không phải màu đỏ sẫm hay hơi thâm. Phần mỡ bò đi kèm nên có màu trắng hoặc hơi ngà tinh khiết, không bị xỉn màu.</p>
-          <h3>2. Vân mỡ (Marbling) đều đặn</h3>
-          <p>Một trong những điểm đặc trưng của bò Mỹ là các đường vân mỡ đan xen đều đặn trong các thớ thịt. Tỷ lệ vân mỡ cao giúp thịt mềm hơn và không bị khô khi chế biến nướng hoặc áp chảo.</p>
-          <h3>3. Lựa chọn phần thịt phù hợp cho món ăn</h3>
-          <ul>
-            <li><strong>Món lẩu/nướng:</strong> Nên chọn Ba chỉ bò Mỹ (Shortplate) vì có tỷ lệ thịt - mỡ lý tưởng.</li>
-            <li><strong>Món steak/áp chảo:</strong> Nên chọn Thăn ngoại (Striploin) hoặc Lõi vai (Top Blade) để cảm nhận vị mềm ngọt nguyên bản.</li>
-          </ul>
-        `,
+<p>Thịt bò Mỹ nhập khẩu luôn được ưa chuộng nhờ độ mềm ngọt, vân mỡ đều và chất lượng dinh dưỡng cao. Tuy nhiên, để chọn được những khay thịt tươi ngon và phù hợp với từng món ăn, bạn cần lưu ý một số bí quyết sau:</p>
+<h3>1. Quan sát màu sắc thịt</h3>
+<p>Thịt bò Mỹ tươi ngon thường có màu đỏ tươi sáng, không phải màu đỏ sẫm hay hơi thâm. Phần mỡ bò đi kèm nên có màu trắng hoặc hơi ngà tinh khiết, không bị xỉn màu.</p>
+<h3>2. Vân mỡ (Marbling) đều đặn</h3>
+<p>Một trong những điểm đặc trưng của bò Mỹ là các đường vân mỡ đan xen đều đặn trong các thớ thịt. Tỷ lệ vân mỡ cao giúp thịt mềm hơn và không bị khô khi chế biến nướng hoặc áp chảo.</p>
+<h3>3. Lựa chọn phần thịt phù hợp cho món ăn</h3>
+<ul>
+  <li><strong>Món lẩu/nướng:</strong> Nên chọn Ba chỉ bò Mỹ (Shortplate) vì có tỷ lệ thịt - mỡ lý tưởng.</li>
+  <li><strong>Món steak/áp chảo:</strong> Nên chọn Thăn ngoại (Striploin) hoặc Lõi vai (Top Blade) để cảm nhận vị mềm ngọt nguyên bản.</li>
+</ul>
+`,
         thumbnail: "/uploads/news/news-beef.jpg",
         views: 120,
         isPublished: true,
@@ -407,17 +407,17 @@ async function main() {
         excerpt:
           "Chỉ với chiếc nồi chiên không dầu quen thuộc, bạn hoàn toàn có thể tự tay làm món thịt heo quay giòn rụm, vàng ươm chuẩn vị ngoài hàng.",
         content: `
-          <p>Thịt quay giòn bì là món ăn khoái khẩu của cả người lớn lẫn trẻ em. Bài viết này sẽ hướng dẫn bạn cách chế biến món ăn hấp dẫn này một cách nhanh chóng, ít dầu mỡ bằng nồi chiên không dầu.</p>
-          <h3>Nguyên liệu cần chuẩn bị:</h3>
-          <ul>
-            <li>1kg Thịt ba chỉ heo rút sườn tươi ngon</li>
-            <li>Gia vị: Ngũ vị hương, bột tỏi, muối, tiêu, giấm ăn, chanh</li>
-          </ul>
-          <h3>Các bước thực hiện:</h3>
-          <p><strong>Bước 1: Sơ chế và luộc sơ thịt:</strong> Rửa sạch thịt heo, luộc sơ phần da heo trong nước sôi khoảng 5 phút cùng hành gừng để khử mùi tanh.</p>
-          <p><strong>Bước 2: Xăm da và ướp gia vị:</strong> Dùng dĩa hoặc tăm nhọn xăm thật đều lên mặt da. Thoa một lớp muối mỏng và giấm lên da để khi nướng da sẽ nổ giòn. Phần thịt bên dưới ướp với ngũ vị hương và gia vị vừa ăn.</p>
-          <p><strong>Bước 3: Nướng bằng nồi chiên không dầu:</strong> Nướng lần 1 ở 180 độ C trong 20 phút để thịt chín đều. Nướng lần 2 ở 200 độ C trong 10-15 phút để da nổ giòn rụm.</p>
-        `,
+<p>Thịt quay giòn bì là món ăn khoái khẩu của cả người lớn lẫn trẻ em. Bài viết này sẽ hướng dẫn bạn cách chế biến món ăn hấp dẫn này một cách nhanh chóng, ít dầu mỡ bằng nồi chiên không dầu.</p>
+<h3>Nguyên liệu cần chuẩn bị:</h3>
+<ul>
+  <li>1kg Thịt ba chỉ heo rút sườn tươi ngon</li>
+  <li>Gia vị: Ngũ vị hương, bột tỏi, muối, tiêu, giấm ăn, chanh</li>
+</ul>
+<h3>Các bước thực hiện:</h3>
+<p><strong>Bước 1: Sơ chế và luộc sơ thịt:</strong> Rửa sạch thịt heo, luộc sơ phần da heo trong nước sôi khoảng 5 phút cùng hành gừng để khử mùi tanh.</p>
+<p><strong>Bước 2: Xăm da và ướp gia vị:</strong> Dùng dĩa hoặc tăm nhọn xăm thật đều lên mặt da. Thoa một lớp muối mỏng và giấm lên da để khi nướng da sẽ nổ giòn. Phần thịt bên dưới ướp với ngũ vị hương và gia vị vừa ăn.</p>
+<p><strong>Bước 3: Nướng bằng nồi chiên không dầu:</strong> Nướng lần 1 ở 180 độ C trong 20 phút để thịt chín đều. Nướng lần 2 ở 200 độ C trong 10-15 phút để da nổ giòn rụm.</p>
+`,
         thumbnail: "/uploads/news/news-pork.jpg",
         views: 85,
         isPublished: true,
@@ -430,14 +430,14 @@ async function main() {
         excerpt:
           "Ức gà không chỉ là thực phẩm vàng cho dân tập gym mà còn mang lại vô vàn giá trị sức khỏe tuyệt vời cho mọi lứa tuổi.",
         content: `
-          <p>Ức gà là phần thịt trắng chứa hàm lượng đạm cao nhưng lại rất ít chất béo. Đây được coi là nguồn thực phẩm lý tưởng để xây dựng cơ bắp và duy trì lối sống lành mạnh.</p>
-          <h3>1. Nguồn cung cấp protein chất lượng cao</h3>
-          <p>Trong 100g ức gà chứa đến 31g protein, giúp thúc đẩy quá trình hồi phục và phát triển cơ bắp, giữ cảm giác no lâu, hỗ trợ hiệu quả cho việc giảm cân.</p>
-          <h3>2. Hỗ trợ kiểm soát cân nặng và bảo vệ tim mạch</h3>
-          <p>Nhờ lượng chất béo bão hòa cực thấp, bổ sung ức gà thay thế các loại thịt đỏ giúp giảm lượng cholesterol xấu trong máu, từ đó phòng ngừa các bệnh tim mạch nguy hiểm.</p>
-          <h3>3. Chứa nhiều khoáng chất và vitamin nhóm B</h3>
-          <p>Ức gà giàu phốt pho và selen tốt cho xương răng và tuyến giáp. Lượng vitamin B6 giúp tăng cường trao đổi chất và duy trì hệ thần kinh khỏe mạnh.</p>
-        `,
+<p>Ức gà là phần thịt trắng chứa hàm lượng đạm cao nhưng lại rất ít chất béo. Đây được coi là nguồn thực phẩm lý tưởng để xây dựng cơ bắp và duy trì lối sống lành mạnh.</p>
+<h3>1. Nguồn cung cấp protein chất lượng cao</h3>
+<p>Trong 100g ức gà chứa đến 31g protein, giúp thúc đẩy quá trình hồi phục và phát triển cơ bắp, giữ cảm giác no lâu, hỗ trợ hiệu quả cho việc giảm cân.</p>
+<h3>2. Hỗ trợ kiểm soát cân nặng và bảo vệ tim mạch</h3>
+<p>Nhờ lượng chất béo bão hòa cực thấp, bổ sung ức gà thay thế các loại thịt đỏ giúp giảm lượng cholesterol xấu trong máu, từ đó phòng ngừa các bệnh tim mạch nguy hiểm.</p>
+<h3>3. Chứa nhiều khoáng chất và vitamin nhóm B</h3>
+<p>Ức gà giàu phốt pho và selen tốt cho xương răng và tuyến giáp. Lượng vitamin B6 giúp tăng cường trao đổi chất và duy trì hệ thần kinh khỏe mạnh.</p>
+`,
         thumbnail: "/uploads/news/news-chicken.jpg",
         views: 210,
         isPublished: true,

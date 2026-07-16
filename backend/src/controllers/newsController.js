@@ -6,9 +6,9 @@ const { successResponse, errorResponse, paginatedResponse } = require('../utils/
 // ─── Validation Schemas ───────────────────────────────────────────────────────
 
 const newsSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters'),
+  title: z.string().min(5, 'Tiêu đề phải có ít nhất 5 ký tự'),
   excerpt: z.string().optional(),
-  content: z.string().min(10, 'Content is required'),
+  content: z.string().min(10, 'Nội dung phải có ít nhất 10 ký tự'),
   isPublished: z.union([z.boolean(), z.string()]).optional(),
 });
 
@@ -100,8 +100,8 @@ const getNewsBySlug = async (req, res, next) => {
       },
     });
 
-    if (!article) return errorResponse(res, 'Article not found', 404);
-    if (!article.isPublished) return errorResponse(res, 'Article not available', 404);
+    if (!article) return errorResponse(res, 'Không tìm thấy bài viết', 404);
+    if (!article.isPublished) return errorResponse(res, 'Bài viết hiện không khả dụng', 404);
 
     // Increment views
     await prisma.news.update({
@@ -136,7 +136,7 @@ const createNews = async (req, res, next) => {
       include: { createdBy: { select: { id: true, fullName: true } } },
     });
 
-    return successResponse(res, article, 'Article created', 201);
+    return successResponse(res, article, 'Tạo bài viết thành công', 201);
   } catch (err) {
     next(err);
   }
@@ -151,7 +151,7 @@ const updateNews = async (req, res, next) => {
     const parsed = newsSchema.partial().parse(req.body);
 
     const existing = await prisma.news.findUnique({ where: { id: parseInt(id) } });
-    if (!existing) return errorResponse(res, 'Article not found', 404);
+    if (!existing) return errorResponse(res, 'Không tìm thấy bài viết', 404);
 
     const updateData = {};
     if (parsed.title) {
@@ -176,7 +176,7 @@ const updateNews = async (req, res, next) => {
       include: { createdBy: { select: { id: true, fullName: true } } },
     });
 
-    return successResponse(res, article, 'Article updated');
+    return successResponse(res, article, 'Cập nhật bài viết thành công');
   } catch (err) {
     next(err);
   }
@@ -189,10 +189,10 @@ const deleteNews = async (req, res, next) => {
   try {
     const { id } = req.params;
     const existing = await prisma.news.findUnique({ where: { id: parseInt(id) } });
-    if (!existing) return errorResponse(res, 'Article not found', 404);
+    if (!existing) return errorResponse(res, 'Không tìm thấy bài viết', 404);
 
     await prisma.news.delete({ where: { id: parseInt(id) } });
-    return successResponse(res, null, 'Article deleted');
+    return successResponse(res, null, 'Xóa bài viết thành công');
   } catch (err) {
     next(err);
   }

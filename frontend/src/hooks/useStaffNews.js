@@ -28,15 +28,13 @@ export const useStaffNews = () => {
   const submitArticle = async (editingId, formData) => {
     setSubmitting(true);
     try {
+      // Content-Type để undefined để axios/trình duyệt tự sinh boundary đúng cho FormData
+      const formDataConfig = { headers: { "Content-Type": undefined } };
       if (editingId) {
-        await api.put(`/news/${editingId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.put(`/news/${editingId}`, formData, formDataConfig);
         toast.success("Cập nhật bài viết thành công!");
       } else {
-        await api.post("/news", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.post("/news", formData, formDataConfig);
         toast.success("Tạo bài viết mới thành công!");
       }
       fetchArticles();

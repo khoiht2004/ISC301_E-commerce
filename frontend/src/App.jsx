@@ -10,7 +10,6 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import StaffDashboard from "./pages/staff/StaffDashboard";
 import { DASHBOARD_PATHS, ROLES } from "./constants/roles";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import AccountPage from "./pages/AccountPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -32,9 +31,7 @@ import ScrollToTop from "./components/common/ScrollToTop";
 function AppContent() {
   const location = useLocation();
   const { user } = useAuth();
-  const isDashboard =
-    location.pathname.startsWith("/staff") ||
-    location.pathname.startsWith("/admin");
+  const isDashboard = location.pathname.startsWith("/manager");
 
   return (
     <CartProvider user={user}>
@@ -67,21 +64,16 @@ function AppContent() {
               <Route path="/account" element={<AccountPage />} />
             </Route>
 
-            {/* STAFF Routes */}
+            {/* Manager Routes (shared by STAFF and ADMIN) */}
             <Route
               element={
                 <RoleProtectedRoute roles={[ROLES.STAFF, ROLES.ADMIN]} />
               }
             >
               <Route
-                path={DASHBOARD_PATHS.staff}
+                path={DASHBOARD_PATHS.manager}
                 element={<StaffDashboard />}
               />
-            </Route>
-
-            {/* Admin Routes */}
-            <Route element={<RoleProtectedRoute roles={["ADMIN"]} />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Route>
           </Routes>
         </main>

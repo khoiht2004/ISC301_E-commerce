@@ -4,7 +4,7 @@ const prisma = require('../config/prisma');
 const { successResponse, errorResponse } = require('../utils/response');
 
 const categorySchema = z.object({
-  name: z.string().min(2, 'Category name is required'),
+  name: z.string().min(2, 'Tên danh mục là bắt buộc'),
 });
 
 const getCategories = async (req, res, next) => {
@@ -30,7 +30,7 @@ const createCategory = async (req, res, next) => {
     if (existing) slug = `${slug}-${Date.now()}`;
 
     const category = await prisma.category.create({ data: { name, slug } });
-    return successResponse(res, category, 'Category created', 201);
+    return successResponse(res, category, 'Tạo danh mục thành công', 201);
   } catch (err) {
     next(err);
   }
@@ -43,7 +43,7 @@ const updateCategory = async (req, res, next) => {
     const catId = parseInt(id);
 
     const existing = await prisma.category.findUnique({ where: { id: catId } });
-    if (!existing) return errorResponse(res, 'Category not found', 404);
+    if (!existing) return errorResponse(res, 'Không tìm thấy danh mục', 404);
 
     let slug = slugify(name, { lower: true, strict: true });
     if (slug !== existing.slug) {
@@ -52,7 +52,7 @@ const updateCategory = async (req, res, next) => {
     }
 
     const category = await prisma.category.update({ where: { id: catId }, data: { name, slug } });
-    return successResponse(res, category, 'Category updated');
+    return successResponse(res, category, 'Cập nhật danh mục thành công');
   } catch (err) {
     next(err);
   }
@@ -65,11 +65,11 @@ const deleteCategory = async (req, res, next) => {
 
     const productCount = await prisma.product.count({ where: { categoryId: catId, isDeleted: false } });
     if (productCount > 0) {
-      return errorResponse(res, 'Cannot delete category with existing products', 400);
+      return errorResponse(res, 'Không thể xóa danh mục đang có sản phẩm', 400);
     }
 
     await prisma.category.delete({ where: { id: catId } });
-    return successResponse(res, null, 'Category deleted');
+    return successResponse(res, null, 'Xóa danh mục thành công');
   } catch (err) {
     next(err);
   }

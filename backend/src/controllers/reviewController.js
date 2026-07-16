@@ -15,23 +15,23 @@ const createReview = async (req, res, next) => {
 
     // Verify product exists
     const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
 
     // If orderId is provided, verify it belongs to user and is COMPLETED
     if (orderId) {
       const order = await prisma.order.findFirst({
         where: { id: orderId, userId: req.user.id },
       });
-      if (!order) return errorResponse(res, 'Order not found', 404);
+      if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
       if (order.orderStatus !== 'COMPLETED') {
-        return errorResponse(res, 'Cannot review an uncompleted order', 400);
+        return errorResponse(res, 'Chỉ có thể đánh giá sau khi đơn hàng đã hoàn thành', 400);
       }
 
       // Check if user already reviewed this product from this order
       const existing = await prisma.productReview.findFirst({
         where: { userId: req.user.id, productId, orderId },
       });
-      if (existing) return errorResponse(res, 'You have already reviewed this product for this order', 400);
+      if (existing) return errorResponse(res, 'Bạn đã đánh giá sản phẩm này cho đơn hàng này rồi', 400);
     }
 
     const review = await prisma.productReview.create({
@@ -47,7 +47,7 @@ const createReview = async (req, res, next) => {
       },
     });
 
-    return successResponse(res, review, 'Review added successfully', 201);
+    return successResponse(res, review, 'Đánh giá sản phẩm thành công', 201);
   } catch (err) {
     next(err);
   }

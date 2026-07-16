@@ -137,16 +137,25 @@ const createOrderService = async (userId, bodyData) => {
   return order;
 };
 
-const cancelOrderService = async (orderId) => {
-  const orderItems = await prisma.orderItem.findMany({ where: { orderId } });
-  await prisma.$transaction(
-    orderItems.map((item) =>
-      prisma.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: item.quantity } },
-      })
-    )
+// tx: optional Prisma transaction client. Pass it when this is called as part of
+// a larger transaction (e.g. together with the order status update) so both
+// writes succeed or fail together. Falls back to its own transaction when
+// called standalone.
+const cancelOrderService = async (orderId, tx) => {
+  const client = tx || prisma;
+  const orderItems = await client.orderItem.findMany({ where: { orderId } });
+  const restoreStock = orderItems.map((item) =>
+    client.product.update({
+      where: { id: item.productId },
+      data: { stock: { increment: item.quantity } },
+    })
   );
+
+  if (tx) {
+    await Promise.all(restoreStock);
+  } else {
+    await prisma.$transaction(restoreStock);
+  }
 };
 
 module.exports = {

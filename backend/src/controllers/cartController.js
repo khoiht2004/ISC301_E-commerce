@@ -84,7 +84,7 @@ const addToCart = async (req, res, next) => {
     const product = await prisma.product.findFirst({
       where: { id: productId, isDeleted: false, isPublished: true },
     });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
     if (product.stock < quantity) return errorResponse(res, 'Không đủ hàng trong kho', 400);
 
     const cart = await getOrCreateCart(req.user.id);
@@ -94,24 +94,27 @@ const addToCart = async (req, res, next) => {
       where: { cartId_productId: { cartId: cart.id, productId } },
     });
 
-    let cartItem;
-    if (existingItem) {
-      const newQty = existingItem.quantity + quantity;
-      if (product.stock < newQty) return errorResponse(res, 'Không đủ hàng trong kho', 400);
-      cartItem = await prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: { quantity: newQty },
-        include: { product: { select: { id: true, name: true, price: true, salePrice: true, thumbnail: true } } },
-      });
-    } else {
-      cartItem = await prisma.cartItem.create({
-        data: { cartId: cart.id, productId, quantity },
-        include: { product: { select: { id: true, name: true, price: true, salePrice: true, thumbnail: true } } },
-      });
+    if (existingItem && product.stock < existingItem.quantity + quantity) {
+      return errorResponse(res, 'Không đủ hàng trong kho', 400);
     }
 
-    // Update cart updatedAt
-    await prisma.cart.update({ where: { id: cart.id }, data: {} });
+    // Upsert cart item + touch cart's updatedAt together
+    const cartItem = await prisma.$transaction(async (tx) => {
+      const item = existingItem
+        ? await tx.cartItem.update({
+            where: { id: existingItem.id },
+            data: { quantity: existingItem.quantity + quantity },
+            include: { product: { select: { id: true, name: true, price: true, salePrice: true, thumbnail: true } } },
+          })
+        : await tx.cartItem.create({
+            data: { cartId: cart.id, productId, quantity },
+            include: { product: { select: { id: true, name: true, price: true, salePrice: true, thumbnail: true } } },
+          });
+
+      await tx.cart.update({ where: { id: cart.id }, data: {} });
+
+      return item;
+    });
 
     return successResponse(res, cartItem, 'Đã thêm vào giỏ hàng', 201);
   } catch (err) {
@@ -126,13 +129,13 @@ const updateCartItem = async (req, res, next) => {
     const { quantity } = z.object({ quantity: z.coerce.number().int().positive() }).parse(req.body);
 
     const cart = await prisma.cart.findUnique({ where: { userId: req.user.id } });
-    if (!cart) return errorResponse(res, 'Cart not found', 404);
+    if (!cart) return errorResponse(res, 'Không tìm thấy giỏ hàng', 404);
 
     const cartItem = await prisma.cartItem.findFirst({
       where: { id: parseInt(id), cartId: cart.id },
       include: { product: true },
     });
-    if (!cartItem) return errorResponse(res, 'Cart item not found', 404);
+    if (!cartItem) return errorResponse(res, 'Không tìm thấy sản phẩm trong giỏ hàng', 404);
     if (cartItem.product.stock < quantity) return errorResponse(res, 'Không đủ hàng trong kho', 400);
 
     const updated = await prisma.cartItem.update({
@@ -152,12 +155,12 @@ const removeFromCart = async (req, res, next) => {
     const { id } = req.params;
 
     const cart = await prisma.cart.findUnique({ where: { userId: req.user.id } });
-    if (!cart) return errorResponse(res, 'Cart not found', 404);
+    if (!cart) return errorResponse(res, 'Không tìm thấy giỏ hàng', 404);
 
     const cartItem = await prisma.cartItem.findFirst({
       where: { id: parseInt(id), cartId: cart.id },
     });
-    if (!cartItem) return errorResponse(res, 'Cart item not found', 404);
+    if (!cartItem) return errorResponse(res, 'Không tìm thấy sản phẩm trong giỏ hàng', 404);
 
     await prisma.cartItem.delete({ where: { id: parseInt(id) } });
     return successResponse(res, null, 'Đã xóa sản phẩm khỏi giỏ hàng');
@@ -170,7 +173,7 @@ const removeFromCart = async (req, res, next) => {
 const clearCart = async (req, res, next) => {
   try {
     const cart = await prisma.cart.findUnique({ where: { userId: req.user.id } });
-    if (!cart) return successResponse(res, null, 'Cart is already empty');
+    if (!cart) return successResponse(res, null, 'Giỏ hàng đã trống');
 
     await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
     return successResponse(res, null, 'Đã xóa toàn bộ giỏ hàng');

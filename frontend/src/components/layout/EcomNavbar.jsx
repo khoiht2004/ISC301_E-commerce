@@ -131,23 +131,13 @@ const EcomNavbar = () => {
                   </p>
                 </div>
 
-                {user.role === ROLES.ADMIN && (
+                {(user.role === ROLES.ADMIN || user.role === ROLES.STAFF) && (
                   <Link
-                    to={DASHBOARD_PATHS.admin}
+                    to={DASHBOARD_PATHS.manager}
                     className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
-                    Admin Dashboard
-                  </Link>
-                )}
-
-                {user.role === ROLES.STAFF && (
-                  <Link
-                    to={DASHBOARD_PATHS.staff}
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 no-underline transition-colors"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    STAFF Dashboard
+                    {user.role === ROLES.ADMIN ? "Admin Dashboard" : "STAFF Dashboard"}
                   </Link>
                 )}
 

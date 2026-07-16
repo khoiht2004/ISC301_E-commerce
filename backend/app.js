@@ -14,6 +14,7 @@ const supportRoutes = require("./src/routes/support.routes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const sepayRoutes = require("./src/routes/sepay.routes"); // POST /api/payment/sepay-webhook
 const staffRoutes = require("./src/routes/staff.routes");
+const adminRoutes = require("./src/routes/admin.routes");
 const reviewRoutes = require("./src/routes/review.routes");
 const complaintRoutes = require("./src/routes/complaint.routes");
 const supplierRoutes = require("./src/routes/supplier.routes");
@@ -59,6 +60,7 @@ app.use("/api/news", newsRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/payment", sepayRoutes); // POST /api/payment/sepay-webhook (SePay webhook riêng)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/complaints", complaintRoutes);

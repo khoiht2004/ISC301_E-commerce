@@ -8,6 +8,7 @@ import {
   Loader2,
   CheckCircle2,
   Send,
+  Eye,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../services/axios";
@@ -45,13 +46,13 @@ const LoginPage = () => {
     setIsSubmitting(true);
     try {
       const user = await login(email, password);
-      if (user.role === ROLES.ADMIN) navigate(DASHBOARD_PATHS.admin);
-      else if (user.role === ROLES.STAFF) navigate(DASHBOARD_PATHS.staff);
+      if (user.role === ROLES.ADMIN || user.role === ROLES.STAFF)
+        navigate(DASHBOARD_PATHS.manager);
       else navigate("/");
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
       );
     } finally {
       setIsSubmitting(false);
@@ -78,6 +79,17 @@ const LoginPage = () => {
       toast.error(err.response?.data?.message || "Gửi lại email thất bại.");
     } finally {
       setIsResending(false);
+    }
+  };
+
+  const handleShowPassword = (e) => {
+    e.preventDefault();
+    const button = e.currentTarget;
+    const input = button.previousElementSibling;
+    if (input.type === "password") {
+      input.type = "text";
+    } else {
+      input.type = "password";
     }
   };
 
@@ -160,14 +172,23 @@ const LoginPage = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                   <Lock size={18} />
                 </div>
-                <input
-                  type="password"
-                  required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div>
+                  <input
+                    type="password"
+                    required
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    onClick={handleShowPassword}
+                    type="button"
+                    className="absolute right-3 top-3 translate-y-1/2 text-gray-400 hover:text-gray-500"
+                  >
+                    <Eye size={18} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

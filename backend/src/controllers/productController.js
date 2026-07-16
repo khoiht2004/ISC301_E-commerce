@@ -7,18 +7,21 @@ const { ROLES } = require('../constants/roles');
 // ─── Validation ──────────────────────────────────────────────────────────────
 
 const productSchema = z.object({
-  name: z.string().min(2, 'Product name is required'),
+  name: z.string().min(2, 'Tên sản phẩm là bắt buộc'),
   description: z.string().optional().nullable(),
   shortDescription: z.string().optional().nullable(),
-  price: z.coerce.number().positive('Price must be positive'),
-  salePrice: z.coerce.number().positive().optional().nullable(),
+  price: z.coerce.number().int('Giá phải là số nguyên').positive('Giá phải lớn hơn 0'),
+  salePrice: z.coerce.number().int('Giá khuyến mãi phải là số nguyên').positive().optional().nullable(),
   stock: z.coerce.number().int().min(0).default(0),
   sku: z.string().optional().nullable(),
   categoryId: z.coerce.number().int().positive().optional().nullable(),
   supplierId: z.coerce.number().int().positive().optional().nullable(),
   unit: z.string().min(1).optional().default('gram'),
   weight: z.coerce.number().int().positive().optional().nullable(),
-  isPublished: z.coerce.boolean().optional().default(false),
+  isPublished: z.preprocess(
+    (val) => (typeof val === 'string' ? val === 'true' : val),
+    z.boolean().optional().default(false)
+  ),
   tagIds: z.preprocess(
     (val) => {
       if (typeof val === 'string') {
@@ -161,7 +164,7 @@ const getProductBySlug = async (req, res, next) => {
       where: { slug, isDeleted: false },
       include: PRODUCT_INCLUDE,
     });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
     return successResponse(res, formatProduct(product));
   } catch (err) {
     next(err);
@@ -176,7 +179,7 @@ const getProductById = async (req, res, next) => {
       where: { id: parseInt(id), isDeleted: false },
       include: PRODUCT_INCLUDE,
     });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
     return successResponse(res, formatProduct(product));
   } catch (err) {
     next(err);
@@ -216,7 +219,7 @@ const createProduct = async (req, res, next) => {
       include: PRODUCT_INCLUDE,
     });
 
-    return successResponse(res, formatProduct(product), 'Product created successfully', 201);
+    return successResponse(res, formatProduct(product), 'Tạo sản phẩm thành công', 201);
   } catch (err) {
     next(err);
   }
@@ -229,8 +232,8 @@ const updateProduct = async (req, res, next) => {
     const productId = parseInt(id);
 
     const existing = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
-    if (!existing) return errorResponse(res, 'Product not found', 404);
-    if (!canManageProduct(req, existing)) return errorResponse(res, 'You can only update your own products', 403);
+    if (!existing) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
+    if (!canManageProduct(req, existing)) return errorResponse(res, 'Bạn chỉ có thể cập nhật sản phẩm của mình', 403);
 
     const data = productSchema.partial().parse(req.body);
     const { tagIds, ...productData } = data;
@@ -273,7 +276,7 @@ const updateProduct = async (req, res, next) => {
       include: PRODUCT_INCLUDE,
     });
 
-    return successResponse(res, formatProduct(updated), 'Product updated');
+    return successResponse(res, formatProduct(updated), 'Cập nhật sản phẩm thành công');
   } catch (err) {
     next(err);
   }
@@ -286,11 +289,11 @@ const deleteProduct = async (req, res, next) => {
     const productId = parseInt(id);
 
     const existing = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
-    if (!existing) return errorResponse(res, 'Product not found', 404);
-    if (!canManageProduct(req, existing)) return errorResponse(res, 'You can only delete your own products', 403);
+    if (!existing) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
+    if (!canManageProduct(req, existing)) return errorResponse(res, 'Bạn chỉ có thể xóa sản phẩm của mình', 403);
 
     await prisma.product.update({ where: { id: productId }, data: { isDeleted: true, isPublished: false } });
-    return successResponse(res, null, 'Product deleted successfully');
+    return successResponse(res, null, 'Xóa sản phẩm thành công');
   } catch (err) {
     next(err);
   }
@@ -302,14 +305,14 @@ const togglePublish = async (req, res, next) => {
     const { id } = req.params;
     const productId = parseInt(id);
     const product = await prisma.product.findFirst({ where: { id: productId, isDeleted: false } });
-    if (!product) return errorResponse(res, 'Product not found', 404);
-    if (!canManageProduct(req, product)) return errorResponse(res, 'You can only publish your own products', 403);
+    if (!product) return errorResponse(res, 'Không tìm thấy sản phẩm', 404);
+    if (!canManageProduct(req, product)) return errorResponse(res, 'Bạn chỉ có thể công khai sản phẩm của mình', 403);
 
     const updated = await prisma.product.update({
       where: { id: productId },
       data: { isPublished: !product.isPublished },
     });
-    return successResponse(res, { isPublished: updated.isPublished }, `Product ${updated.isPublished ? 'published' : 'unpublished'}`);
+    return successResponse(res, { isPublished: updated.isPublished }, `Đã ${updated.isPublished ? 'công khai' : 'gỡ công khai'} sản phẩm`);
   } catch (err) {
     next(err);
   }

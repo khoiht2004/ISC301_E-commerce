@@ -9,16 +9,16 @@ const { sendVerificationEmail } = require("../services/mail.service");
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const registerSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
   phone: z.string().optional(),
   address: z.string().optional(),
 });
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 });
 
 // ─── Token Helper ────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ const register = async (req, res, next) => {
       where: { email: data.email },
     });
     if (existing) {
-      return errorResponse(res, "Email is already registered", 409);
+      return errorResponse(res, "Email đã được đăng ký", 409);
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 12);
@@ -84,7 +84,7 @@ const register = async (req, res, next) => {
       return successResponse(
         res,
         null,
-        "Registration successful but failed to send verification email. Please use resend verification.",
+        "Đăng ký thành công nhưng gửi email xác thực thất bại. Vui lòng dùng chức năng gửi lại email xác thực.",
         201,
       );
     }
@@ -92,7 +92,7 @@ const register = async (req, res, next) => {
     return successResponse(
       res,
       null, // Don't return user/token, force them to verify email first
-      "Registration successful. Please check your email to verify your account.",
+      "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.",
       201,
     );
   } catch (err) {
@@ -139,16 +139,16 @@ const resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return errorResponse(res, "Email is required", 400);
+      return errorResponse(res, "Vui lòng nhập email", 400);
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return errorResponse(res, "User not found", 404);
+      return errorResponse(res, "Không tìm thấy người dùng", 404);
     }
 
     if (user.isVerified) {
-      return errorResponse(res, "Account is already verified", 400);
+      return errorResponse(res, "Tài khoản đã được xác thực", 400);
     }
 
     const verifyToken = crypto.randomUUID();
@@ -162,12 +162,12 @@ const resendVerification = async (req, res, next) => {
     if (!emailSent) {
       return errorResponse(
         res,
-        "Failed to send verification email. Please try again later.",
+        "Gửi email xác thực thất bại. Vui lòng thử lại sau.",
         500,
       );
     }
 
-    return successResponse(res, null, "Verification email resent successfully");
+    return successResponse(res, null, "Đã gửi lại email xác thực thành công");
   } catch (err) {
     next(err);
   }
@@ -180,24 +180,24 @@ const login = async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (!user) {
-      return errorResponse(res, "Invalid email or password", 401);
+      return errorResponse(res, "Email hoặc mật khẩu không đúng", 401);
     }
 
     if (!user.isActive) {
-      return errorResponse(res, "Your account has been deactivated", 403);
+      return errorResponse(res, "Tài khoản của bạn đã bị khóa", 403);
     }
 
     if (!user.isVerified) {
       return errorResponse(
         res,
-        "Please verify your email before logging in",
+        "Vui lòng xác thực email trước khi đăng nhập",
         403,
       );
     }
 
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      return errorResponse(res, "Invalid email or password", 401);
+      return errorResponse(res, "Email hoặc mật khẩu không đúng", 401);
     }
 
     const accessToken = generateAccessToken(user);
@@ -218,7 +218,7 @@ const login = async (req, res, next) => {
     return successResponse(
       res,
       { user: sanitizeUser(user), accessToken, refreshToken },
-      "Login successful",
+      "Đăng nhập thành công",
     );
   } catch (err) {
     next(err);
@@ -229,7 +229,7 @@ const refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-      return errorResponse(res, "Refresh token is required", 401);
+      return errorResponse(res, "Thiếu refresh token", 401);
     }
 
     // Verify token structure and expiry
@@ -240,7 +240,7 @@ const refresh = async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       );
     } catch (err) {
-      return errorResponse(res, "Invalid or expired refresh token", 401);
+      return errorResponse(res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
     }
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
@@ -251,13 +251,17 @@ const refresh = async (req, res, next) => {
       !user.refreshTokenExpiry ||
       user.refreshTokenExpiry < new Date()
     ) {
-      return errorResponse(res, "Invalid or expired refresh token", 401);
+      return errorResponse(res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
+    }
+
+    if (!user.isActive) {
+      return errorResponse(res, "Tài khoản của bạn đã bị khóa", 403);
     }
 
     const accessToken = generateAccessToken(user);
     // Optionally rotate the refresh token here, but we'll stick to simple access token generation for now
 
-    return successResponse(res, { accessToken }, "Token refreshed");
+    return successResponse(res, { accessToken }, "Làm mới token thành công");
   } catch (err) {
     next(err);
   }
@@ -279,7 +283,7 @@ const logout = async (req, res, next) => {
       });
     }
 
-    return successResponse(res, null, "Logged out successfully");
+    return successResponse(res, null, "Đăng xuất thành công");
   } catch (err) {
     next(err);
   }
@@ -310,7 +314,11 @@ const getMe = async (req, res, next) => {
     });
 
     if (!user) {
-      return errorResponse(res, "User not found", 404);
+      return errorResponse(res, "Không tìm thấy người dùng", 404);
+    }
+
+    if (!user.isActive) {
+      return errorResponse(res, "Tài khoản của bạn đã bị khóa", 403);
     }
 
     return successResponse(res, user);
@@ -366,7 +374,7 @@ const updateProfile = async (req, res, next) => {
       },
     });
 
-    return successResponse(res, user, "Profile updated successfully");
+    return successResponse(res, user, "Cập nhật hồ sơ thành công");
   } catch (err) {
     next(err);
   }

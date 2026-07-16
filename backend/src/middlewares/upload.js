@@ -32,7 +32,9 @@ const fileFilter = (req, file, cb) => {
   if (extValid && mimeValid) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
+    const err = new Error('Chỉ chấp nhận file ảnh (jpeg, jpg, png, gif, webp)');
+    err.statusCode = 400;
+    cb(err);
   }
 };
 

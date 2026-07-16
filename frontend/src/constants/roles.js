@@ -5,6 +5,5 @@ export const ROLES = Object.freeze({
 });
 
 export const DASHBOARD_PATHS = Object.freeze({
-  admin: '/admin/dashboard',
-  staff: '/staff/dashboard',
+  manager: '/manager/dashboard',
 });

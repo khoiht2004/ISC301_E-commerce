@@ -117,7 +117,8 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (data) => {
     const headers = {};
     if (data instanceof FormData) {
-      headers['Content-Type'] = 'multipart/form-data';
+      // undefined (không phải chuỗi cứng) để axios/trình duyệt tự sinh boundary đúng
+      headers['Content-Type'] = undefined;
     }
     const res = await api.put('/auth/profile', data, { headers });
     setUser(res.data.data);

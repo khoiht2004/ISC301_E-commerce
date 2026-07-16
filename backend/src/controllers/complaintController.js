@@ -4,7 +4,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 
 const complaintSchema = z.object({
   orderId: z.coerce.number().int().positive(),
-  reason: z.string().min(10, 'Reason must be at least 10 characters long'),
+  reason: z.string().min(10, 'Lý do phải có ít nhất 10 ký tự'),
 });
 
 const createComplaint = async (req, res, next) => {
@@ -14,7 +14,7 @@ const createComplaint = async (req, res, next) => {
     const order = await prisma.order.findFirst({
       where: { id: orderId, userId: req.user.id },
     });
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
 
     if (!['DELIVERED', 'COMPLETED'].includes(order.orderStatus)) {
       return errorResponse(res, 'Chỉ có thể yêu cầu hoàn hàng cho đơn hàng đã giao hoặc đã hoàn thành', 400);
@@ -86,7 +86,7 @@ const updateComplaintStatus = async (req, res, next) => {
 
     const validStatuses = ['PENDING', 'RESOLVING', 'RESOLVED', 'REJECTED'];
     if (!validStatuses.includes(status)) {
-      return errorResponse(res, 'Invalid status', 400);
+      return errorResponse(res, 'Trạng thái không hợp lệ', 400);
     }
 
     const complaint = await prisma.orderComplaint.update({
@@ -94,7 +94,7 @@ const updateComplaintStatus = async (req, res, next) => {
       data: { status, resolution },
     });
 
-    return successResponse(res, complaint, 'Complaint updated');
+    return successResponse(res, complaint, 'Cập nhật yêu cầu thành công');
   } catch (err) {
     next(err);
   }

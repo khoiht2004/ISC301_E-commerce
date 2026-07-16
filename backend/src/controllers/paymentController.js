@@ -92,7 +92,7 @@ const handleSePayWebhook = async (req, res) => {
     const authHeader = req.headers['authorization'];
     if (!verifyWebhookApiKey(authHeader)) {
       console.warn('[SePay Webhook] ❌ Unauthorized request');
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      return res.status(401).json({ success: false, message: 'Không được phép truy cập' });
     }
 
     // 2. Validate payload cơ bản
@@ -138,7 +138,7 @@ const handleSePayWebhook = async (req, res) => {
       });
       if (existingTx) {
         console.log(`[SePay Webhook] ⚠️ Giao dịch ${transactionId} đã được xử lý từ trước (Idempotency)`);
-        return res.json({ success: true, message: 'Transaction already processed' });
+        return res.json({ success: true, message: 'Giao dịch đã được xử lý trước đó' });
       }
     }
 
@@ -172,13 +172,13 @@ const handleSePayWebhook = async (req, res) => {
     // 7. Kiểm tra phương thức thanh toán
     if (order.paymentMethod !== 'BANK_TRANSFER') {
       console.warn(`[SePay Webhook] ❌ Đơn hàng ${orderCode} không phải BANK_TRANSFER`);
-      return res.status(400).json({ success: false, message: 'Order payment method mismatch' });
+      return res.status(400).json({ success: false, message: 'Phương thức thanh toán của đơn hàng không khớp' });
     }
 
     // 8. Idempotency cấp Order: bỏ qua nếu đã thanh toán
     if (order.paymentStatus === 'PAID') {
       console.log(`[SePay Webhook] Đơn hàng ${orderCode} đã PAID trước đó — bỏ qua`);
-      return res.json({ success: true, message: 'Order already paid' });
+      return res.json({ success: true, message: 'Đơn hàng đã được thanh toán trước đó' });
     }
 
     // 9. Cập nhật Order status & tạo PaymentTransaction trong transaction duy nhất
@@ -236,10 +236,10 @@ const handleSePayWebhook = async (req, res) => {
 
     console.log('[SePay Webhook] ═══════════════════════════════════════\n');
 
-    return res.json({ success: true, message: 'Payment confirmed successfully' });
+    return res.json({ success: true, message: 'Xác nhận thanh toán thành công' });
   } catch (err) {
     console.error('[SePay Webhook] ❌ Error:', err);
-    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    return res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
   }
 };
 

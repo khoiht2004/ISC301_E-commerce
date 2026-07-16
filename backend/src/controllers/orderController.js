@@ -22,9 +22,9 @@ const VALID_ORDER_STATUSES = [
 const VALID_PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED'];
 
 const createOrderSchema = z.object({
-  shippingAddress: z.string().min(5, 'Shipping address is required'),
-  customerPhone: z.string().min(9, 'Phone number is required'),
-  customerEmail: z.string().email('Valid email is required'),
+  shippingAddress: z.string().min(5, 'Địa chỉ giao hàng là bắt buộc'),
+  customerPhone: z.string().min(9, 'Số điện thoại là bắt buộc'),
+  customerEmail: z.string().email('Email không hợp lệ'),
   note: z.string().optional(),
   paymentMethod: z.enum(['COD', 'BANK_TRANSFER', 'MOMO', 'VNPAY']).default('COD'),
   shippingFee: z.coerce.number().int().min(0).optional().default(0),
@@ -45,13 +45,15 @@ const createOrder = async (req, res, next) => {
   try {
     const bodyData = createOrderSchema.parse(req.body);
     const order = await createOrderService(req.user.id, bodyData);
-    return successResponse(res, order, 'Order placed successfully', 201);
+    return successResponse(res, order, 'Đặt hàng thành công', 201);
   } catch (err) {
     if (err.order) {
+      // Không kèm field `data` khi trả lỗi — thông tin đơn hàng (đã lưu nhưng lỗi
+      // địa chỉ) được trả qua field `order` riêng để FE vẫn có thể tham chiếu.
       return res.status(err.statusCode || 400).json({
         success: false,
         message: err.message,
-        data: err.order
+        order: err.order
       });
     }
     if (err.message?.includes('not found') || err.message?.includes('stock') || err.message?.includes('Giỏ hàng')) {
@@ -149,7 +151,7 @@ const getOrderById = async (req, res, next) => {
       },
     });
 
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
     return successResponse(res, order);
   } catch (err) {
     next(err);
@@ -166,7 +168,7 @@ const getPaymentStatus = async (req, res, next) => {
       select: { paymentStatus: true, orderStatus: true }
     });
 
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
     return res.json({
       orderCode,
       paymentStatus: order.paymentStatus,
@@ -193,7 +195,7 @@ const getOrderByCode = async (req, res, next) => {
       },
     });
 
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
     return successResponse(res, order);
   } catch (err) {
     next(err);
@@ -219,14 +221,17 @@ const cancelOrder = async (req, res, next) => {
       return errorResponse(res, `Không thể hủy đơn hàng ở trạng thái ${order.orderStatus}`, 400);
     }
 
-    // Restore stock if the order had decremented stock (status is CONFIRMED or PROCESSING)
-    if (['CONFIRMED', 'PROCESSING'].includes(order.orderStatus)) {
-      await cancelOrderService(orderId);
-    }
+    // Restore stock (nếu có) + cập nhật trạng thái đơn hàng phải thành công/thất bại cùng nhau
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Restore stock if the order had decremented stock (status is CONFIRMED or PROCESSING)
+      if (['CONFIRMED', 'PROCESSING'].includes(order.orderStatus)) {
+        await cancelOrderService(orderId, tx);
+      }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: { orderStatus: 'CANCELLED' }
+      return tx.order.update({
+        where: { id: orderId },
+        data: { orderStatus: 'CANCELLED' }
+      });
     });
 
     return successResponse(res, updatedOrder, 'Hủy đơn hàng thành công');

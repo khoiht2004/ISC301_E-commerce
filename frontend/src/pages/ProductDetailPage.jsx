@@ -247,9 +247,6 @@ const ProductDetailPage = () => {
                 {/* Supplier Info */}
                 {product.supplier && (
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xl font-black shrink-0">
-                      {product.supplier.name.charAt(0).toUpperCase()}
-                    </div>
                     <div className="flex-1">
                       <h4 className="text-sm font-bold text-slate-800 mb-1">
                         Nhà cung cấp: {product.supplier.name}
@@ -297,7 +294,7 @@ const ProductDetailPage = () => {
                 </div>
 
                 {/* Pricing Block */}
-                <div className="bg-slate-50 rounded-2xl p-5 mb-6 border border-slate-100 flex items-center gap-4">
+                <div className="bg-slate-50 rounded-2xl px-4 py-3 mb-6 border border-slate-100 flex items-center gap-4">
                   {onSale ? (
                     <>
                       <div>
@@ -440,8 +437,6 @@ const ProductDetailPage = () => {
             {product.description ||
               "Chưa có thông tin mô tả chi tiết cho sản phẩm này."}
           </div>
-
-
         </div>
 
         {/* REVIEWS */}

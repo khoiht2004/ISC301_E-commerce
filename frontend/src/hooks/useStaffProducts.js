@@ -95,15 +95,14 @@ export const useStaffProducts = (refreshStatsCallback) => {
   const submitProduct = async (editingId, formData) => {
     setSubmitting(true);
     try {
+      // Content-Type phải để undefined (không phải "multipart/form-data" cứng) để
+      // axios/trình duyệt tự sinh boundary đúng cho FormData, ghi đè default JSON của instance
+      const formDataConfig = { headers: { "Content-Type": undefined } };
       if (editingId) {
-        await api.put(`/products/${editingId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.put(`/products/${editingId}`, formData, formDataConfig);
         toast.success("Cập nhật sản phẩm thành công");
       } else {
-        await api.post("/products", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.post("/products", formData, formDataConfig);
         toast.success("Thêm sản phẩm mới thành công");
       }
       fetchProducts();

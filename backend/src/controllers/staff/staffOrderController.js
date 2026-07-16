@@ -60,35 +60,38 @@ const updateOrderStatus = async (req, res, next) => {
     const { status } = req.body; 
 
     if (!VALID_ORDER_STATUSES.includes(status)) {
-      return errorResponse(res, `Invalid order status. Must be one of: ${VALID_ORDER_STATUSES.join(', ')}`, 400);
+      return errorResponse(res, `Trạng thái đơn hàng không hợp lệ. Phải là một trong: ${VALID_ORDER_STATUSES.join(', ')}`, 400);
     }
 
     const order = await prisma.order.findUnique({ where: { id: parseInt(id) } });
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
 
     // Prevent updating already cancelled or returned orders
     if (['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
-      return errorResponse(res, `Cannot update a ${order.orderStatus} order`, 400);
+      return errorResponse(res, `Không thể cập nhật đơn hàng đang ở trạng thái ${order.orderStatus}`, 400);
     }
 
-    // If cancelling or returning, restore stock (only if old status was holding stock)
-    if (['CANCELLED', 'RETURNED'].includes(status)) {
-      const HELD_STOCK_STATUSES = ['CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED', 'RETURN_REQUESTED'];
-      if (HELD_STOCK_STATUSES.includes(order.orderStatus)) {
-        await cancelOrderService(order.id);
+    // Khôi phục tồn kho (nếu cần) và cập nhật trạng thái đơn hàng phải thành công/thất bại cùng nhau
+    const shouldRestoreStock =
+      ['CANCELLED', 'RETURNED'].includes(status) &&
+      ['CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'COMPLETED', 'RETURN_REQUESTED'].includes(order.orderStatus);
+
+    const updated = await prisma.$transaction(async (tx) => {
+      if (shouldRestoreStock) {
+        await cancelOrderService(order.id, tx);
       }
-    }
 
-    const updated = await prisma.order.update({
-      where: { id: parseInt(id) },
-      data: { orderStatus: status },
-      include: {
-        user: { select: { id: true, fullName: true, email: true } },
-        orderItems: { include: { product: true } },
-      },
+      return tx.order.update({
+        where: { id: parseInt(id) },
+        data: { orderStatus: status },
+        include: {
+          user: { select: { id: true, fullName: true, email: true } },
+          orderItems: { include: { product: true } },
+        },
+      });
     });
 
-    return successResponse(res, updated, 'Order status updated');
+    return successResponse(res, updated, 'Cập nhật trạng thái đơn hàng thành công');
   } catch (err) {
     next(err);
   }
@@ -101,11 +104,11 @@ const updatePaymentStatus = async (req, res, next) => {
     const { status } = req.body; 
 
     if (!VALID_PAYMENT_STATUSES.includes(status)) {
-      return errorResponse(res, `Invalid payment status. Must be one of: ${VALID_PAYMENT_STATUSES.join(', ')}`, 400);
+      return errorResponse(res, `Trạng thái thanh toán không hợp lệ. Phải là một trong: ${VALID_PAYMENT_STATUSES.join(', ')}`, 400);
     }
 
     const order = await prisma.order.findUnique({ where: { id: parseInt(id) } });
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
 
     const updated = await prisma.order.update({
       where: { id: parseInt(id) },
@@ -118,7 +121,7 @@ const updatePaymentStatus = async (req, res, next) => {
       },
     });
 
-    return successResponse(res, updated, 'Payment status updated');
+    return successResponse(res, updated, 'Cập nhật trạng thái thanh toán thành công');
   } catch (err) {
     next(err);
   }
