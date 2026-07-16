@@ -1,4 +1,12 @@
-import { AlertCircle, Edit, Eye, Power, Trash2 } from "lucide-react";
+/* eslint-disable react/prop-types */
+import {
+  AlertCircle,
+  Edit,
+  Eye,
+  Lock,
+  LockOpen,
+  Trash2,
+} from "lucide-react";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { formatDate } from "../../../utils/helper";
 
@@ -38,13 +46,27 @@ const StaffProductsTable = ({
         <table className="w-full text-left border-collapse text-xs md:text-sm whitespace-nowrap min-w-[800px]">
           <thead className="sticky top-0 z-10">
             <tr className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
-              <th className="p-3 bg-slate-50 border-b border-slate-200">Sản phẩm</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200">Thông tin</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200">Lô hàng</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200">Giá bán</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Tồn kho / Hạn SD</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200 text-center">Hiển thị</th>
-              <th className="p-3 bg-slate-50 border-b border-slate-200 text-right">Thao tác</th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">
+                Sản phẩm
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">
+                Thông tin
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">
+                Lô hàng
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">
+                Giá bán
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center">
+                Tồn kho / Hạn SD
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center">
+                Hiển thị
+              </th>
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-right">
+                Thao tác
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -98,7 +120,7 @@ const StaffProductsTable = ({
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {product.tags?.map((tag) => (
                         <span
-                           key={tag.id}
+                          key={tag.id}
                           className="text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.2 rounded-full"
                         >
                           {tag.name}
@@ -113,13 +135,18 @@ const StaffProductsTable = ({
                           {product.rawBatch.batchCode}
                         </span>
                         {product.rawBatch.rawMaterialName && (
-                          <span className="text-[10px] text-slate-500 font-medium truncate block max-w-[150px]" title={product.rawBatch.rawMaterialName}>
+                          <span
+                            className="text-[10px] text-slate-500 font-medium truncate block max-w-[150px]"
+                            title={product.rawBatch.rawMaterialName}
+                          >
                             NL: {product.rawBatch.rawMaterialName}
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-slate-400 text-xs italic">— Không liên kết —</span>
+                      <span className="text-slate-400 text-xs italic">
+                        — Không liên kết —
+                      </span>
                     )}
                   </td>
                   <td className="p-3">
@@ -162,18 +189,17 @@ const StaffProductsTable = ({
                     <button
                       type="button"
                       onClick={() => onTogglePublish(product.id)}
-                      className={`p-1.5 rounded-lg border transition-all ${
+                      className={`py-1.5 px-3 rounded-lg border cursor-pointer transition-all ${
                         product.isPublished
                           ? "bg-emerald-100 border-emerald-200 text-emerald-700"
                           : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700"
                       }`}
-                      title={
-                        product.isPublished
-                          ? "Gỡ công khai (đang hiện)"
-                          : "Bật công khai (đang ẩn)"
-                      }
                     >
-                      <Power size={14} />
+                      {product.isPublished ? (
+                        <LockOpen size={14} />
+                      ) : (
+                        <Lock size={14} />
+                      )}
                     </button>
                   </td>
                   <td className="p-3 text-right whitespace-nowrap">

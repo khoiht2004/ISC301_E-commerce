@@ -34,7 +34,8 @@ const suppliers = [
     email: "contact@cp.com.vn",
     phone: "0911000002",
     address: "KCN Biên Hòa 2, Đồng Nai",
-    description: "Nhà cung cấp thịt gà và các sản phẩm chế biến từ gà lớn nhất Việt Nam.",
+    description:
+      "Nhà cung cấp thịt gà và các sản phẩm chế biến từ gà lớn nhất Việt Nam.",
     products: [
       "Gà ta nguyên con",
       "Ức gà phi lê",
@@ -115,8 +116,8 @@ async function main() {
       userProfile: {
         create: {
           bio: "Admin tổng hệ thống",
-        }
-      }
+        },
+      },
     },
   });
 
@@ -133,8 +134,8 @@ async function main() {
       userProfile: {
         create: {
           bio: "Nhân viên kiểm kho và vận hành đơn",
-        }
-      }
+        },
+      },
     },
   });
 
@@ -150,9 +151,9 @@ async function main() {
       isVerified: true,
       userProfile: {
         create: {
-          gender: "Male"
-        }
-      }
+          gender: "Male",
+        },
+      },
     },
   });
 
@@ -172,7 +173,7 @@ async function main() {
 
   // 4. Tạo Tags
   const createdTags = await Promise.all(
-    tags.map((tag) => prisma.productTag.create({ data: tag }))
+    tags.map((tag) => prisma.productTag.create({ data: tag })),
   );
   const tagBySlug = new Map(createdTags.map((tag) => [tag.slug, tag]));
 
@@ -183,9 +184,11 @@ async function main() {
     { name: "Thực phẩm chế biến", slug: "thuc-pham-che-bien" },
   ];
   const createdCategories = await Promise.all(
-    categories.map((cat) => prisma.category.create({ data: cat }))
+    categories.map((cat) => prisma.category.create({ data: cat })),
   );
-  const categoryBySlug = new Map(createdCategories.map((cat) => [cat.slug, cat]));
+  const categoryBySlug = new Map(
+    createdCategories.map((cat) => [cat.slug, cat]),
+  );
 
   // 4c. Tạo Coupons mẫu (đồng bộ Coupon model)
   await prisma.coupon.createMany({
@@ -228,12 +231,18 @@ async function main() {
         phone: sup.phone,
         address: sup.address,
         description: sup.description,
-      }
+      },
     });
 
     for (const [index, productName] of sup.products.entries()) {
-      const tagSlug = sup.name.includes("CP") ? "thit-ga" : sup.name.includes("Nhập") ? "thit-bo" : "thit-heo";
-      const categorySlug = sup.name.includes("Nhập") ? "thit-dong-lanh" : "thit-tuoi-song";
+      const tagSlug = sup.name.includes("CP")
+        ? "thit-ga"
+        : sup.name.includes("Nhập")
+          ? "thit-bo"
+          : "thit-heo";
+      const categorySlug = sup.name.includes("Nhập")
+        ? "thit-dong-lanh"
+        : "thit-tuoi-song";
       const categoryId = categoryBySlug.get(categorySlug).id;
 
       const costPrice = 40000 + index * 5000;
@@ -258,7 +267,7 @@ async function main() {
           costPrice: costPrice,
           importDate: importDate,
           expirationDate: expDate,
-        }
+        },
       });
 
       const product = await prisma.product.create({
@@ -278,9 +287,9 @@ async function main() {
           rawBatchId: batch.id,
           images: "[]",
           tags: {
-            create: { tagId: tagBySlug.get(tagSlug).id }
-          }
-        }
+            create: { tagId: tagBySlug.get(tagSlug).id },
+          },
+        },
       });
 
       createdProducts.push(product);
@@ -293,8 +302,9 @@ async function main() {
     quantity: index + 1,
   }));
   const subtotal = sampleItems.reduce(
-    (sum, item) => sum + (item.product.salePrice || item.product.price) * item.quantity,
-    0
+    (sum, item) =>
+      sum + (item.product.salePrice || item.product.price) * item.quantity,
+    0,
   );
 
   const order = await prisma.order.create({
@@ -331,11 +341,15 @@ async function main() {
     });
 
     // Lấy batch để trừ
-    const batch = product.rawBatchId ? await prisma.productBatch.findUnique({ where: { id: product.rawBatchId } }) : null;
+    const batch = product.rawBatchId
+      ? await prisma.productBatch.findUnique({
+          where: { id: product.rawBatchId },
+        })
+      : null;
     if (batch) {
       await prisma.productBatch.update({
         where: { id: batch.id },
-        data: { currentQuantity: { decrement: quantity } }
+        data: { currentQuantity: { decrement: quantity } },
       });
     }
   }
@@ -347,8 +361,8 @@ async function main() {
       productId: sampleItems[0].product.id,
       orderId: order.id,
       rating: 5,
-      comment: "Thịt rất tươi, giao hàng nhanh!"
-    }
+      comment: "Thịt rất tươi, giao hàng nhanh!",
+    },
   });
 
   await prisma.orderComplaint.create({
@@ -357,16 +371,18 @@ async function main() {
       orderId: order.id,
       reason: "Thiếu nước chấm đi kèm như quảng cáo.",
       status: "RESOLVING",
-    }
+    },
   });
 
   // 7b. Tạo Tin tức (News) mẫu (đồng bộ News model)
   await prisma.news.createMany({
     data: [
       {
-        title: "Bí quyết chọn thịt bò Mỹ tươi ngon, đúng chuẩn cho bữa ăn gia đình",
+        title:
+          "Bí quyết chọn thịt bò Mỹ tươi ngon, đúng chuẩn cho bữa ăn gia đình",
         slug: "bi-quyet-chon-thit-bo-my-tuoi-ngon-dung-chuan-cho-bua-an-gia-dinh",
-        excerpt: "Thịt bò Mỹ nhập khẩu ngày càng phổ biến trong các bữa ăn Việt. Hãy cùng tìm hiểu cách phân biệt và chọn lựa những phần thịt bò ngon nhất.",
+        excerpt:
+          "Thịt bò Mỹ nhập khẩu ngày càng phổ biến trong các bữa ăn Việt. Hãy cùng tìm hiểu cách phân biệt và chọn lựa những phần thịt bò ngon nhất.",
         content: `
           <p>Thịt bò Mỹ nhập khẩu luôn được ưa chuộng nhờ độ mềm ngọt, vân mỡ đều và chất lượng dinh dưỡng cao. Tuy nhiên, để chọn được những khay thịt tươi ngon và phù hợp với từng món ăn, bạn cần lưu ý một số bí quyết sau:</p>
           <h3>1. Quan sát màu sắc thịt</h3>
@@ -385,9 +401,11 @@ async function main() {
         createdById: admin.id,
       },
       {
-        title: "Cách làm thịt heo quay giòn bì bằng nồi chiên không dầu siêu đơn giản",
+        title:
+          "Cách làm thịt heo quay giòn bì bằng nồi chiên không dầu siêu đơn giản",
         slug: "cach-lam-thit-heo-quay-gion-bi-bang-noi-chien-khong-dau-sieu-don-gian",
-        excerpt: "Chỉ với chiếc nồi chiên không dầu quen thuộc, bạn hoàn toàn có thể tự tay làm món thịt heo quay giòn rụm, vàng ươm chuẩn vị ngoài hàng.",
+        excerpt:
+          "Chỉ với chiếc nồi chiên không dầu quen thuộc, bạn hoàn toàn có thể tự tay làm món thịt heo quay giòn rụm, vàng ươm chuẩn vị ngoài hàng.",
         content: `
           <p>Thịt quay giòn bì là món ăn khoái khẩu của cả người lớn lẫn trẻ em. Bài viết này sẽ hướng dẫn bạn cách chế biến món ăn hấp dẫn này một cách nhanh chóng, ít dầu mỡ bằng nồi chiên không dầu.</p>
           <h3>Nguyên liệu cần chuẩn bị:</h3>
@@ -406,9 +424,11 @@ async function main() {
         createdById: admin.id,
       },
       {
-        title: "Lợi ích sức khỏe bất ngờ từ việc sử dụng ức gà trong chế độ ăn hàng ngày",
+        title:
+          "Lợi ích sức khỏe bất ngờ từ việc sử dụng ức gà trong chế độ ăn hàng ngày",
         slug: "loi-ich-suc-khoe-bat-ngo-tu-viec-su-dung-uc-ga-trong-che-do-an-hang-ngay",
-        excerpt: "Ức gà không chỉ là thực phẩm vàng cho dân tập gym mà còn mang lại vô vàn giá trị sức khỏe tuyệt vời cho mọi lứa tuổi.",
+        excerpt:
+          "Ức gà không chỉ là thực phẩm vàng cho dân tập gym mà còn mang lại vô vàn giá trị sức khỏe tuyệt vời cho mọi lứa tuổi.",
         content: `
           <p>Ức gà là phần thịt trắng chứa hàm lượng đạm cao nhưng lại rất ít chất béo. Đây được coi là nguồn thực phẩm lý tưởng để xây dựng cơ bắp và duy trì lối sống lành mạnh.</p>
           <h3>1. Nguồn cung cấp protein chất lượng cao</h3>
@@ -431,7 +451,9 @@ async function main() {
     staff: staff.email,
     customer: customer.email,
   });
-  console.log(`Đã seed ${suppliers.length} nhà cung cấp và ${createdProducts.length} sản phẩm (kèm lô hàng).`);
+  console.log(
+    `Đã seed ${suppliers.length} nhà cung cấp và ${createdProducts.length} sản phẩm (kèm lô hàng).`,
+  );
   console.log("Seed thành công!");
 }
 

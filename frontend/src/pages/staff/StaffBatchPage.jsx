@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import api from "../../services/axios";
 import { toast } from "react-hot-toast";
 import { Plus, AlertTriangle, Search, Pencil, Trash2 } from "lucide-react";
 import { formatDate, formatPrice } from "../../utils/helper";
@@ -93,16 +92,24 @@ const StaffBatchPage = () => {
       importQuantity: batch.importQuantity,
       currentQuantity: batch.currentQuantity,
       costPrice: batch.costPrice,
-      manufactureDate: batch.manufactureDate ? batch.manufactureDate.substring(0, 10) : "",
-      expirationDate: batch.expirationDate ? batch.expirationDate.substring(0, 10) : "",
-      productName: batch.rawMaterialName || (batch.product?.name || ""),
+      manufactureDate: batch.manufactureDate
+        ? batch.manufactureDate.substring(0, 10)
+        : "",
+      expirationDate: batch.expirationDate
+        ? batch.expirationDate.substring(0, 10)
+        : "",
+      productName: batch.rawMaterialName || batch.product?.name || "",
       supplierId: batch.supplierId,
     });
     setShowAddModal(true);
   };
 
   const handleDeleteClick = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa lô hàng này? Tất cả các liên kết sản phẩm liên quan sẽ bị gỡ bỏ.")) {
+    if (
+      window.confirm(
+        "Bạn có chắc chắn muốn xóa lô hàng này? Tất cả các liên kết sản phẩm liên quan sẽ bị gỡ bỏ.",
+      )
+    ) {
       const success = await deleteBatch(id);
       if (success) {
         fetchBatches(searchQuery);
@@ -242,7 +249,9 @@ const StaffBatchPage = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-slate-500">
-                    {batch.manufactureDate ? formatDate(batch.manufactureDate) : "—"}
+                    {batch.manufactureDate
+                      ? formatDate(batch.manufactureDate)
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 text-slate-500">
                     {formatDate(batch.importDate)}
@@ -285,11 +294,13 @@ const StaffBatchPage = () => {
           {suggestions.map((batch) => (
             <div
               key={batch.id}
-              className="bg-white border border-amber-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+              className="bg-white border border-amber-200 rounded-2xl px-3 py-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-slate-900 line-clamp-1 mr-2" title={batch.rawMaterialName}>
+                <h3
+                  className="font-bold text-slate-900 line-clamp-1 mr-2"
+                  title={batch.rawMaterialName}
+                >
                   {batch.rawMaterialName}
                 </h3>
                 <span className="bg-amber-100 text-amber-700 text-[10px] font-extrabold px-2 py-1 rounded shrink-0">
@@ -318,19 +329,32 @@ const StaffBatchPage = () => {
                     {formatPrice(batch.costPrice)}
                   </span>
                 </div>
-                {batch.processedProducts && batch.processedProducts.length > 0 && (
-                  <div className="border-t border-slate-200/60 pt-1.5 mt-1.5">
-                    <span className="text-slate-500 block mb-1">Sản phẩm chế biến liên quan:</span>
-                    <div className="space-y-1">
-                      {batch.processedProducts.map((p) => (
-                        <div key={p.id} className="flex justify-between text-[11px]">
-                          <span className="text-slate-700 truncate max-w-[130px]" title={p.name}>• {p.name}</span>
-                          <span className="font-semibold text-slate-900">{formatPrice(p.salePrice || p.price)}</span>
-                        </div>
-                      ))}
+                {batch.processedProducts &&
+                  batch.processedProducts.length > 0 && (
+                    <div className="border-t border-slate-200/60 pt-1.5 mt-1.5">
+                      <span className="text-slate-500 block mb-1">
+                        Sản phẩm chế biến liên quan:
+                      </span>
+                      <div className="space-y-1">
+                        {batch.processedProducts.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex justify-between text-[11px]"
+                          >
+                            <span
+                              className="text-slate-700 truncate max-w-[130px]"
+                              title={p.name}
+                            >
+                              • {p.name}
+                            </span>
+                            <span className="font-semibold text-slate-900">
+                              {formatPrice(p.salePrice || p.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               <button className="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-2 rounded-lg text-sm transition-colors">

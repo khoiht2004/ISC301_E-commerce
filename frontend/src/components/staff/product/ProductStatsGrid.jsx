@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Archive, ClipboardList, Package, ShoppingBag } from "lucide-react";
 import StatCard from "../StatCard";
 
@@ -33,7 +34,7 @@ const ProductStatsGrid = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5 shrink-0">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-3 shrink-0">
       {statCards.map((card) => (
         <StatCard key={card.label} {...card} />
       ))}
