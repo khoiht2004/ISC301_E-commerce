@@ -30,6 +30,9 @@ const productSchema = z.object({
       return val;
     },
     z.array(z.coerce.number().int()).optional().default([])
+      // Loại trùng lặp: SQL Server không hỗ trợ `skipDuplicates` của Prisma createMany,
+      // nên phải đảm bảo mảng tagIds không có phần tử lặp trước khi ghi CSDL
+      .transform((arr) => [...new Set(arr)])
   ),
   rawBatchId: z.preprocess(
     (val) => (val === '' || val === 'null' || val === undefined ? null : val),
@@ -263,9 +266,10 @@ const updateProduct = async (req, res, next) => {
       if (tagIds !== undefined) {
         await tx.productTagOnProduct.deleteMany({ where: { productId } });
         if (tagIds.length > 0) {
+          // Lưu ý: SQL Server không hỗ trợ `skipDuplicates` của Prisma createMany.
+          // tagIds đã được loại trùng ở productSchema nên không cần flag này.
           await tx.productTagOnProduct.createMany({
             data: tagIds.map((tagId) => ({ productId, tagId })),
-            skipDuplicates: true,
           });
         }
       }

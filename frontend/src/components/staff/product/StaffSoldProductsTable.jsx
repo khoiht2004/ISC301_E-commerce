@@ -25,11 +25,11 @@ const StaffSoldProductsTable = ({ products }) => (
         <table className="w-full text-left border-collapse text-xs md:text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-slate-500 font-extrabold uppercase tracking-wider text-[10px] bg-slate-50">
-              <th className="py-4 px-6">Sản phẩm</th>
-              <th className="py-4 px-4 text-center">Đã bán</th>
-              <th className="py-4 px-4 text-center">Tồn kho</th>
-              <th className="py-4 px-4 text-center">Số đơn hàng</th>
-              <th className="py-4 px-6 text-right">Doanh thu</th>
+              <th className="px-3 py-2 ">Sản phẩm</th>
+              <th className="px-3 py-2 text-center">Đã bán</th>
+              <th className="px-3 py-2 text-center">Tồn kho</th>
+              <th className="px-3 py-2 text-center">Số đơn hàng</th>
+              <th className="px-3 py-2  text-right">Doanh thu</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">

@@ -136,7 +136,7 @@ const StaffNewsPage = () => {
 
         <button
           onClick={handleOpenCreateModal}
-          className="bg-primary-600 hover:bg-primary-700 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg border border-primary-600 transition-all shrink-0 align-self-start"
+          className="bg-primary-600 hover:bg-primary-700 text-slate-900 font-bold px-4 py- rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg border border-primary-600 transition-all shrink-0 align-self-start"
         >
           <Plus size={16} /> Viết Bài Mới
         </button>
@@ -178,12 +178,12 @@ const StaffNewsPage = () => {
             <table className="w-full text-left border-collapse text-xs md:text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500 font-extrabold uppercase tracking-wider text-[10px] bg-white/40">
-                  <th className="py-4 px-6">Ảnh bìa</th>
-                  <th className="py-4 px-4">Bài viết</th>
-                  <th className="py-4 px-4 text-center">Trạng thái</th>
-                  <th className="py-4 px-4 text-center">Xem</th>
-                  <th className="py-4 px-4">Ngày tạo</th>
-                  <th className="py-4 px-6 text-right">Thao tác</th>
+                  <th className="px-3 py-2 ">Ảnh bìa</th>
+                  <th className="px-3 py-2 ">Bài viết</th>
+                  <th className="px-3 py-2  text-center">Trạng thái</th>
+                  <th className="px-3 py-2  text-center">Xem</th>
+                  <th className="px-3 py-2 ">Ngày tạo</th>
+                  <th className="px-3 py-2  text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

@@ -126,22 +126,28 @@ const StaffUserManagementPage = () => {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="px-6 py-4">Thông tin</th>
-                <th className="px-6 py-4 text-center">Vai trò</th>
-                <th className="px-6 py-4 text-center">Trạng thái</th>
-                <th className="px-6 py-4 text-center">Thao tác</th>
+                <th className="px-3 py-2">Thông tin</th>
+                <th className="px-3 py-2 text-center">Vai trò</th>
+                <th className="px-3 py-2 text-center">Trạng thái</th>
+                <th className="px-3 py-2 text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan="4"
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     Đang tải...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan="4"
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     Không tìm thấy người dùng nào
                   </td>
                 </tr>
@@ -149,7 +155,10 @@ const StaffUserManagementPage = () => {
                 users.map((u) => {
                   const isSelf = u.id === currentUser?.id;
                   return (
-                    <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr
+                      key={u.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-extrabold text-sm shrink-0">
@@ -172,8 +181,14 @@ const StaffUserManagementPage = () => {
                         <select
                           value={u.role}
                           disabled={isSelf}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          title={isSelf ? "Không thể tự đổi vai trò của chính mình" : undefined}
+                          onChange={(e) =>
+                            handleRoleChange(u.id, e.target.value)
+                          }
+                          title={
+                            isSelf
+                              ? "Không thể tự đổi vai trò của chính mình"
+                              : undefined
+                          }
                           className="text-xs font-bold border-0 rounded-lg px-2 py-1 bg-slate-100 text-slate-700 focus:ring-2 focus:ring-primary-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {ROLE_OPTIONS.map((role) => (
@@ -187,7 +202,11 @@ const StaffUserManagementPage = () => {
                         <button
                           onClick={() => handleToggleStatus(u.id, u.isActive)}
                           disabled={isSelf}
-                          title={isSelf ? "Không thể tự khóa tài khoản của chính mình" : undefined}
+                          title={
+                            isSelf
+                              ? "Không thể tự khóa tài khoản của chính mình"
+                              : undefined
+                          }
                           className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                             u.isActive
                               ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
@@ -204,7 +223,11 @@ const StaffUserManagementPage = () => {
                         <button
                           onClick={() => handleDelete(u.id)}
                           disabled={isSelf}
-                          title={isSelf ? "Không thể tự xóa tài khoản của chính mình" : "Xóa người dùng"}
+                          title={
+                            isSelf
+                              ? "Không thể tự xóa tài khoản của chính mình"
+                              : "Xóa người dùng"
+                          }
                           className="p-2 text-slate-400 hover:text-primary-600 transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-slate-400"
                         >
                           <Trash2 size={16} />

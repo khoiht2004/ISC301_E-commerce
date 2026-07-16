@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import api from "../services/axios";
 import { toast } from "react-hot-toast";
 import ProductReviews from "../components/product/ProductReviews";
+import { ShoppingBag, ShoppingCart } from "lucide-react";
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -18,6 +19,7 @@ const ProductDetailPage = () => {
   const [activeImage, setActiveImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   // Fetch Product Details
   const fetchProductDetails = useCallback(async () => {
@@ -91,23 +93,68 @@ const ProductDetailPage = () => {
 
   // Quantity controls
   const handleDecrease = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
+    const current = Number(quantity) || 1;
+    if (current > 1) setQuantity(current - 1);
   };
 
   const handleIncrease = () => {
-    if (product && quantity < product.stock) {
-      setQuantity(quantity + 1);
+    const current = Number(quantity) || 0;
+    if (product && current < product.stock) {
+      setQuantity(current + 1);
     } else {
       toast.error("Vượt quá số lượng còn lại trong kho");
     }
   };
 
+  const handleQuantityInputChange = (e) => {
+    const raw = e.target.value;
+    if (raw === "") {
+      setQuantity("");
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    if (Number.isNaN(parsed)) return;
+    setQuantity(parsed);
+  };
+
+  const handleQuantityInputBlur = () => {
+    if (!product) return;
+    let clamped = parseInt(quantity, 10);
+    if (Number.isNaN(clamped) || clamped < 1) clamped = 1;
+    if (clamped > product.stock) {
+      clamped = product.stock;
+      toast.error(`Chỉ còn tối đa ${product.stock} sản phẩm trong kho`);
+    }
+    setQuantity(clamped);
+  };
+
+  // Clamp quantity to a valid value between 1 and available stock
+  const getValidQuantity = () => {
+    let value = parseInt(quantity, 10);
+    if (Number.isNaN(value) || value < 1) value = 1;
+    if (product && value > product.stock) value = product.stock;
+    return value;
+  };
+
   // Add to cart
   const handleAddToCart = async () => {
     if (!product) return;
+    const validQuantity = getValidQuantity();
+    setQuantity(validQuantity);
     setAddingToCart(true);
-    await addToCart(product.id, quantity, navigate);
+    await addToCart(product.id, validQuantity, navigate);
     setAddingToCart(false);
+  };
+
+  // Buy now: add to cart then jump straight to checkout
+  const handleBuyNow = async () => {
+    if (!product) return;
+    const validQuantity = getValidQuantity();
+    setQuantity(validQuantity);
+    setBuyingNow(true);
+    const ok = await addToCart(product.id, validQuantity, navigate);
+    setBuyingNow(false);
+    if (ok) navigate("/checkout");
   };
 
   // Render tag colors
@@ -352,9 +399,16 @@ const ProductDetailPage = () => {
                       >
                         ─
                       </button>
-                      <span className="text-sm font-bold text-slate-800 px-3">
-                        {quantity}
-                      </span>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={product.stock}
+                        value={quantity}
+                        onChange={handleQuantityInputChange}
+                        onBlur={handleQuantityInputBlur}
+                        className="w-12 text-xs font-bold text-slate-800 px-1 text-center bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
                       <button
                         onClick={handleIncrease}
                         className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors font-bold"
@@ -368,49 +422,36 @@ const ProductDetailPage = () => {
                     <button
                       onClick={handleAddToCart}
                       disabled={addingToCart}
-                      className="flex-1 px-8 py-3.5 bg-primary-600 hover:bg-primary-750 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-md shadow-primary-600/10 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-750 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold text-xs transition-all duration-200 shadow-md shadow-primary-600/10 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {addingToCart ? (
                         <>
-                          <svg
-                            className="animate-spin h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
+                          <ShoppingCart size={18} />
                           Đang thêm vào giỏ...
                         </>
                       ) : (
                         <>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-5 h-5"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                            />
-                          </svg>
+                          <ShoppingCart size={18} />
                           Thêm vào giỏ hàng
+                        </>
+                      )}
+                    </button>
+
+                    {/* Buy Now Button */}
+                    <button
+                      onClick={handleBuyNow}
+                      disabled={buyingNow || addingToCart}
+                      className="flex-1 px-3 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold text-xs transition-all duration-200 shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {buyingNow ? (
+                        <>
+                          <ShoppingBag size={18} />
+                          Đang xử lý...
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag size={18} />
+                          Mua ngay
                         </>
                       )}
                     </button>

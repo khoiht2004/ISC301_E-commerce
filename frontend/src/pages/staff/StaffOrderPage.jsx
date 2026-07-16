@@ -100,11 +100,11 @@ const StaffOrderPage = () => {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="px-6 py-4">Mã Đơn / Khách hàng</th>
-                <th className="px-6 py-4">Thông tin</th>
-                <th className="px-6 py-4 text-center">PT Thanh Toán</th>
-                <th className="px-6 py-4 text-center">Thanh Toán</th>
-                <th className="px-6 py-4 text-center">Giao Hàng</th>
+                <th className="px-3 py-2 ">Mã Đơn / Khách hàng</th>
+                <th className="px-3 py-2 ">Thông tin</th>
+                <th className="px-3 py-2  text-center">PT Thanh Toán</th>
+                <th className="px-3 py-2  text-center">Thanh Toán</th>
+                <th className="px-3 py-2  text-center">Giao Hàng</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -164,11 +164,11 @@ const StaffOrderPage = () => {
                         order.orderStatus === "CONFIRMED"
                           ? "bg-emerald-100 text-emerald-700"
                           : order.orderStatus === "CANCELLED" ||
-                            order.orderStatus === "INVALID_ADDRESS" ||
-                            order.orderStatus === "PAYMENT_FAILED"
+                              order.orderStatus === "INVALID_ADDRESS" ||
+                              order.orderStatus === "PAYMENT_FAILED"
                             ? "bg-primary-100 text-primary-700"
                             : order.orderStatus === "RETURNED" ||
-                              order.orderStatus === "RETURN_REQUESTED"
+                                order.orderStatus === "RETURN_REQUESTED"
                               ? "bg-red-100 text-red-700"
                               : order.orderStatus === "OUT_OF_STOCK"
                                 ? "bg-orange-100 text-orange-700"
@@ -189,8 +189,12 @@ const StaffOrderPage = () => {
                     >
                       <option value="PENDING">Chờ thanh toán</option>
                       <option value="PENDING_VALIDATION">Đang xác thực</option>
-                      <option value="INVALID_ADDRESS">Địa chỉ không hợp lệ</option>
-                      <option value="PAYMENT_FAILED">Thanh toán thất bại</option>
+                      <option value="INVALID_ADDRESS">
+                        Địa chỉ không hợp lệ
+                      </option>
+                      <option value="PAYMENT_FAILED">
+                        Thanh toán thất bại
+                      </option>
                       <option value="OUT_OF_STOCK">Hết hàng (Chờ CSKH)</option>
                       <option value="CONFIRMED">Đã xác thực</option>
                       <option value="PROCESSING">Đang xử lý</option>

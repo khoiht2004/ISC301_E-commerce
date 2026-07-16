@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -35,6 +35,9 @@ const CartPage = () => {
   };
 
   // Quantity handlers
+  const [qtyDrafts, setQtyDrafts] = useState({});
+  const debounceTimers = useRef({});
+
   const handleQuantityChange = async (item, newQty) => {
     if (newQty < 1) return;
     if (newQty > item.product.stock) {
@@ -42,6 +45,41 @@ const CartPage = () => {
       return;
     }
     await updateItem(item.id, newQty);
+  };
+
+  // Allow typing the quantity directly; debounce the API call so each
+  // keystroke doesn't fire a request, but stays responsive on screen.
+  const handleQuantityInputChange = (item, rawValue) => {
+    setQtyDrafts((prev) => ({ ...prev, [item.id]: rawValue }));
+    if (debounceTimers.current[item.id]) {
+      clearTimeout(debounceTimers.current[item.id]);
+    }
+    debounceTimers.current[item.id] = setTimeout(() => {
+      commitQuantityDraft(item, rawValue);
+    }, 600);
+  };
+
+  const commitQuantityDraft = async (item, rawValue) => {
+    let value = parseInt(rawValue, 10);
+    if (Number.isNaN(value) || value < 1) value = 1;
+    if (value > item.product.stock) {
+      value = item.product.stock;
+      toast.error(`Chỉ còn tối đa ${item.product.stock} sản phẩm trong kho`);
+    }
+    setQtyDrafts((prev) => {
+      const next = { ...prev };
+      delete next[item.id];
+      return next;
+    });
+    if (value !== item.quantity) await updateItem(item.id, value);
+  };
+
+  const handleQuantityInputBlur = (item) => {
+    if (debounceTimers.current[item.id]) {
+      clearTimeout(debounceTimers.current[item.id]);
+    }
+    const raw = qtyDrafts[item.id];
+    if (raw !== undefined) commitQuantityDraft(item, raw);
   };
 
   const handleCheckout = () => {
@@ -146,7 +184,7 @@ const CartPage = () => {
                       "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80";
                     const itemImage = item.product.thumbnail || fallbackImg;
                     const price = item.product.salePrice || item.product.price;
-                    const itemSubtotal = price * item.quantity;
+                    // const itemSubtotal = price * item.quantity;
 
                     return (
                       <div
@@ -217,9 +255,18 @@ const CartPage = () => {
                             >
                               ─
                             </button>
-                            <span className="text-xs font-bold text-slate-800">
-                              {item.quantity}
-                            </span>
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              min={1}
+                              max={item.product.stock}
+                              value={qtyDrafts[item.id] ?? item.quantity}
+                              onChange={(e) =>
+                                handleQuantityInputChange(item, e.target.value)
+                              }
+                              onBlur={() => handleQuantityInputBlur(item)}
+                              className="w-10 text-xs font-bold text-slate-800 px-0.5 text-center bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
                             <button
                               onClick={() =>
                                 handleQuantityChange(item, item.quantity + 1)
@@ -331,7 +378,7 @@ const CartPage = () => {
 
                 <button
                   onClick={handleCheckout}
-                  className="w-full py-4 bg-primary-600 hover:bg-primary-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-primary-600/10 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wider mb-4"
+                  className="w-full py-3 bg-primary-600 hover:bg-primary-755 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-primary-600/10 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wider mb-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

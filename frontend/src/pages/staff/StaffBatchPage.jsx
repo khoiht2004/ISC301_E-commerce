@@ -199,14 +199,14 @@ const StaffBatchPage = () => {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                <th className="px-6 py-4">Mã Lô</th>
-                <th className="px-6 py-4">Nguyên Liệu</th>
-                <th className="px-6 py-4">Tồn Kho</th>
-                <th className="px-6 py-4">Giá Nhập</th>
-                <th className="px-6 py-4">Hạn SD</th>
-                <th className="px-6 py-4">Ngày SX</th>
-                <th className="px-6 py-4">Ngày Nhập</th>
-                <th className="px-6 py-4 text-center">Hành động</th>
+                <th className="px-3 py-2 ">Mã Lô</th>
+                <th className="px-3 py-2 ">Nguyên Liệu</th>
+                <th className="px-3 py-2 ">Tồn Kho</th>
+                <th className="px-3 py-2 ">Giá Nhập</th>
+                <th className="px-3 py-2 ">Hạn SD</th>
+                <th className="px-3 py-2 ">Ngày SX</th>
+                <th className="px-3 py-2 ">Ngày Nhập</th>
+                <th className="px-3 py-2  text-center">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">

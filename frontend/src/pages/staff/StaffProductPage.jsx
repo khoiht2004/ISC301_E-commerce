@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
-import api from "../../services/axios";
 import ProductSearchBar from "../../components/staff/product/ProductSearchBar";
 import ProductStatsGrid from "../../components/staff/product/ProductStatsGrid";
 import ProductTabs from "../../components/staff/product/ProductTabs";
@@ -37,8 +36,9 @@ const resolveLocalImage = (image) => {
 };
 
 const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
-  const { stats, soldProducts, refreshStaffProductStats } = useStaffProductStats();
-  
+  const { stats, soldProducts, refreshStaffProductStats } =
+    useStaffProductStats();
+
   const {
     products,
     tags,
