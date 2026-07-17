@@ -19,6 +19,7 @@ const reviewRoutes = require("./src/routes/review.routes");
 const complaintRoutes = require("./src/routes/complaint.routes");
 const supplierRoutes = require("./src/routes/supplier.routes");
 const categoryRoutes = require("./src/routes/category.routes");
+const { allowedOrigins } = require("./src/config/corsOrigins");
 
 // Middleware
 const errorHandler = require("./src/middlewares/errorHandler");
@@ -30,12 +31,6 @@ const app = express();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:3000",
-      ];
-
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {

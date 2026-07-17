@@ -56,7 +56,7 @@ const createOrder = async (req, res, next) => {
         order: err.order
       });
     }
-    if (err.message?.includes('not found') || err.message?.includes('stock') || err.message?.includes('Giỏ hàng')) {
+    if (err.statusCode === 400 || err.message?.includes('not found') || err.message?.includes('stock') || err.message?.includes('Giỏ hàng')) {
       return errorResponse(res, err.message, 400);
     }
     next(err);

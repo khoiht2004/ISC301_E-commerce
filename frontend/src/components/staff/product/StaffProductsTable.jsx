@@ -1,14 +1,8 @@
 /* eslint-disable react/prop-types */
-import {
-  AlertCircle,
-  Edit,
-  Eye,
-  Lock,
-  LockOpen,
-  Trash2,
-} from "lucide-react";
+import { AlertCircle, Edit, Eye, Lock, LockOpen, Trash2 } from "lucide-react";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { formatDate } from "../../../utils/helper";
+import CopyText from "../../common/CopyText";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1544025162-d76694265947?w=150&auto=format&fit=crop&q=80";
@@ -100,13 +94,15 @@ const StaffProductsTable = ({
                         />
                       </div>
                       <div>
-                        <button
-                          type="button"
-                          className="text-left font-bold text-slate-800 line-clamp-2 hover:text-primary-600 transition-colors"
-                          onClick={() => onEdit(product)}
-                        >
-                          {product.name}
-                        </button>
+                        <CopyText text={product.name}>
+                          <button
+                            type="button"
+                            className="text-left font-bold text-slate-800 line-clamp-2 hover:text-primary-600 transition-colors"
+                            onClick={() => onEdit(product)}
+                          >
+                            {product.name}
+                          </button>
+                        </CopyText>
                         <div className="text-[10px] text-slate-500 mt-1">
                           Ngày tạo: {formatDate(product.createdAt)}
                         </div>
@@ -138,9 +134,11 @@ const StaffProductsTable = ({
                   <td className="p-3">
                     {product.rawBatch ? (
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-mono text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-250 px-1.5 py-0.5 rounded w-max">
-                          {product.rawBatch.batchCode}
-                        </span>
+                        <CopyText text={product.rawBatch.batchCode}>
+                          <span className="font-mono text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-250 px-1.5 py-0.5 rounded w-max block">
+                            {product.rawBatch.batchCode}
+                          </span>
+                        </CopyText>
                         {product.rawBatch.rawMaterialName && (
                           <span
                             className="text-[10px] text-slate-500 font-medium truncate block max-w-[150px]"

@@ -206,7 +206,7 @@ const OrderTrackingPage = () => {
             "RETURN_REQUESTED",
           ].includes(order.orderStatus) ? (
             <div
-              className={`p-4 rounded-xl text-center font-bold ${
+              className={`p-2.5 rounded-xl text-center font-bold ${
                 order.orderStatus === "OUT_OF_STOCK"
                   ? "bg-amber-50 text-amber-700 border border-amber-200"
                   : ["RETURNED", "RETURN_REQUESTED"].includes(order.orderStatus)

@@ -65,21 +65,19 @@ const StaffSidebar = ({ currentModule, onModuleChange, user, onLogout }) => {
             const isActive = currentModule === item.key;
 
             return (
-              <>
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => onModuleChange(item.key)}
-                  className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
-                    isActive
-                      ? "bg-primary-600 border-primary-700 text-white shadow-md"
-                      : "bg-white border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50"
-                  }`}
-                >
-                  <Icon size={14} />
-                  <span>{item.label}</span>
-                </button>
-              </>
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => onModuleChange(item.key)}
+                className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
+                  isActive
+                    ? "bg-primary-600 border-primary-700 text-white shadow-md"
+                    : "bg-white border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                }`}
+              >
+                <Icon size={14} />
+                <span>{item.label}</span>
+              </button>
             );
           })}
         </div>

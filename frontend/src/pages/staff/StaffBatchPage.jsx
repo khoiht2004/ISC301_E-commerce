@@ -5,6 +5,7 @@ import { formatDate, formatPrice } from "../../utils/helper";
 import StaffBatchDialog from "../../components/staff/batch/StaffBatchDialog";
 import StaffPagination from "../../components/staff/StaffPagination";
 import { useStaffBatches } from "../../hooks/useStaffBatches";
+import CopyText from "../../components/common/CopyText";
 
 const StaffBatchPage = () => {
   const {
@@ -176,7 +177,7 @@ const StaffBatchPage = () => {
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-sm"
           }`}
         >
-          <AlertTriangle size={16} /> Gợi ý giảm giá (sắp hết hạn)
+          <AlertTriangle size={16} /> Cảnh báo sắp hết hạn
         </button>
 
         {activeTab === "all" && (
@@ -229,8 +230,8 @@ const StaffBatchPage = () => {
                     <td className="p-3 text-center text-slate-400 font-semibold">
                       {(page - 1) * 20 + index + 1}
                     </td>
-                    <td className="px-4 py-3 font-bold text-slate-900">
-                      {batch.batchCode}
+                    <td className="px-4 py-3">
+                      <CopyText text={batch.batchCode} textClassName="font-bold text-slate-900" />
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-bold text-slate-800">
@@ -376,10 +377,6 @@ const StaffBatchPage = () => {
                     </div>
                   )}
               </div>
-
-              <button className="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-2 rounded-lg text-sm transition-colors">
-                Đề xuất giảm giá
-              </button>
             </div>
           ))}
           {suggestions.length === 0 && (

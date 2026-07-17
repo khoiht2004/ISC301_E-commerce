@@ -5,19 +5,18 @@ const { Server } = require('socket.io');
 const app = require('./app');
 const { setupChatSocket } = require('./src/sockets/chat.socket');
 const prisma = require('./src/config/prisma');
+const { allowedOrigins } = require('./src/config/corsOrigins');
 
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // ─── HTTP Server ─────────────────────────────────────────────────────────────
 
 const server = http.createServer(app);
 
 // ─── Socket.io ───────────────────────────────────────────────────────────────
-
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },

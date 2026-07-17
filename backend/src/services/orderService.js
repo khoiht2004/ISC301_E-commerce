@@ -56,6 +56,12 @@ const createOrderService = async (userId, bodyData) => {
 
   // Step 2.1: Address Validation Check
   const addressValidation = validateAddress({ province_id, district_id, ward_id, street_address, receiver_phone });
+  
+  if (!addressValidation.isValid) {
+    const err = new Error(addressValidation.message);
+    err.statusCode = 400;
+    throw err;
+  }
 
   // Create order + items in transaction (without stock decrement, done in Step 2.3)
   const order = await prisma.$transaction(async (tx) => {
@@ -120,14 +126,6 @@ const createOrderService = async (userId, bodyData) => {
 
     return newOrder;
   });
-
-  // If address validation failed, throw error containing the saved order so controller can reply.
-  if (!addressValidation.isValid) {
-    const err = new Error(addressValidation.message);
-    err.statusCode = 400;
-    err.order = order;
-    throw err;
-  }
 
   // Step 2.2 & 2.3 for COD orders: Process stock check and confirmed status synchronously.
   if (paymentMethod === 'COD') {

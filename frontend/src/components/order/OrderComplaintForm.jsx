@@ -1,24 +1,25 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
-import axios from '../../services/axios';
-import { toast } from 'react-hot-toast';
+import { useState } from "react";
+import axios from "../../services/axios";
+import { toast } from "react-hot-toast";
+import { RotateCw, XIcon } from "lucide-react";
 
 const TYPE_CONFIG = {
   COMPLAINT: {
-    title: 'Khiếu nại đơn hàng',
-    intro: 'Bạn đang gửi khiếu nại cho đơn hàng',
-    label: 'Lý do khiếu nại',
-    placeholder: 'Nhập lý do khiếu nại của bạn (ít nhất 10 ký tự)...',
-    submitText: 'Gửi khiếu nại',
-    successText: 'Gửi khiếu nại thành công! Chúng tôi sẽ xử lý sớm nhất.',
+    title: "Khiếu nại đơn hàng",
+    intro: "Bạn đang gửi khiếu nại cho đơn hàng",
+    label: "Lý do khiếu nại",
+    placeholder: "Nhập lý do khiếu nại của bạn (ít nhất 10 ký tự)...",
+    submitText: "Gửi khiếu nại",
+    successText: "Gửi khiếu nại thành công! Chúng tôi sẽ xử lý sớm nhất.",
   },
   RETURN_REQUEST: {
-    title: 'Yêu cầu trả hàng / hoàn tiền',
-    intro: 'Bạn đang gửi yêu cầu trả hàng / hoàn tiền cho đơn hàng',
-    label: 'Lý do trả hàng',
-    placeholder: 'Nhập lý do muốn trả hàng / hoàn tiền (ít nhất 10 ký tự)...',
-    submitText: 'Gửi yêu cầu trả hàng',
-    successText: 'Gửi yêu cầu trả hàng / hoàn tiền thành công!',
+    title: "Yêu cầu trả hàng / hoàn tiền",
+    intro: "Bạn đang gửi yêu cầu trả hàng / hoàn tiền cho đơn hàng",
+    label: "Lý do trả hàng",
+    placeholder: "Nhập lý do muốn trả hàng / hoàn tiền (ít nhất 10 ký tự)...",
+    submitText: "Gửi yêu cầu trả hàng",
+    successText: "Gửi yêu cầu trả hàng / hoàn tiền thành công!",
   },
 };
 
@@ -27,10 +28,10 @@ const OrderComplaintForm = ({
   onClose,
   orderId,
   orderCode,
-  type = 'COMPLAINT',
+  type = "COMPLAINT",
   onSuccess,
 }) => {
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -40,50 +41,53 @@ const OrderComplaintForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (reason.trim().length < 10) {
-      toast.error('Lý do phải có ít nhất 10 ký tự');
+      toast.error("Lý do phải có ít nhất 10 ký tự");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await axios.post('/complaints', { orderId, reason, type });
+      await axios.post("/complaints", { orderId, reason, type });
       toast.success(config.successText);
       onSuccess();
-      setReason('');
+      setReason("");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
+      toast.error(
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
       <div
-        className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all"
+        className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h3 className="text-xl font-bold text-slate-800">{config.title}</h3>
+        <div className="py-2.5 px-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h3 className="text-lg font-bold text-slate-800">{config.title}</h3>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-200"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XIcon size={16} />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="py-2.5 px-4">
           <div className="mb-4 text-sm text-slate-600">
-            {config.intro} <span className="font-bold text-slate-800">#{orderCode}</span>.
-            Vui lòng cung cấp chi tiết vấn đề bạn đang gặp phải.
+            {config.intro}{" "}
+            <span className="font-bold text-slate-800">#{orderCode}</span>.
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <label htmlFor="reason" className="block text-sm font-bold text-slate-700 mb-2">
+              <label
+                htmlFor="reason"
+                className="block text-sm font-bold text-slate-700 mb-2"
+              >
                 {config.label} <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -100,11 +104,11 @@ const OrderComplaintForm = ({
               </p>
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-3 pt-2 text-sm">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl text-slate-600 font-bold hover:bg-slate-100 transition-colors"
+                className="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors "
                 disabled={isSubmitting}
               >
                 Hủy bỏ
@@ -112,14 +116,11 @@ const OrderComplaintForm = ({
               <button
                 type="submit"
                 disabled={isSubmitting || reason.trim().length < 10}
-                className="px-6 py-2.5 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-3 py-2 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <RotateCw size={14} className="animate-spin" />
                     Đang gửi...
                   </>
                 ) : (

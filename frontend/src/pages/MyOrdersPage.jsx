@@ -62,17 +62,18 @@ const MyOrdersPage = () => {
     try {
       const params = {
         page: currentPage,
-        limit: 5,
+        limit: 10,
         tab: activeTab !== "all" ? activeTab : undefined,
         search: debouncedSearch || undefined,
       };
       const { data } = await axios.get("/orders/my-orders", { params });
+
       setOrders(data.data);
       setPagination({
-        page: data.page,
-        limit: data.limit,
-        totalPages: data.totalPages,
-        total: data.total,
+        page: data.pagination?.page || 1,
+        limit: data.pagination?.limit || 10,
+        totalPages: data.pagination?.totalPages || 1,
+        total: data.pagination?.total || 0,
       });
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -348,20 +349,6 @@ const MyOrdersPage = () => {
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-16 text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-16 h-16 text-slate-300 mx-auto mb-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
             <h2 className="text-xl font-bold text-slate-700 mb-2">
               Chưa có đơn hàng nào
             </h2>
@@ -393,25 +380,31 @@ const MyOrdersPage = () => {
                   >
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                          Mã đơn hàng
-                        </span>
-                        <span className="font-extrabold text-slate-800 text-sm">
-                          {order.orderCode}
-                        </span>
+                        <p className="text-xs text-slate-400 font-bold tracking-wider block">
+                          Mã đơn hàng{" "}
+                          <span className="font-extrabold text-slate-800">
+                            {order.orderCode}
+                          </span>
+                        </p>
                       </div>
                       <div className="hidden sm:block w-px h-6 bg-slate-200"></div>
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                          Ngày đặt
-                        </span>
-                        <span className="font-semibold text-slate-600 text-xs">
-                          {formatDate(order.createdAt)}
-                        </span>
+                        <p className="text-xs text-slate-400 font-bold  tracking-wider block">
+                          Ngày đặt{" "}
+                          <span className="font-semibold text-slate-600 ">
+                            {formatDate(order.createdAt)}
+                          </span>
+                        </p>
                       </div>
-                      <span className="font-bold text-primary-600 text-sm">
-                        {formatPrice(order.totalAmount)}
-                      </span>
+                      <div className="hidden sm:block w-px h-6 bg-slate-200"></div>
+                      <div>
+                        <p className="text-xs text-slate-400 font-bold tracking-wider block">
+                          Tổng tiền{" "}
+                          <span className="font-semibold text-primary-600">
+                            {formatPrice(order.totalAmount)}
+                          </span>
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {getOrderStatusBadge(order.orderStatus)}
@@ -465,7 +458,10 @@ const MyOrdersPage = () => {
                       {/* Complaint / Return status */}
                       {[
                         { type: "COMPLAINT", label: "Khiếu nại" },
-                        { type: "RETURN_REQUEST", label: "Yêu cầu trả hàng / hoàn tiền" },
+                        {
+                          type: "RETURN_REQUEST",
+                          label: "Yêu cầu trả hàng / hoàn tiền",
+                        },
                       ].map(({ type, label }) => {
                         const complaint = getComplaintForOrder(order.id, type);
                         if (!complaint) return null;

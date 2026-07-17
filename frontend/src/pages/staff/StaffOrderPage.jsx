@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { getSocket } from "../../services/socketService";
 import { Search } from "lucide-react";
 import StaffPagination from "../../components/staff/StaffPagination";
+import CopyText from "../../components/common/CopyText";
 
 const ORDER_STATUS_OPTIONS = [
   { value: "PENDING", label: "Chờ thanh toán" },
@@ -211,9 +212,11 @@ const StaffOrderPage = () => {
                       {(page - 1) * 20 + index + 1}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-extrabold text-slate-900 mb-1">
-                        {order.orderCode}
-                      </div>
+                      <CopyText 
+                        text={order.orderCode} 
+                        className="mb-1"
+                        textClassName="font-extrabold text-slate-900" 
+                      />
                       <div className="text-xs text-slate-500">
                         {new Date(order.createdAt).toLocaleString("vi-VN")}
                       </div>

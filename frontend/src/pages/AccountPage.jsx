@@ -4,6 +4,7 @@ import { Navigate, Link } from 'react-router-dom';
 import EcomNavbar from '../components/layout/EcomNavbar';
 import EcomFooter from '../components/layout/EcomFooter';
 import { toast } from 'react-hot-toast';
+import AddressSelectForm from '../components/common/AddressSelectForm';
 
 const AccountPage = () => {
   const { user, loading, updateProfile } = useAuth();
@@ -16,12 +17,31 @@ const AccountPage = () => {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
+  const [addressData, setAddressData] = useState({
+    province_id: '',
+    district_id: '',
+    ward_id: '',
+    street_address: '',
+    combinedAddress: '',
+    phone: '',
+    fullName: ''
+  });
+
   // Synchronize state when user loads or edit mode is toggled
   useEffect(() => {
     if (user) {
       setFullName(user.fullName || '');
       setPhone(user.phone || '');
       setAddress(user.address || '');
+      setAddressData({
+        province_id: user.province_id || '',
+        district_id: user.district_id || '',
+        ward_id: user.ward_id || '',
+        street_address: user.street_address || '',
+        combinedAddress: user.address || '',
+        phone: user.phone || '',
+        fullName: user.fullName || ''
+      });
       setAvatarPreview(user.avatar || null);
       setAvatarFile(null);
     }
@@ -62,8 +82,13 @@ const AccountPage = () => {
     try {
       const formData = new FormData();
       formData.append('fullName', fullName.trim());
-      formData.append('phone', phone.trim());
-      formData.append('address', address.trim());
+      formData.append('phone', addressData.phone?.trim() || phone.trim());
+      formData.append('address', addressData.combinedAddress?.trim() || address.trim());
+      formData.append('province_id', addressData.province_id || '');
+      formData.append('district_id', addressData.district_id || '');
+      formData.append('ward_id', addressData.ward_id || '');
+      formData.append('street_address', addressData.street_address || '');
+
       if (avatarFile) {
         formData.append('avatar', avatarFile);
       }
@@ -148,31 +173,25 @@ const AccountPage = () => {
                           />
                           <p className="text-xs text-slate-400 mt-1">Email đăng ký không thể thay đổi</p>
                         </div>
-                        <div>
-                          <label className="block text-sm text-slate-500 mb-1">Số điện thoại</label>
-                          <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-900 text-sm"
-                            placeholder="Nhập số điện thoại"
-                          />
-                        </div>
                       </div>
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                       <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Địa chỉ giao hàng</h3>
-                      <div>
-                        <label className="block text-sm text-slate-500 mb-1">Địa chỉ mặc định</label>
-                        <textarea
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-900 text-sm resize-none"
-                          placeholder="Nhập địa chỉ nhận hàng mặc định"
-                        />
-                      </div>
+                      <AddressSelectForm
+                        initialValues={{
+                          province_id: user.province_id || "",
+                          district_id: user.district_id || "",
+                          ward_id: user.ward_id || "",
+                          street_address: user.street_address || "",
+                          phone: user.phone || "",
+                          email: user.email || ""
+                        }}
+                        showEmail={false}
+                        onChange={(data) => {
+                          setAddressData(data);
+                        }}
+                      />
                     </div>
 
                   </div>
