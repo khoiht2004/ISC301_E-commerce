@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import axios from "../services/axios";
 import AddressSelectForm from "../components/common/AddressSelectForm";
+import { Banknote, Check, MapPin } from "lucide-react";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -31,12 +32,17 @@ const CheckoutPage = () => {
     user?.phone
   );
 
-  const [useProfileAddress, setUseProfileAddress] = useState(hasFullProfileAddress);
+  const [useProfileAddress, setUseProfileAddress] = useState(
+    hasFullProfileAddress,
+  );
 
   // Sync combined shipping address
   useEffect(() => {
     if (useProfileAddress) {
-      setFormData((prev) => ({ ...prev, shippingAddress: user?.address || "" }));
+      setFormData((prev) => ({
+        ...prev,
+        shippingAddress: user?.address || "",
+      }));
     }
   }, [useProfileAddress, user?.address]);
 
@@ -90,7 +96,9 @@ const CheckoutPage = () => {
       province_id: useProfileAddress ? user.province_id : formData.province_id,
       district_id: useProfileAddress ? user.district_id : formData.district_id,
       ward_id: useProfileAddress ? user.ward_id : formData.ward_id,
-      street_address: useProfileAddress ? user.street_address : formData.street_address,
+      street_address: useProfileAddress
+        ? user.street_address
+        : formData.street_address,
       receiver_phone: useProfileAddress ? user.phone : formData.customerPhone,
     };
 
@@ -125,9 +133,9 @@ const CheckoutPage = () => {
   if (loading || isChecking || cartItems.length === 0) return null;
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-24 pb-16">
+    <div className="bg-slate-50 min-h-screen pt-20 pb-16">
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="mb-8">
+        <div className="mb-3">
           <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
             Thanh toán
           </span>
@@ -141,27 +149,9 @@ const CheckoutPage = () => {
           <div className="w-full lg:w-2/3">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Shipping Info */}
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-4 md:p-8">
                 <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5 text-primary-500"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                    />
-                  </svg>
+                  <MapPin className="text-primary-500" size={20} />
                   Thông tin giao hàng
                 </h2>
 
@@ -174,7 +164,9 @@ const CheckoutPage = () => {
                             <input
                               type="checkbox"
                               checked={useProfileAddress}
-                              onChange={(e) => setUseProfileAddress(e.target.checked)}
+                              onChange={(e) =>
+                                setUseProfileAddress(e.target.checked)
+                              }
                               className="w-4 h-4 rounded text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer"
                             />
                             <span className="text-sm font-medium text-slate-700">
@@ -183,13 +175,18 @@ const CheckoutPage = () => {
                           </label>
                           {useProfileAddress && (
                             <div className="mt-2 text-xs text-slate-500 italic px-3">
-                              Địa chỉ giao hàng: <strong className="text-slate-800 font-semibold">{user.address}</strong>
+                              Địa chỉ giao hàng:{" "}
+                              <strong className="text-slate-800 font-semibold">
+                                {user.address}
+                              </strong>
                             </div>
                           )}
                         </>
                       ) : (
                         <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-sm">
-                          ⚠️ Địa chỉ mặc định trong hồ sơ chưa đầy đủ thông tin hành chính. Vui lòng chọn địa chỉ giao hàng chi tiết bên dưới để cập nhật lại.
+                          ⚠️ Địa chỉ mặc định trong hồ sơ chưa đầy đủ thông tin
+                          hành chính. Vui lòng chọn địa chỉ giao hàng chi tiết
+                          bên dưới để cập nhật lại.
                         </div>
                       )}
                     </div>
@@ -215,7 +212,7 @@ const CheckoutPage = () => {
                             street_address: data.street_address,
                             customerPhone: data.phone,
                             customerEmail: data.email,
-                            shippingAddress: data.combinedAddress
+                            shippingAddress: data.combinedAddress,
                           }));
                         }}
                       />
@@ -237,28 +234,15 @@ const CheckoutPage = () => {
               </div>
 
               {/* Payment Method */}
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-4 md:p-8">
                 <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5 text-primary-500"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
-                    />
-                  </svg>
+                  <Banknote className="text-primary-500" size={20} />
                   Phương thức thanh toán
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
+                    className={`relative flex flex-col py-2.5 px-3 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "COD" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -274,18 +258,7 @@ const CheckoutPage = () => {
                       </span>
                       {formData.paymentMethod === "COD" && (
                         <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-3.5 h-3.5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <Check size={14} />
                         </div>
                       )}
                     </div>
@@ -295,7 +268,7 @@ const CheckoutPage = () => {
                   </label>
 
                   <label
-                    className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
+                    className={`relative flex flex-col py-2.5 px-3 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === "BANK_TRANSFER" ? "border-primary-500 bg-primary-50/50" : "border-slate-200 hover:border-primary-200"}`}
                   >
                     <input
                       type="radio"
@@ -311,18 +284,7 @@ const CheckoutPage = () => {
                       </span>
                       {formData.paymentMethod === "BANK_TRANSFER" && (
                         <div className="w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-3.5 h-3.5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <Check size={14} />
                         </div>
                       )}
                     </div>
@@ -353,16 +315,6 @@ const CheckoutPage = () => {
                     )}
                   </label>
                 </div>
-              </div>
-
-              <div className="hidden lg:block">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
-                </button>
               </div>
             </form>
           </div>
@@ -430,12 +382,12 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <div className="lg:hidden">
+              <div>
                 <button
                   type="submit"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đặt hàng ngay"}
                 </button>
