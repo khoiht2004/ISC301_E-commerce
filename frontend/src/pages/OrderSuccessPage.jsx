@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "../services/axios";
+import { formatPrice } from "../utils/helper";
 // import { useAuth } from "../context/AuthContext";
-
-const formatPrice = (price) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-    price,
-  );
 
 const statusMap = {
   PENDING: { label: "Chờ thanh toán", color: "bg-amber-100 text-amber-700" },
-  PENDING_VALIDATION: { label: "Đang xác thực", color: "bg-slate-100 text-slate-600" },
-  INVALID_ADDRESS: { label: "Địa chỉ không hợp lệ", color: "bg-red-100 text-red-700" },
-  PAYMENT_FAILED: { label: "Thanh toán thất bại", color: "bg-red-100 text-red-700" },
-  OUT_OF_STOCK: { label: "Hết hàng (Chờ CSKH)", color: "bg-orange-100 text-orange-700" },
+  PENDING_VALIDATION: {
+    label: "Đang xác thực",
+    color: "bg-slate-100 text-slate-600",
+  },
+  INVALID_ADDRESS: {
+    label: "Địa chỉ không hợp lệ",
+    color: "bg-red-100 text-red-700",
+  },
+  PAYMENT_FAILED: {
+    label: "Thanh toán thất bại",
+    color: "bg-red-100 text-red-700",
+  },
+  OUT_OF_STOCK: {
+    label: "Hết hàng (Chờ CSKH)",
+    color: "bg-orange-100 text-orange-700",
+  },
   CONFIRMED: { label: "Đã xác thực", color: "bg-emerald-100 text-emerald-700" },
   PROCESSING: { label: "Đang xử lý", color: "bg-blue-100 text-blue-700" },
   SHIPPING: { label: "Đang giao hàng", color: "bg-amber-100 text-amber-700" },

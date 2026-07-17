@@ -26,6 +26,7 @@ const MyOrdersPage = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [complaintOrder, setComplaintOrder] = useState(null);
+  const [complaintType, setComplaintType] = useState("COMPLAINT");
   const [myComplaints, setMyComplaints] = useState([]);
   const [expandedIds, setExpandedIds] = useState(new Set());
 
@@ -255,8 +256,8 @@ const MyOrdersPage = () => {
     }
   };
 
-  const getComplaintForOrder = (orderId) =>
-    myComplaints.find((c) => c.orderId === orderId);
+  const getComplaintForOrder = (orderId, type) =>
+    myComplaints.find((c) => c.orderId === orderId && c.type === type);
 
   const getComplaintStatusBadge = (status) => {
     switch (status) {
@@ -461,15 +462,21 @@ const MyOrdersPage = () => {
                         ))}
                       </div>
 
-                      {/* Complaint status */}
-                      {(() => {
-                        const complaint = getComplaintForOrder(order.id);
+                      {/* Complaint / Return status */}
+                      {[
+                        { type: "COMPLAINT", label: "Khiếu nại" },
+                        { type: "RETURN_REQUEST", label: "Yêu cầu trả hàng / hoàn tiền" },
+                      ].map(({ type, label }) => {
+                        const complaint = getComplaintForOrder(order.id, type);
                         if (!complaint) return null;
                         return (
-                          <div className="mx-3 md:mx-4 mb-3 p-3 rounded-lg border border-slate-200 bg-slate-50/60">
+                          <div
+                            key={type}
+                            className="mx-3 md:mx-4 mb-3 p-3 rounded-lg border border-slate-200 bg-slate-50/60"
+                          >
                             <div className="flex items-center justify-between gap-3 mb-1.5">
                               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Khiếu nại / Yêu cầu trả hàng
+                                {label}
                               </span>
                               {getComplaintStatusBadge(complaint.status)}
                             </div>
@@ -494,7 +501,7 @@ const MyOrdersPage = () => {
                             )}
                           </div>
                         );
-                      })()}
+                      })}
 
                       {/* Footer card */}
                       <div className="bg-slate-50/30 border-t border-slate-100 p-3 md:px-4 flex flex-col sm:flex-row sm:items-center justify-end gap-3">
@@ -522,17 +529,40 @@ const MyOrdersPage = () => {
                             </button>
                           )}
 
-                          {/* Complaint/Return Action */}
+                          {/* Complaint Action */}
                           {["DELIVERED", "COMPLETED"].includes(
                             order.orderStatus,
-                          ) && (
-                            <button
-                              onClick={() => setComplaintOrder(order)}
-                              className="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-1.5 px-3 rounded-lg transition-colors text-xs"
-                            >
-                              Trả hàng / Khiếu nại
-                            </button>
-                          )}
+                          ) &&
+                            !getComplaintForOrder(order.id, "COMPLAINT") && (
+                              <button
+                                onClick={() => {
+                                  setComplaintOrder(order);
+                                  setComplaintType("COMPLAINT");
+                                }}
+                                className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-1.5 px-3 rounded-lg transition-colors text-xs"
+                              >
+                                Khiếu nại
+                              </button>
+                            )}
+
+                          {/* Return/Refund Action */}
+                          {["DELIVERED", "COMPLETED"].includes(
+                            order.orderStatus,
+                          ) &&
+                            !getComplaintForOrder(
+                              order.id,
+                              "RETURN_REQUEST",
+                            ) && (
+                              <button
+                                onClick={() => {
+                                  setComplaintOrder(order);
+                                  setComplaintType("RETURN_REQUEST");
+                                }}
+                                className="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-1.5 px-3 rounded-lg transition-colors text-xs"
+                              >
+                                Trả hàng / Hoàn tiền
+                              </button>
+                            )}
 
                           {/* Buy Again Action */}
                           {[
@@ -630,12 +660,14 @@ const MyOrdersPage = () => {
       {complaintOrder && (
         <OrderComplaintForm
           isOpen={!!complaintOrder}
+          type={complaintType}
           onClose={() => setComplaintOrder(null)}
           orderId={complaintOrder.id}
           orderCode={complaintOrder.orderCode}
           onSuccess={() => {
             setComplaintOrder(null);
             fetchOrders();
+            fetchMyComplaints();
           }}
         />
       )}

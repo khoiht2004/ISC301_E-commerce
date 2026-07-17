@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Search,
-  Calendar,
-  User,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Search, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../services/axios";
 
 const NewsPage = () => {
@@ -183,10 +177,6 @@ const NewsPage = () => {
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-primary-600" />
                         {formatDate(news.createdAt)}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-primary-600" />
-                        {news.createdBy?.fullName || "Tác giả"}
                       </span>
                     </div>
 

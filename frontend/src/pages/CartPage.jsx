@@ -398,9 +398,7 @@ const CartPage = () => {
                 </button>
 
                 <p className="text-[11px] text-slate-400 text-center leading-relaxed font-light">
-                  Phí vận chuyển và thuế sẽ được tính khi thanh toán (miễn phí
-                  vận chuyển toàn quốc cho tất cả đơn hàng từ nay đến hết
-                  tháng).
+                  Phí vận chuyển và thuế sẽ được tính khi thanh toán.
                 </p>
               </div>
             </div>

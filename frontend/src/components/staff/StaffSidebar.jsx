@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   ShieldCheck,
   AlertCircle,
+  Tag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -19,6 +20,7 @@ const navItems = [
   { key: "batches", label: "Quản lý lô hàng", icon: Package },
   { key: "products", label: "Quản lý sản phẩm", icon: Inbox },
   { key: "complaints", label: "Quản lý khiếu nại", icon: AlertCircle },
+  { key: "discounts", label: "Gợi ý giảm giá", icon: Tag },
   { key: "news", label: "Quản lý tin tức", icon: FileText },
   // { key: "crm", label: "Hỗ trợ khách hàng", icon: MessageCircle },
 ];

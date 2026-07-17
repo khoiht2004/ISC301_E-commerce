@@ -387,6 +387,59 @@ const getAllProductsAdmin = async (req, res, next) => {
   }
 };
 
+// GET /api/products/discount-suggestions
+const getDiscountSuggestions = async (req, res, next) => {
+  try {
+    const today = new Date();
+    const next7Days = new Date();
+    next7Days.setDate(today.getDate() + 7);
+
+    const products = await prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        rawBatchId: { not: null },
+        rawBatch: {
+          expirationDate: {
+            lte: next7Days
+          }
+        }
+      },
+      include: PRODUCT_INCLUDE,
+    });
+
+    const suggestions = products.map(product => {
+      const expirationDate = new Date(product.rawBatch.expirationDate);
+      const diffTime = expirationDate - today;
+      const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      let suggestedDiscountPercent = 0;
+      if (daysLeft <= 0) {
+        suggestedDiscountPercent = 100; // Hết hạn
+      } else if (daysLeft <= 3) {
+        suggestedDiscountPercent = 50; // Cận date (<3 ngày)
+      } else if (daysLeft <= 7) {
+        suggestedDiscountPercent = 20; // Sắp cận date (<7 ngày)
+      }
+
+      const suggestedSalePrice = Math.round(product.price * (1 - suggestedDiscountPercent / 100));
+
+      return {
+        ...formatProduct(product),
+        daysLeft,
+        suggestedDiscountPercent,
+        suggestedSalePrice,
+      };
+    });
+
+    // Sort by daysLeft asc
+    suggestions.sort((a, b) => a.daysLeft - b.daysLeft);
+
+    return successResponse(res, suggestions);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getProducts,
   getProductBySlug,
@@ -397,4 +450,5 @@ module.exports = {
   togglePublish,
   getRelatedProducts,
   getAllProductsAdmin,
+  getDiscountSuggestions,
 };

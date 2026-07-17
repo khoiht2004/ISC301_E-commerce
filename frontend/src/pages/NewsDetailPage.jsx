@@ -4,6 +4,7 @@ import { Calendar, Eye, ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/axios";
+import { formatDate } from "../utils/helper";
 
 const NewsDetailPage = () => {
   const { slug } = useParams();
@@ -32,17 +33,6 @@ const NewsDetailPage = () => {
   useEffect(() => {
     fetchArticleAndComments();
   }, [slug, user]);
-
-  const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return d.toLocaleString("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   if (loading) {
     return (
@@ -96,14 +86,6 @@ const NewsDetailPage = () => {
             </h1>
 
             <div className="flex flex-wrap items-center gap-6 text-xs md:text-sm text-slate-200">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary-600 border border-primary-500 flex items-center justify-center font-bold text-[10px] text-white">
-                  {article.createdBy?.fullName?.[0] || "A"}
-                </div>
-                <span className="font-bold text-white">
-                  {article.createdBy?.fullName || "Tác giả"}
-                </span>
-              </div>
               <span className="flex items-center gap-1.5 text-slate-300">
                 <Calendar className="w-4 h-4 text-primary-400" />
                 {formatDate(article.createdAt)}

@@ -308,6 +308,7 @@ model OrderItem {
 
 model OrderComplaint {
   id         Int             @id @default(autoincrement())
+  type       String          @default("COMPLAINT") // COMPLAINT | RETURN_REQUEST
   reason     String          @db.NVarChar(Max)
   status String @default("PENDING")
   resolution String?         @db.NVarChar(Max)

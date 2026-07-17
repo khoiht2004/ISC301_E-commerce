@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/axios";
@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import ProductCard from "../components/product/ProductCard";
 import ProductFilterSidebar from "../components/product/ProductFilterSidebar";
 import ProductPagination from "../components/product/ProductPagination";
+import { debounce } from "../utils/helper";
 
 const ProductsPage = () => {
   const navigate = useNavigate();
@@ -81,9 +82,30 @@ const ProductsPage = () => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Handle search submit
+  // Live search: debounce updating `search` (which triggers fetchProducts)
+  // while the user is still typing, so we don't fire a request per keystroke.
+  const debouncedSetSearch = useMemo(
+    () =>
+      debounce((value) => {
+        setSearch(value);
+        setCurrentPage(1);
+      }, 400),
+    [],
+  );
+
+  useEffect(() => {
+    return () => debouncedSetSearch.cancel();
+  }, [debouncedSetSearch]);
+
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+    debouncedSetSearch(value);
+  };
+
+  // Handle search submit (Enter/nút tìm kiếm) - áp dụng ngay, không cần chờ debounce
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    debouncedSetSearch.cancel();
     setSearch(searchInput);
     setCurrentPage(1);
   };
@@ -143,7 +165,7 @@ const ProductsPage = () => {
             handleClearFilters={handleClearFilters}
             handleSearchSubmit={handleSearchSubmit}
             searchInput={searchInput}
-            setSearchInput={setSearchInput}
+            setSearchInput={handleSearchInputChange}
             tags={tags}
             selectedTag={selectedTag}
             setSelectedTag={setSelectedTag}

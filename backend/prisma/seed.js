@@ -255,7 +255,13 @@ async function main() {
       importDate.setDate(importDate.getDate() - (index % 5)); // Nhập cách đây vài ngày
 
       const expDate = new Date(importDate);
-      expDate.setDate(expDate.getDate() + 14); // Hạn sử dụng 14 ngày cho đồ tươi
+      if (index === 0) {
+        expDate.setDate(new Date().getDate() + 2); // Cận date 2 ngày
+      } else if (index === 1) {
+        expDate.setDate(new Date().getDate() + 6); // Cận date 6 ngày
+      } else {
+        expDate.setDate(expDate.getDate() + 14); // Hạn sử dụng 14 ngày cho đồ tươi
+      }
 
       const batch = await prisma.productBatch.create({
         data: {

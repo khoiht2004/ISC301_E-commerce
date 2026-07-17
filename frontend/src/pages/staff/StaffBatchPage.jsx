@@ -157,7 +157,7 @@ const StaffBatchPage = () => {
         </button>
       </div>
 
-      <div className="flex gap-4 mb-6 shrink-0">
+      <div className="flex gap-4 mb-6 items-center">
         <button
           onClick={() => setActiveTab("all")}
           className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
@@ -178,23 +178,23 @@ const StaffBatchPage = () => {
         >
           <AlertTriangle size={16} /> Gợi ý giảm giá (sắp hết hạn)
         </button>
-      </div>
 
-      {activeTab === "all" && (
-        <div className="mb-6 relative max-w-md shrink-0">
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo mã lô, tên nguyên liệu..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
-          />
-          <Search
-            className="absolute left-3 top-2.5 text-slate-400"
-            size={16}
-          />
-        </div>
-      )}
+        {activeTab === "all" && (
+          <div className="relative max-w-md shrink-0 flex-1">
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo mã lô, tên nguyên liệu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
+            />
+            <Search
+              className="absolute left-3 top-2.5 text-slate-400"
+              size={16}
+            />
+          </div>
+        )}
+      </div>
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">

@@ -11,6 +11,7 @@ import StaffOverviewPage from "./StaffOverviewPage";
 import StaffUserManagementPage from "./StaffUserManagementPage";
 import StaffSidebar from "../../components/staff/StaffSidebar";
 import StaffComplaintPage from "./StaffComplaintPage";
+import StaffDiscountPage from "./StaffDiscountPage";
 
 const StaffDashboard = () => {
   const { user, socket, logout } = useAuth();
@@ -322,6 +323,8 @@ const StaffDashboard = () => {
           <StaffUserManagementPage />
         ) : currentModule === "complaints" ? (
           <StaffComplaintPage />
+        ) : currentModule === "discounts" ? (
+          <StaffDiscountPage />
         ) : currentModule === "news" ? (
           <StaffNewsPage />
         ) : currentModule === "products" ? (

@@ -3,29 +3,40 @@ const prisma = require('../config/prisma');
 const { successResponse, errorResponse, paginatedResponse } = require('../utils/response');
 
 const VALID_COMPLAINT_STATUSES = ['PENDING', 'RESOLVING', 'RESOLVED', 'REJECTED'];
+const VALID_COMPLAINT_TYPES = ['COMPLAINT', 'RETURN_REQUEST'];
 
 const complaintSchema = z.object({
   orderId: z.coerce.number().int().positive(),
   reason: z.string().min(10, 'Lý do phải có ít nhất 10 ký tự'),
+  type: z.enum(VALID_COMPLAINT_TYPES).optional().default('COMPLAINT'),
 });
 
 const createComplaint = async (req, res, next) => {
   try {
-    const { orderId, reason } = complaintSchema.parse(req.body);
+    const { orderId, reason, type } = complaintSchema.parse(req.body);
 
     const order = await prisma.order.findFirst({
       where: { id: orderId, userId: req.user.id },
     });
-    if (!order) return errorResponse(res, 'Order not found', 404);
+    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
 
     if (!['DELIVERED', 'COMPLETED'].includes(order.orderStatus)) {
-      return errorResponse(res, 'Chỉ có thể yêu cầu hoàn hàng cho đơn hàng đã giao hoặc đã hoàn thành', 400);
+      return errorResponse(res, 'Chỉ có thể gửi khiếu nại / yêu cầu trả hàng cho đơn hàng đã giao hoặc đã hoàn thành', 400);
     }
 
+    // Mỗi loại (khiếu nại / trả hàng) được gửi độc lập cho từng đơn hàng
     const existing = await prisma.orderComplaint.findFirst({
-      where: { orderId, userId: req.user.id },
+      where: { orderId, userId: req.user.id, type },
     });
-    if (existing) return errorResponse(res, 'Bạn đã gửi yêu cầu cho đơn hàng này rồi', 400);
+    if (existing) {
+      return errorResponse(
+        res,
+        type === 'RETURN_REQUEST'
+          ? 'Bạn đã gửi yêu cầu trả hàng cho đơn hàng này rồi'
+          : 'Bạn đã gửi khiếu nại cho đơn hàng này rồi',
+        400,
+      );
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const newComplaint = await tx.orderComplaint.create({
@@ -33,14 +44,19 @@ const createComplaint = async (req, res, next) => {
           userId: req.user.id,
           orderId,
           reason,
+          type,
           status: 'PENDING',
         },
       });
 
-      await tx.order.update({
-        where: { id: orderId },
-        data: { orderStatus: 'RETURN_REQUESTED' },
-      });
+      // Chỉ yêu cầu trả hàng / hoàn tiền mới đổi trạng thái đơn hàng.
+      // Khiếu nại thông thường không ảnh hưởng đến trạng thái đơn.
+      if (type === 'RETURN_REQUEST') {
+        await tx.order.update({
+          where: { id: orderId },
+          data: { orderStatus: 'RETURN_REQUESTED' },
+        });
+      }
 
       return newComplaint;
     });
@@ -53,13 +69,21 @@ const createComplaint = async (req, res, next) => {
           id: result.id,
           orderId: order.id,
           orderCode: order.orderCode,
+          type: result.type,
           reason: result.reason,
           createdAt: result.createdAt,
         });
       }
     }
 
-    return successResponse(res, result, 'Gửi yêu cầu trả hàng / hoàn tiền thành công', 201);
+    return successResponse(
+      res,
+      result,
+      type === 'RETURN_REQUEST'
+        ? 'Gửi yêu cầu trả hàng / hoàn tiền thành công'
+        : 'Gửi khiếu nại thành công',
+      201,
+    );
   } catch (err) {
     next(err);
   }

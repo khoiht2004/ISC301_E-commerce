@@ -9,6 +9,7 @@ const {
   togglePublish,
   getRelatedProducts,
   getAllProductsAdmin,
+  getDiscountSuggestions,
 } = require('../controllers/productController');
 const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 const upload = require('../middlewares/upload');
@@ -19,6 +20,7 @@ router.get('/related', getRelatedProducts);
 router.get('/slug/:slug', getProductBySlug);
 
 // ─── STAFF/Admin Routes ───────────────────────────────────────────────────────
+router.get('/discount-suggestions', authenticateToken, authorizeRoles('ADMIN', 'STAFF'), getDiscountSuggestions);
 router.get('/all', authenticateToken, authorizeRoles('ADMIN', 'STAFF'), getAllProductsAdmin);
 router.get('/:id', getProductById);
 

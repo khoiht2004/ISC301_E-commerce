@@ -18,7 +18,6 @@ import OrderTrackingPage from "./pages/OrderTrackingPage";
 import MyOrdersPage from "./pages/MyOrdersPage";
 import EcomNavbar from "./components/layout/EcomNavbar";
 import EcomFooter from "./components/layout/EcomFooter";
-import ChatWidget from "./components/chat/ChatWidget";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import {
@@ -87,7 +86,7 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" toastOptions={{ duration: 800 }} />
+      <Toaster position="top-left" toastOptions={{ duration: 2000 }} />
       <BrowserRouter>
         <ScrollToTop />
         <AppContent />

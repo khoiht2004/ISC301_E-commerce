@@ -17,7 +17,7 @@ const setupChatSocket = (io) => {
       socket.role = role;
       
       try {
-        await prisma.user.update({
+        await prisma.user.updateMany({
           where: { id: socket.userId },
           data: { isOnline: true }
         });
