@@ -349,7 +349,7 @@ const getRelatedProducts = async (req, res, next) => {
 // GET /api/products/all  – STAFF/admin: get all including unpublished
 const getAllProductsAdmin = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, search } = req.query;
+    const { page = 1, limit = 20, search, categoryId, isPublished, stockStatus } = req.query;
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
@@ -362,6 +362,13 @@ const getAllProductsAdmin = async (req, res, next) => {
         { sku: { contains: search.trim() } },
       ];
     }
+    if (categoryId) where.categoryId = parseInt(categoryId);
+    if (isPublished === 'true' || isPublished === 'false') {
+      where.isPublished = isPublished === 'true';
+    }
+    if (stockStatus === 'out') where.stock = 0;
+    else if (stockStatus === 'low') where.stock = { gt: 0, lte: 10 };
+    else if (stockStatus === 'in') where.stock = { gt: 10 };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

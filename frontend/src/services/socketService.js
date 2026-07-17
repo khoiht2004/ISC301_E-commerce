@@ -19,13 +19,3 @@ export const getSocket = () => {
   }
   return socket
 }
-
-/**
- * Ngắt kết nối socket
- */
-export const disconnectSocket = () => {
-  if (socket) {
-    socket.disconnect()
-    socket = null
-  }
-}

@@ -1,6 +1,8 @@
 const { z } = require('zod');
 const prisma = require('../config/prisma');
-const { successResponse, errorResponse } = require('../utils/response');
+const { successResponse, errorResponse, paginatedResponse } = require('../utils/response');
+
+const VALID_COMPLAINT_STATUSES = ['PENDING', 'RESOLVING', 'RESOLVED', 'REJECTED'];
 
 const complaintSchema = z.object({
   orderId: z.coerce.number().int().positive(),
@@ -14,7 +16,7 @@ const createComplaint = async (req, res, next) => {
     const order = await prisma.order.findFirst({
       where: { id: orderId, userId: req.user.id },
     });
-    if (!order) return errorResponse(res, 'Không tìm thấy đơn hàng', 404);
+    if (!order) return errorResponse(res, 'Order not found', 404);
 
     if (!['DELIVERED', 'COMPLETED'].includes(order.orderStatus)) {
       return errorResponse(res, 'Chỉ có thể yêu cầu hoàn hàng cho đơn hàng đã giao hoặc đã hoàn thành', 400);
@@ -43,6 +45,20 @@ const createComplaint = async (req, res, next) => {
       return newComplaint;
     });
 
+    // Notify assigned staff if exists
+    if (order.assignedStaffId) {
+      const io = req.app.get('io');
+      if (io) {
+        io.of('/chat').to(`staff_${order.assignedStaffId}`).emit('new_complaint', {
+          id: result.id,
+          orderId: order.id,
+          orderCode: order.orderCode,
+          reason: result.reason,
+          createdAt: result.createdAt,
+        });
+      }
+    }
+
     return successResponse(res, result, 'Gửi yêu cầu trả hàng / hoàn tiền thành công', 201);
   } catch (err) {
     next(err);
@@ -66,14 +82,45 @@ const getMyComplaints = async (req, res, next) => {
 
 const getAllComplaints = async (req, res, next) => {
   try {
-    const complaints = await prisma.orderComplaint.findMany({
-      include: {
-        user: { select: { id: true, fullName: true, email: true } },
-        order: { select: { orderCode: true, totalAmount: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-    return successResponse(res, complaints);
+    const { page = 1, limit = 10, status, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Toàn bộ STAFF/ADMIN đều xem được tất cả khiếu nại (giống cách quản lý đơn hàng/sản phẩm
+    // hiện tại: không giới hạn theo assignedStaffId, vì phần lớn đơn COD được tự động xác nhận
+    // qua performFinalCheck nên assignedStaffId thường không được set, khiến STAFF gần như
+    // không bao giờ thấy khiếu nại nào nếu lọc theo staff phụ trách).
+    let where = {};
+
+    if (status && VALID_COMPLAINT_STATUSES.includes(status)) {
+      where.status = status;
+    }
+
+    if (search && search.trim()) {
+      const searchTerm = search.trim();
+      where.OR = [
+        { order: { orderCode: { contains: searchTerm } } },
+        { user: { fullName: { contains: searchTerm } } },
+        { user: { email: { contains: searchTerm } } },
+      ];
+    }
+
+    const [complaints, total] = await Promise.all([
+      prisma.orderComplaint.findMany({
+        where,
+        include: {
+          user: { select: { id: true, fullName: true, email: true, phone: true } },
+          order: { select: { orderCode: true, totalAmount: true, assignedStaffId: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limitNum,
+      }),
+      prisma.orderComplaint.count({ where }),
+    ]);
+
+    return paginatedResponse(res, complaints, total, pageNum, limitNum);
   } catch (err) {
     next(err);
   }
@@ -92,9 +139,21 @@ const updateComplaintStatus = async (req, res, next) => {
     const complaint = await prisma.orderComplaint.update({
       where: { id: parseInt(id) },
       data: { status, resolution },
+      include: { order: { select: { orderCode: true } } },
     });
 
-    return successResponse(res, complaint, 'Cập nhật yêu cầu thành công');
+    // Notify user
+    const io = req.app.get('io');
+    if (io) {
+      io.of('/chat').to(`user_${complaint.userId}`).emit('complaint_updated', {
+        id: complaint.id,
+        orderCode: complaint.order.orderCode,
+        status: complaint.status,
+        resolution: complaint.resolution,
+      });
+    }
+
+    return successResponse(res, complaint, 'Cập nhật khiếu nại thành công');
   } catch (err) {
     next(err);
   }

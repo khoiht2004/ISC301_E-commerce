@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import api from "../services/axios";
 import { toast } from "react-hot-toast";
 
@@ -6,10 +6,15 @@ export const useStaffProducts = (refreshStatsCallback) => {
   const [products, setProducts] = useState([]);
   const [tags, setTags] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [creatingTag, setCreatingTag] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
+
+  // Ghi nhớ params fetch gần nhất để dùng lại khi refetch sau khi tạo/sửa/xóa
+  const lastParamsRef = useRef({});
 
   const fetchBatches = useCallback(async () => {
     try {
@@ -20,11 +25,25 @@ export const useStaffProducts = (refreshStatsCallback) => {
     }
   }, []);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (params = {}) => {
+    lastParamsRef.current = params;
     setLoading(true);
     try {
-      const res = await api.get("/products/all", { params: { limit: 100 } });
+      const res = await api.get("/products/all", {
+        params: {
+          page: params.page || 1,
+          limit: 20,
+          search: params.search || undefined,
+          categoryId: params.categoryId || undefined,
+          isPublished: params.isPublished ?? undefined,
+          stockStatus: params.stockStatus || undefined,
+        },
+      });
       setProducts(res.data.data || []);
+      setPagination({
+        page: res.data.pagination?.page || 1,
+        totalPages: res.data.pagination?.totalPages || 1,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Không thể tải danh sách sản phẩm");
@@ -46,6 +65,15 @@ export const useStaffProducts = (refreshStatsCallback) => {
     try {
       const res = await api.get("/suppliers");
       if (res.data?.success) setSuppliers(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await api.get("/categories");
+      if (res.data?.success) setCategories(res.data.data);
     } catch (err) {
       console.error(err);
     }
@@ -105,7 +133,7 @@ export const useStaffProducts = (refreshStatsCallback) => {
         await api.post("/products", formData, formDataConfig);
         toast.success("Thêm sản phẩm mới thành công");
       }
-      fetchProducts();
+      fetchProducts(lastParamsRef.current);
       if (refreshStatsCallback) refreshStatsCallback();
       return true;
     } catch (err) {
@@ -127,7 +155,7 @@ export const useStaffProducts = (refreshStatsCallback) => {
     try {
       await api.delete(`/products/${id}`);
       toast.success("Đã xóa sản phẩm thành công");
-      fetchProducts();
+      fetchProducts(lastParamsRef.current);
       if (refreshStatsCallback) refreshStatsCallback();
       return true;
     } catch (err) {
@@ -141,12 +169,15 @@ export const useStaffProducts = (refreshStatsCallback) => {
     products,
     tags,
     suppliers,
+    categories,
     loading,
+    pagination,
     creatingTag,
     submitting,
     fetchProducts,
     fetchTags,
     fetchSuppliers,
+    fetchCategories,
     createTag,
     togglePublish,
     submitProduct,

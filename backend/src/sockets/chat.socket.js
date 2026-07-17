@@ -22,11 +22,14 @@ const setupChatSocket = (io) => {
           data: { isOnline: true }
         });
         
+        
         console.log(`👤 User ${socket.userId} (${role}) authenticated`);
+        socket.join(`user_${socket.userId}`);
         
         if (role === 'STAFF' || role === 'ADMIN') {
           socket.join('staff_room');
-          console.log(`Staff ${socket.userId} joined staff_room`);
+          socket.join(`staff_${socket.userId}`);
+          console.log(`Staff ${socket.userId} joined staff_room and staff_${socket.userId}`);
         }
       } catch (err) {
         console.error('Authentication update error:', err);

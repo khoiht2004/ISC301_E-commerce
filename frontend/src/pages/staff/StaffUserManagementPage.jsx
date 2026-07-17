@@ -3,6 +3,7 @@ import api from "../../services/axios";
 import { toast } from "react-hot-toast";
 import { Search, Trash2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import StaffPagination from "../../components/staff/StaffPagination";
 
 const ROLE_OPTIONS = ["ADMIN", "STAFF", "USER"];
 
@@ -12,29 +13,38 @@ const StaffUserManagementPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await api.get("/admin/users", {
         params: {
+          page,
           search: search || undefined,
           role: roleFilter || undefined,
-          limit: 50,
+          limit: 10,
         },
       });
       setUsers(data.data);
+      setTotalPages(data.pagination?.totalPages || 1);
     } catch {
       toast.error("Không thể tải danh sách người dùng");
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter]);
+  }, [page, search, roleFilter]);
 
   useEffect(() => {
     const timeout = setTimeout(fetchUsers, 300);
     return () => clearTimeout(timeout);
   }, [fetchUsers]);
+
+  // Reset về trang 1 khi đổi filter/search
+  useEffect(() => {
+    setPage(1);
+  }, [search, roleFilter]);
 
   const handleRoleChange = async (id, role) => {
     try {
@@ -126,6 +136,7 @@ const StaffUserManagementPage = () => {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
               <tr>
+                <th className="px-3 py-2 text-center w-12">STT</th>
                 <th className="px-3 py-2">Thông tin</th>
                 <th className="px-3 py-2 text-center">Vai trò</th>
                 <th className="px-3 py-2 text-center">Trạng thái</th>
@@ -136,7 +147,7 @@ const StaffUserManagementPage = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="4"
+                    colSpan="5"
                     className="px-6 py-12 text-center text-slate-400"
                   >
                     Đang tải...
@@ -145,21 +156,24 @@ const StaffUserManagementPage = () => {
               ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="4"
+                    colSpan="5"
                     className="px-6 py-12 text-center text-slate-400"
                   >
                     Không tìm thấy người dùng nào
                   </td>
                 </tr>
               ) : (
-                users.map((u) => {
+                users.map((u, index) => {
                   const isSelf = u.id === currentUser?.id;
                   return (
                     <tr
                       key={u.id}
                       className="hover:bg-slate-50/50 transition-colors"
                     >
-                      <td className="px-6 py-4">
+                      <td className="p-3 text-center text-slate-400 font-semibold">
+                        {(page - 1) * 10 + index + 1}
+                      </td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-extrabold text-sm shrink-0">
                             {u.fullName?.[0]?.toUpperCase()}
@@ -177,7 +191,7 @@ const StaffUserManagementPage = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 py-3 text-center">
                         <select
                           value={u.role}
                           disabled={isSelf}
@@ -198,7 +212,7 @@ const StaffUserManagementPage = () => {
                           ))}
                         </select>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => handleToggleStatus(u.id, u.isActive)}
                           disabled={isSelf}
@@ -219,7 +233,7 @@ const StaffUserManagementPage = () => {
                           {u.isActive ? "Đang hoạt động" : "Đã khóa"}
                         </button>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => handleDelete(u.id)}
                           disabled={isSelf}
@@ -241,6 +255,12 @@ const StaffUserManagementPage = () => {
           </table>
         </div>
       </div>
+
+      <StaffPagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </div>
   );
 };

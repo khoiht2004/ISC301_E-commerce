@@ -100,13 +100,7 @@ const ProductsPage = () => {
     setCurrentPage(1);
   };
 
-  // Format currency
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
+
 
   // Add to cart handler
   const handleAddToCart = async (productId, e) => {

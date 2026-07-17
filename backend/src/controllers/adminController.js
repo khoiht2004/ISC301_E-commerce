@@ -177,11 +177,44 @@ exports.getAdminDashboardStats = async (req, res, next) => {
       _sum: { totalAmount: true }
     });
 
+    const activeComplaints = await prisma.orderComplaint.count({
+      where: { status: 'PENDING' }
+    });
+
+    const recentOrders = await prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        orderCode: true,
+        totalAmount: true,
+        orderStatus: true,
+        createdAt: true,
+        user: { select: { fullName: true } }
+      }
+    });
+
+    // Top products
+    const topProductsRaw = await prisma.orderItem.groupBy({
+      by: ['productId', 'productName'],
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: 'desc' } },
+      take: 5
+    });
+    const topProducts = topProductsRaw.map(p => ({
+      productId: p.productId,
+      productName: p.productName,
+      totalSold: p._sum.quantity
+    }));
+
     return successResponse(res, {
       users: usersCount,
       products: productsCount,
       orders: ordersCount,
-      revenue: totalRevenue._sum.totalAmount || 0
+      revenue: totalRevenue._sum.totalAmount || 0,
+      activeComplaints,
+      recentOrders,
+      topProducts
     });
   } catch (error) {
     next(error);

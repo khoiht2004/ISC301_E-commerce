@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
 
 const baseURL = import.meta.env.VITE_API_URL || 'https://f8-last-project.onrender.com';
 

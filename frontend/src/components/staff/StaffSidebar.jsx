@@ -4,31 +4,32 @@ import {
   FileText,
   Inbox,
   LogOut,
-  MessageCircle,
   Shield,
   Users,
   Package,
   LayoutDashboard,
   ShieldCheck,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const navItems = [
+  { key: "overview", label: "Tổng quan", icon: LayoutDashboard },
+  { key: "orders", label: "Quản lý đơn hàng", icon: Users },
   { key: "batches", label: "Quản lý lô hàng", icon: Package },
   { key: "products", label: "Quản lý sản phẩm", icon: Inbox },
-  { key: "orders", label: "Quản lý đơn hàng", icon: Users },
+  { key: "complaints", label: "Quản lý khiếu nại", icon: AlertCircle },
   { key: "news", label: "Quản lý tin tức", icon: FileText },
-  { key: "crm", label: "Hỗ trợ khách hàng", icon: MessageCircle },
+  // { key: "crm", label: "Hỗ trợ khách hàng", icon: MessageCircle },
 ];
 
-const adminNavItems = [
-  { key: "overview", label: "Tổng quan", icon: LayoutDashboard },
+const adminOnlyNavItems = [
   { key: "users", label: "Quản lý user", icon: ShieldCheck },
 ];
 
 const StaffSidebar = ({ currentModule, onModuleChange, user, onLogout }) => {
   const isAdmin = user?.role === "ADMIN";
-  const items = isAdmin ? [...adminNavItems, ...navItems] : navItems;
+  const items = isAdmin ? [...navItems, ...adminOnlyNavItems] : navItems;
 
   return (
     <aside className="p-3 bg-white border-r min-w-[220px] border-slate-200 flex flex-col gap-3 min-h-full">

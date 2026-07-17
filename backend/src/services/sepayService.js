@@ -148,50 +148,7 @@ const extractOrderCode = (transactionContent) => {
 
 // ─── SePay API Verification (Optional) ───────────────────────────────────────
 
-/**
- * Tra cứu lại giao dịch qua SePay API (double-check)
- * Dùng khi cần verify thêm ngoài webhook
- *
- * @param {string} referenceNumber  - Mã tham chiếu giao dịch từ SePay
- * @returns {object|null}
- */
-const verifyTransactionViaSepayAPI = async (referenceNumber) => {
-  if (!SEPAY_API_KEY) {
-    console.warn("[SePay] Không có API key — bỏ qua tra cứu API");
-    return null;
-  }
-  if (!referenceNumber) return null;
 
-  try {
-    const response = await axios.get(
-      "https://my.sepay.vn/userapi/transactions/list",
-      {
-        headers: {
-          Authorization: `Bearer ${SEPAY_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          reference_number: referenceNumber,
-          limit: 1,
-        },
-        timeout: 6000,
-      },
-    );
-
-    const transactions = response.data?.transactions || [];
-    const txn = transactions[0] || null;
-
-    if (txn) {
-      console.log(`[SePay] 🔍 Giao dịch tìm thấy qua API: ${txn.id}`);
-    }
-
-    return txn;
-  } catch (err) {
-    // Không throw — đây chỉ là bước verify phụ
-    console.error("[SePay] API verification lỗi:", err.message);
-    return null;
-  }
-};
 
 // ─── Validate Payload ─────────────────────────────────────────────────────────
 
@@ -230,6 +187,5 @@ module.exports = {
   generateQRCodeUrl,
   verifyWebhookApiKey,
   extractOrderCode,
-  verifyTransactionViaSepayAPI,
   validateWebhookPayload,
 };

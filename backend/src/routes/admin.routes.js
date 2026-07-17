@@ -9,15 +9,15 @@ const {
 const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 const { ROLES } = require('../constants/roles');
 
-router.use(authenticateToken, authorizeRoles(ROLES.ADMIN));
+router.use(authenticateToken);
 
-// Dashboard
-router.get('/dashboard-stats', getAdminDashboardStats);
+// Dashboard - STAFF và ADMIN đều xem được (trang Tổng quan dùng chung)
+router.get('/dashboard-stats', authorizeRoles(ROLES.STAFF, ROLES.ADMIN), getAdminDashboardStats);
 
-// User Management
-router.get('/users', getAllUsers);
-router.put('/users/:id/role', updateUserRole);
-router.patch('/users/:id/status', toggleUserStatus);
-router.delete('/users/:id', deleteUser);
+// User Management - chỉ ADMIN
+router.get('/users', authorizeRoles(ROLES.ADMIN), getAllUsers);
+router.put('/users/:id/role', authorizeRoles(ROLES.ADMIN), updateUserRole);
+router.patch('/users/:id/status', authorizeRoles(ROLES.ADMIN), toggleUserStatus);
+router.delete('/users/:id', authorizeRoles(ROLES.ADMIN), deleteUser);
 
 module.exports = router;

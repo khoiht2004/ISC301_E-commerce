@@ -22,7 +22,7 @@ const VALID_PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED'];
 // GET /api/staff/orders
 const getAllOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, orderStatus, paymentStatus, userId } = req.query;
+    const { page = 1, limit = 20, orderStatus, paymentStatus, userId, search } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
@@ -30,6 +30,14 @@ const getAllOrders = async (req, res, next) => {
     if (orderStatus && VALID_ORDER_STATUSES.includes(orderStatus)) where.orderStatus = orderStatus;
     if (paymentStatus && VALID_PAYMENT_STATUSES.includes(paymentStatus)) where.paymentStatus = paymentStatus;
     if (userId) where.userId = parseInt(userId);
+    if (search && search.trim()) {
+      const searchTerm = search.trim();
+      where.OR = [
+        { orderCode: { contains: searchTerm } },
+        { user: { fullName: { contains: searchTerm } } },
+        { user: { phone: { contains: searchTerm } } },
+      ];
+    }
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
@@ -81,9 +89,16 @@ const updateOrderStatus = async (req, res, next) => {
         await cancelOrderService(order.id, tx);
       }
 
+      const updateData = { orderStatus: status };
+
+      // Automatically assign staff if order doesn't have one and status changes to active processing
+      if (['CONFIRMED', 'PROCESSING'].includes(status) && !order.assignedStaffId) {
+        updateData.assignedStaffId = req.user.id;
+      }
+
       return tx.order.update({
         where: { id: parseInt(id) },
-        data: { orderStatus: status },
+        data: updateData,
         include: {
           user: { select: { id: true, fullName: true, email: true } },
           orderItems: { include: { product: true } },

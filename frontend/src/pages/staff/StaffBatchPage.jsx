@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast";
 import { Plus, AlertTriangle, Search, Pencil, Trash2 } from "lucide-react";
 import { formatDate, formatPrice } from "../../utils/helper";
 import StaffBatchDialog from "../../components/staff/batch/StaffBatchDialog";
+import StaffPagination from "../../components/staff/StaffPagination";
 import { useStaffBatches } from "../../hooks/useStaffBatches";
 
 const StaffBatchPage = () => {
@@ -12,6 +13,7 @@ const StaffBatchPage = () => {
     products,
     suppliers,
     loading,
+    pagination,
     fetchBatches,
     fetchSuggestions,
     fetchDependencies,
@@ -22,6 +24,7 @@ const StaffBatchPage = () => {
 
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'suggestions'
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBatch, setEditingBatch] = useState(null);
@@ -37,11 +40,17 @@ const StaffBatchPage = () => {
 
   useEffect(() => {
     if (activeTab === "all") {
-      fetchBatches(searchQuery);
+      const timeout = setTimeout(() => fetchBatches(searchQuery, page), 300);
+      return () => clearTimeout(timeout);
     } else {
       fetchSuggestions();
     }
-  }, [activeTab, searchQuery, fetchBatches, fetchSuggestions]);
+  }, [activeTab, searchQuery, page, fetchBatches, fetchSuggestions]);
+
+  // Reset về trang 1 khi đổi từ khóa tìm kiếm
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchDependencies();
@@ -81,7 +90,7 @@ const StaffBatchPage = () => {
     }
     if (success) {
       handleCloseModal();
-      fetchBatches(searchQuery);
+      fetchBatches(searchQuery, page);
     }
   };
 
@@ -112,7 +121,7 @@ const StaffBatchPage = () => {
     ) {
       const success = await deleteBatch(id);
       if (success) {
-        fetchBatches(searchQuery);
+        fetchBatches(searchQuery, page);
       }
     }
   };
@@ -195,106 +204,117 @@ const StaffBatchPage = () => {
           </div>
         </div>
       ) : activeTab === "all" ? (
-        <div className="flex-1 overflow-auto bg-white border border-slate-200 rounded-2xl shadow-sm relative">
-          <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                <th className="px-3 py-2 ">Mã Lô</th>
-                <th className="px-3 py-2 ">Nguyên Liệu</th>
-                <th className="px-3 py-2 ">Tồn Kho</th>
-                <th className="px-3 py-2 ">Giá Nhập</th>
-                <th className="px-3 py-2 ">Hạn SD</th>
-                <th className="px-3 py-2 ">Ngày SX</th>
-                <th className="px-3 py-2 ">Ngày Nhập</th>
-                <th className="px-3 py-2  text-center">Hành động</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {batches.map((batch) => (
-                <tr
-                  key={batch.id}
-                  className="hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-6 py-4 font-bold text-slate-900">
-                    {batch.batchCode}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-slate-800">
-                      {batch.rawMaterialName}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-bold ${
-                        batch.currentQuantity === 0
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {batch.currentQuantity} / {batch.importQuantity}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-extrabold text-primary-600">
-                    {formatPrice(batch.costPrice)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div
-                      className={
-                        new Date(batch.expirationDate) < new Date()
-                          ? "text-red-600 font-bold"
-                          : ""
-                      }
-                    >
-                      {formatDate(batch.expirationDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">
-                    {batch.manufactureDate
-                      ? formatDate(batch.manufactureDate)
-                      : "—"}
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">
-                    {formatDate(batch.importDate)}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEditClick(batch)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                        title="Sửa lô hàng"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(batch.id)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="Xóa lô hàng"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          <div className="flex-1 overflow-auto bg-white border border-slate-200 rounded-2xl shadow-sm relative">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="px-3 py-2 text-center w-12">STT</th>
+                  <th className="px-3 py-2 ">Mã Lô</th>
+                  <th className="px-3 py-2 ">Nguyên Liệu</th>
+                  <th className="px-3 py-2 ">Tồn Kho</th>
+                  <th className="px-3 py-2 ">Giá Nhập</th>
+                  <th className="px-3 py-2 ">Hạn SD</th>
+                  <th className="px-3 py-2 ">Ngày SX</th>
+                  <th className="px-3 py-2 ">Ngày Nhập</th>
+                  <th className="px-3 py-2  text-center">Hành động</th>
                 </tr>
-              ))}
-              {batches.length === 0 && (
-                <tr>
-                  <td
-                    colSpan="8"
-                    className="px-6 py-12 text-center text-slate-400"
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {batches.map((batch, index) => (
+                  <tr
+                    key={batch.id}
+                    className="hover:bg-slate-50/50 transition-colors"
                   >
-                    Không tìm thấy lô hàng nào
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    <td className="p-3 text-center text-slate-400 font-semibold">
+                      {(page - 1) * 20 + index + 1}
+                    </td>
+                    <td className="px-4 py-3 font-bold text-slate-900">
+                      {batch.batchCode}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-bold text-slate-800">
+                        {batch.rawMaterialName}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-bold ${
+                          batch.currentQuantity === 0
+                            ? "bg-red-100 text-red-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {batch.currentQuantity} / {batch.importQuantity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-extrabold text-primary-600">
+                      {formatPrice(batch.costPrice)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div
+                        className={
+                          new Date(batch.expirationDate) < new Date()
+                            ? "text-red-600 font-bold"
+                            : ""
+                        }
+                      >
+                        {formatDate(batch.expirationDate)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {batch.manufactureDate
+                        ? formatDate(batch.manufactureDate)
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {formatDate(batch.importDate)}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEditClick(batch)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          title="Sửa lô hàng"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(batch.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Xóa lô hàng"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {batches.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="9"
+                      className="px-6 py-12 text-center text-slate-400"
+                    >
+                      Không tìm thấy lô hàng nào
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <StaffPagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={setPage}
+          />
+        </>
       ) : (
         <div className="flex-1 overflow-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
           {suggestions.map((batch) => (
             <div
               key={batch.id}
-              className="bg-white border border-amber-200 rounded-2xl px-3 py-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+              className="bg-white border border-amber-200 rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
             >
               <div className="flex justify-between items-start mb-3">
                 <h3

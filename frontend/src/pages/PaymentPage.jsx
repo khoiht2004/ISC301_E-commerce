@@ -133,7 +133,7 @@ const PaymentPage = () => {
           setTimeout(() => navigate(`/order-success/${orderCode}`, { replace: true }), 2500);
           clearInterval(interval);
         }
-      } catch (_) { /* ignore polling errors */ }
+      } catch { /* ignore polling errors */ }
     }, 3000); // every 3 seconds
 
     return () => clearInterval(interval);

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import api from "../services/axios";
 import { toast } from "react-hot-toast";
 
@@ -6,17 +6,28 @@ export const useStaffNews = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
 
-  const fetchArticles = useCallback(async () => {
+  // Ghi nhớ params fetch gần nhất để dùng lại khi refetch sau khi tạo/sửa/xóa
+  const lastParamsRef = useRef({});
+
+  const fetchArticles = useCallback(async (params = {}) => {
+    lastParamsRef.current = params;
     setLoading(true);
     try {
       const res = await api.get("/news", {
         params: {
           all: "true",
-          limit: 100,
+          page: params.page || 1,
+          limit: 10,
+          search: params.search || undefined,
         },
       });
       setArticles(res.data.data || []);
+      setPagination({
+        page: res.data.pagination?.page || 1,
+        totalPages: res.data.pagination?.totalPages || 1,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Không thể tải danh sách bài viết");
@@ -37,7 +48,7 @@ export const useStaffNews = () => {
         await api.post("/news", formData, formDataConfig);
         toast.success("Tạo bài viết mới thành công!");
       }
-      fetchArticles();
+      fetchArticles(lastParamsRef.current);
       return true;
     } catch (err) {
       console.error(err);
@@ -59,7 +70,7 @@ export const useStaffNews = () => {
     try {
       await api.delete(`/news/${id}`);
       toast.success("Đã xóa bài viết thành công");
-      fetchArticles();
+      fetchArticles(lastParamsRef.current);
       return true;
     } catch (err) {
       console.error(err);
@@ -71,6 +82,7 @@ export const useStaffNews = () => {
   return {
     articles,
     loading,
+    pagination,
     submitting,
     fetchArticles,
     submitArticle,

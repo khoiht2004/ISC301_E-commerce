@@ -1,12 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/axios";
-import {
-  Send,
-  Check,
-  Calendar,
-  Inbox,
-} from "lucide-react";
+import { Send, Check, Calendar, Inbox } from "lucide-react";
 import { toast } from "react-hot-toast";
 import StaffNewsPage from "./StaffNewsPage";
 import StaffProductPage from "./StaffProductPage";
@@ -15,14 +10,18 @@ import StaffBatchPage from "./StaffBatchPage";
 import StaffOverviewPage from "./StaffOverviewPage";
 import StaffUserManagementPage from "./StaffUserManagementPage";
 import StaffSidebar from "../../components/staff/StaffSidebar";
+import StaffComplaintPage from "./StaffComplaintPage";
 
 const StaffDashboard = () => {
   const { user, socket, logout } = useAuth();
 
-  // Modules: 'crm' | 'news' | 'products' | 'soldProducts' | 'orders'
-  const [currentModule, setCurrentModule] = useState("crm");
+  // Modules: 'crm' | 'news' | 'products' | 'soldProducts' | 'orders' | 'overview'
+  // Mặc định vào "overview" - trang chung cho cả STAFF và ADMIN
+  const [currentModule, setCurrentModule] = useState("overview");
 
   // Tabs: 'waiting' | 'active' | 'history'
+  // Chưa dùng vì UI danh sách ticket (tab crm) đang tạm ẩn — giữ lại để dùng khi khôi phục
+  // eslint-disable-next-line no-unused-vars
   const [activeTab, setActiveTab] = useState("active");
 
   // Lists
@@ -180,10 +179,12 @@ const StaffDashboard = () => {
   }, [socket, selectedTicket?.id]);
 
   // 4. CRM Core Actions
+  // Chưa có nút gọi hàm này vì UI danh sách ticket (tab crm) đang tạm ẩn — giữ lại để dùng khi khôi phục
+  // eslint-disable-next-line no-unused-vars
   const handleAccept = async (requestId) => {
     setSubmittingAction(true);
     try {
-      const res = await api.post(`/support/${requestId}/accept`);
+      await api.post(`/support/${requestId}/accept`);
       toast.success("Đã nhận yêu cầu hỗ trợ");
       await fetchWaiting();
       await fetchActive();
@@ -209,7 +210,7 @@ const StaffDashboard = () => {
       setMessages([]);
       fetchActive();
       fetchHistory();
-    } catch (err) {
+    } catch {
       toast.error("Không thể hoàn thành hỗ trợ");
     } finally {
       setSubmittingAction(false);
@@ -227,7 +228,7 @@ const StaffDashboard = () => {
       setMessages([]);
       fetchActive();
       fetchHistory();
-    } catch (err) {
+    } catch {
       toast.error("Không thể đóng ticket");
     } finally {
       setSubmittingAction(false);
@@ -319,6 +320,8 @@ const StaffDashboard = () => {
           <StaffOverviewPage />
         ) : currentModule === "users" ? (
           <StaffUserManagementPage />
+        ) : currentModule === "complaints" ? (
+          <StaffComplaintPage />
         ) : currentModule === "news" ? (
           <StaffNewsPage />
         ) : currentModule === "products" ? (
@@ -332,7 +335,7 @@ const StaffDashboard = () => {
         ) : selectedTicket ? (
           <>
             {/* Active conversation Header */}
-            <div className="bg-white px-6 py-4 border-b border-slate-200 shadow-sm flex items-center justify-between shrink-0">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 shadow-sm flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-extrabold border border-primary-200">
                   {selectedTicket.user.fullName[0]}
@@ -343,20 +346,22 @@ const StaffDashboard = () => {
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span
-                      className={`w-2.5 h-2.5 rounded-full ${selectedTicket.status === "ACTIVE"
-                        ? "bg-green-500 animate-pulse"
-                        : selectedTicket.status === "COMPLETED"
-                          ? "bg-blue-500"
-                          : "bg-slate-400"
-                        }`}
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        selectedTicket.status === "ACTIVE"
+                          ? "bg-green-500 animate-pulse"
+                          : selectedTicket.status === "COMPLETED"
+                            ? "bg-blue-500"
+                            : "bg-slate-400"
+                      }`}
                     />
                     <span
-                      className={`text-xs font-bold ${selectedTicket.status === "ACTIVE"
-                        ? "text-green-600"
-                        : selectedTicket.status === "COMPLETED"
-                          ? "text-blue-600"
-                          : "text-slate-500"
-                        }`}
+                      className={`text-xs font-bold ${
+                        selectedTicket.status === "ACTIVE"
+                          ? "text-green-600"
+                          : selectedTicket.status === "COMPLETED"
+                            ? "text-blue-600"
+                            : "text-slate-500"
+                      }`}
                     >
                       {selectedTicket.status === "ACTIVE"
                         ? "Đang hỗ trợ trực tiếp"
@@ -451,10 +456,11 @@ const StaffDashboard = () => {
                       )}
 
                       <div
-                        className={`p-3 rounded-2xl shadow-sm leading-relaxed text-sm ${msg.senderId === user.id
-                          ? "bg-primary-700 text-white rounded-tr-none"
-                          : "bg-white text-slate-800 rounded-tl-none border border-slate-200"
-                          }`}
+                        className={`p-3 rounded-2xl shadow-sm leading-relaxed text-sm ${
+                          msg.senderId === user.id
+                            ? "bg-primary-700 text-white rounded-tr-none"
+                            : "bg-white text-slate-800 rounded-tl-none border border-slate-200"
+                        }`}
                       >
                         <p>{msg.content}</p>
                         <div className="flex justify-between items-center mt-1.5 pt-1 border-t border-white/10">

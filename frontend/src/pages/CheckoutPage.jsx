@@ -8,7 +8,7 @@ import axios from "../services/axios";
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cartItems, cartTotal, loading, fetchCart, clearCart } = useCart();
+  const { cartItems, cartTotal, loading, fetchCart } = useCart();
 
   const [formData, setFormData] = useState({
     shippingAddress: user?.address || "",

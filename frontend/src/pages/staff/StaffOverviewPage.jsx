@@ -1,48 +1,46 @@
-/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import api from "../../services/axios";
 import { toast } from "react-hot-toast";
-import { Users, ShoppingBag, LayoutDashboard, BarChart3 } from "lucide-react";
-
-const formatPrice = (price) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(price || 0);
-
-const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start">
-    <div>
-      <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-      <h3 className="text-2xl font-black text-slate-900">{value}</h3>
-    </div>
-    <div className="p-3 bg-slate-50 rounded-lg">{icon}</div>
-  </div>
-);
+import { BarChart3, AlertCircle, TrendingUp, Clock } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import StatCard from "../../components/staff/StatCard";
+import ProductStatsGrid from "../../components/staff/product/ProductStatsGrid";
+import { useStaffProductStats } from "../../hooks/useStaffProductStats";
+import { formatPrice } from "../../utils/helper";
 
 const StaffOverviewPage = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
-  const fetchStats = async () => {
-    setLoading(true);
+  // Số liệu sản phẩm/đơn hàng: dùng chung cho cả STAFF và ADMIN
+  const { stats: productStats, refreshStaffProductStats } =
+    useStaffProductStats();
+
+  // Số liệu tổng hợp toàn hệ thống (doanh thu, khiếu nại, top sản phẩm, đơn hàng gần đây):
+  // dùng chung cho cả STAFF và ADMIN - trang Tổng quan hiển thị giống nhau cho mọi role
+  const [adminStats, setAdminStats] = useState(null);
+  const [loadingAdminStats, setLoadingAdminStats] = useState(true);
+
+  const fetchAdminStats = async () => {
+    setLoadingAdminStats(true);
     try {
       const { data } = await api.get("/admin/dashboard-stats");
-      setStats(data.data);
+      setAdminStats(data.data);
     } catch {
       toast.error("Không thể tải dữ liệu tổng quan");
     } finally {
-      setLoading(false);
+      setLoadingAdminStats(false);
     }
   };
 
   useEffect(() => {
-    fetchStats();
+    fetchAdminStats();
   }, []);
 
-  if (loading) {
-    return <div className="p-8 text-center text-slate-500">Đang tải...</div>;
-  }
+  const handleRefresh = () => {
+    refreshStaffProductStats();
+    fetchAdminStats();
+  };
 
   return (
     <div className="p-8 bg-white h-full overflow-y-auto">
@@ -56,35 +54,113 @@ const StaffOverviewPage = () => {
           </p>
         </div>
         <button
-          onClick={fetchStats}
+          onClick={handleRefresh}
           className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
         >
           Làm mới
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Tổng Users"
-          value={stats?.users ?? 0}
-          icon={<Users className="text-blue-500" />}
-        />
-        <StatCard
-          title="Sản phẩm"
-          value={stats?.products ?? 0}
-          icon={<ShoppingBag className="text-purple-500" />}
-        />
-        <StatCard
-          title="Đơn hàng"
-          value={stats?.orders ?? 0}
-          icon={<LayoutDashboard className="text-orange-500" />}
-        />
-        <StatCard
-          title="Doanh thu"
-          value={formatPrice(stats?.revenue)}
-          icon={<BarChart3 className="text-green-500" />}
-        />
-      </div>
+      <ProductStatsGrid stats={productStats} />
+
+      {loadingAdminStats ? (
+        <div className="p-8 text-center text-slate-500">Đang tải...</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
+            {isAdmin && (
+              <StatCard
+                label="Doanh thu"
+                value={formatPrice(adminStats?.revenue)}
+                icon={BarChart3}
+              />
+            )}
+            <StatCard
+              label="Khiếu nại chờ xử lý"
+              value={adminStats?.activeComplaints ?? 0}
+              icon={AlertCircle}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            {/* Top Products */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div className="flex items-center gap-2 mb-6">
+                <TrendingUp className="text-primary-600" />
+                <h3 className="text-lg font-bold text-slate-800">
+                  Sản phẩm bán chạy
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {adminStats?.topProducts?.map((product, index) => (
+                  <div
+                    key={product.productId}
+                    className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
+                        #{index + 1}
+                      </div>
+                      <span className="font-semibold text-slate-700">
+                        {product.productName}
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-slate-500 bg-white px-2 py-1 rounded-md shadow-sm border border-slate-200">
+                      {product.totalSold} đã bán
+                    </span>
+                  </div>
+                ))}
+                {!adminStats?.topProducts?.length && (
+                  <p className="text-center text-slate-500 py-4 text-sm">
+                    Chưa có dữ liệu sản phẩm
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Orders */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div className="flex items-center gap-2 mb-6">
+                <Clock className="text-primary-600" />
+                <h3 className="text-lg font-bold text-slate-800">
+                  Đơn hàng gần đây
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {adminStats?.recentOrders?.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100"
+                  >
+                    <div>
+                      <p className="font-bold text-slate-800">
+                        #{order.orderCode}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {order.user?.fullName} •{" "}
+                        {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                      </p>
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-1">
+                      <p className="font-black text-primary-700">
+                        {formatPrice(order.totalAmount)}
+                      </p>
+                      <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-sm uppercase font-bold">
+                        {order.orderStatus}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {!adminStats?.recentOrders?.length && (
+                  <p className="text-center text-slate-500 py-4 text-sm">
+                    Chưa có đơn hàng nào
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

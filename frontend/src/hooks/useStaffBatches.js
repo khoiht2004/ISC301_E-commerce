@@ -8,12 +8,19 @@ export const useStaffBatches = () => {
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
 
-  const fetchBatches = useCallback(async (searchQuery = "") => {
+  const fetchBatches = useCallback(async (searchQuery = "", page = 1) => {
     try {
       setLoading(true);
-      const { data } = await api.get(`/staff/batches?search=${searchQuery}`);
+      const { data } = await api.get("/staff/batches", {
+        params: { search: searchQuery || undefined, page, limit: 20 },
+      });
       setBatches(data.data);
+      setPagination({
+        page: data.pagination?.page || 1,
+        totalPages: data.pagination?.totalPages || 1,
+      });
     } catch (err) {
       console.log(err);
       toast.error("Không thể tải danh sách lô hàng");
@@ -87,6 +94,7 @@ export const useStaffBatches = () => {
     products,
     suppliers,
     loading,
+    pagination,
     fetchBatches,
     fetchSuggestions,
     fetchDependencies,

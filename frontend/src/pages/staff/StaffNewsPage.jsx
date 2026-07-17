@@ -7,17 +7,19 @@ import {
   FileText,
   CheckCircle,
   EyeOff,
-  Search,
   AlertCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import StaffNewsDialog from "../../components/staff/news/StaffNewsDialog";
+import ProductSearchBar from "../../components/staff/product/ProductSearchBar";
+import StaffPagination from "../../components/staff/StaffPagination";
 import { useStaffNews } from "../../hooks/useStaffNews";
 
 const StaffNewsPage = () => {
   const {
     articles,
     loading,
+    pagination,
     submitting,
     fetchArticles,
     submitArticle,
@@ -25,6 +27,7 @@ const StaffNewsPage = () => {
   } = useStaffNews();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,8 +45,16 @@ const StaffNewsPage = () => {
   const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    const timeout = setTimeout(() => {
+      fetchArticles({ page, search: searchQuery });
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [page, searchQuery, fetchArticles]);
+
+  // Reset về trang 1 khi đổi từ khóa tìm kiếm
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   const resetForm = () => {
     setTitle("");
@@ -114,12 +125,6 @@ const StaffNewsPage = () => {
     await deleteArticle(id);
   };
 
-  const filteredArticles = articles.filter(
-    (art) =>
-      art.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      art.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-white text-slate-900 font-sans p-6 md:p-8">
       {/* Header */}
@@ -136,28 +141,23 @@ const StaffNewsPage = () => {
 
         <button
           onClick={handleOpenCreateModal}
-          className="bg-primary-600 hover:bg-primary-700 text-slate-900 font-bold px-4 py- rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg border border-primary-600 transition-all shrink-0 align-self-start"
+          className="bg-primary-600 hover:bg-primary-600-hover text-white font-bold px-6 py-2 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 border border-primary-600 transition-all shrink-0"
         >
           <Plus size={16} /> Viết Bài Mới
         </button>
       </div>
 
       {/* Filter and Search */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-6 flex gap-4 items-center shrink-0">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm tiêu đề hoặc tóm tắt bài viết..."
-            className="w-full bg-white border border-slate-200 focus:border-primary-500 rounded-xl py-2.5 pl-11 pr-4 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-all placeholder-slate-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      <div className="mb-3 shrink-0">
+        <ProductSearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Tìm kiếm tiêu đề hoặc tóm tắt bài viết..."
+        />
       </div>
 
       {/* Main List */}
-      <div className="flex-1 overflow-y-auto bg-white border border-slate-200 rounded-2xl shadow-xl">
+      <div className="flex-1 overflow-auto bg-white border border-slate-200 rounded-2xl shadow-sm relative">
         {loading ? (
           <div className="flex flex-col justify-center items-center h-64">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mb-3" />
@@ -165,7 +165,7 @@ const StaffNewsPage = () => {
               Đang tải danh sách bài viết...
             </p>
           </div>
-        ) : filteredArticles.length === 0 ? (
+        ) : articles.length === 0 ? (
           <div className="flex flex-col justify-center items-center py-20 text-slate-500">
             <AlertCircle size={44} className="text-slate-600 mb-3" />
             <p className="text-sm font-bold">Không tìm thấy bài viết nào</p>
@@ -175,23 +175,27 @@ const StaffNewsPage = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs md:text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-500 font-extrabold uppercase tracking-wider text-[10px] bg-white/40">
-                  <th className="px-3 py-2 ">Ảnh bìa</th>
-                  <th className="px-3 py-2 ">Bài viết</th>
-                  <th className="px-3 py-2  text-center">Trạng thái</th>
-                  <th className="px-3 py-2  text-center">Xem</th>
-                  <th className="px-3 py-2 ">Ngày tạo</th>
-                  <th className="px-3 py-2  text-right">Thao tác</th>
+            <table className="w-full text-left border-collapse text-xs md:text-sm whitespace-nowrap min-w-[800px]">
+              <thead className="sticky top-0 z-10">
+                <tr className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center w-12">STT</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">Ảnh bìa</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">Bài viết</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center">Trạng thái</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center">Xem</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">Ngày tạo</th>
+                  <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredArticles.map((art) => (
+                {articles.map((art, index) => (
                   <tr
                     key={art.id}
-                    className="hover:bg-white/20 transition-colors"
+                    className="hover:bg-slate-50 transition-colors"
                   >
+                    <td className="py-4 px-3 text-center text-slate-400 font-semibold">
+                      {(page - 1) * 10 + index + 1}
+                    </td>
                     {/* Thumbnail */}
                     <td className="py-4 px-6 shrink-0">
                       <div className="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center">
@@ -288,6 +292,12 @@ const StaffNewsPage = () => {
           </div>
         )}
       </div>
+
+      <StaffPagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={setPage}
+      />
 
       {/* Write/Edit News Modal overlay */}
       <StaffNewsDialog

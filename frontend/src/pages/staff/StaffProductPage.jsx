@@ -1,55 +1,34 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { toast } from "react-hot-toast";
 import ProductSearchBar from "../../components/staff/product/ProductSearchBar";
-import ProductStatsGrid from "../../components/staff/product/ProductStatsGrid";
 import ProductTabs from "../../components/staff/product/ProductTabs";
 import StaffProductDialog from "../../components/staff/product/StaffProductDialog";
 import StaffProductsTable from "../../components/staff/product/StaffProductsTable";
 import StaffSoldProductsTable from "../../components/staff/product/StaffSoldProductsTable";
+import StaffPagination from "../../components/staff/StaffPagination";
 import { STAFF_PRODUCT_TABS } from "../../constants/staffProductTabs";
 import { useStaffProductStats } from "../../hooks/useStaffProductStats";
 import { useStaffProducts } from "../../hooks/useStaffProducts";
-
-const emptyForm = {
-  name: "",
-  price: "",
-  salePrice: "",
-  stock: "0",
-  sku: "",
-  shortDescription: "",
-  description: "",
-  supplierId: "",
-  isPublished: false,
-  selectedTagIds: [],
-  thumbnailFile: null,
-  thumbnailPreview: "",
-  imageFiles: [],
-  imagePreviews: [],
-  rawBatchId: "",
-};
-
-const resolveLocalImage = (image) => {
-  if (!image) return "";
-  return image.startsWith("/") ? `http://localhost:5000${image}` : image;
-};
+import { useStaffProductForm } from "../../hooks/useStaffProductForm";
 
 const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
-  const { stats, soldProducts, refreshStaffProductStats } =
-    useStaffProductStats();
+  const { soldProducts, refreshStaffProductStats } = useStaffProductStats();
 
   const {
     products,
     tags,
     suppliers,
+    categories,
     batches,
     loading,
+    pagination,
     creatingTag,
     submitting,
     fetchProducts,
     fetchTags,
     fetchSuppliers,
+    fetchCategories,
     fetchBatches,
     createTag,
     togglePublish,
@@ -57,201 +36,68 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
     deleteProduct,
   } = useStaffProducts(refreshStaffProductStats);
 
+  const {
+    isDialogOpen,
+    editingId,
+    form,
+    newTagName,
+    setNewTagName,
+    handleFieldChange,
+    handleOpenCreateDialog,
+    handleOpenEditDialog,
+    handleCloseDialog,
+    handleThumbnailChange,
+    handleImagesChange,
+    handleRemoveImagePreview,
+    handleToggleTag,
+    handleCreateTag,
+    handleTogglePublish,
+    handleSubmit,
+    handleDelete,
+  } = useStaffProductForm({ batches, createTag, submitProduct, togglePublish, deleteProduct });
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [publishedFilter, setPublishedFilter] = useState("");
+  const [stockFilter, setStockFilter] = useState("");
+  const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
-  const [newTagName, setNewTagName] = useState("");
 
   useEffect(() => {
-    fetchProducts();
     fetchTags();
     fetchSuppliers();
+    fetchCategories();
     fetchBatches();
-  }, [fetchProducts, fetchTags, fetchSuppliers, fetchBatches]);
+  }, [fetchTags, fetchSuppliers, fetchCategories, fetchBatches]);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
-  const filteredProducts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return products;
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchProducts({
+        page,
+        search: searchQuery,
+        categoryId: categoryFilter,
+        isPublished: publishedFilter,
+        stockStatus: stockFilter,
+      });
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [
+    page,
+    searchQuery,
+    categoryFilter,
+    publishedFilter,
+    stockFilter,
+    fetchProducts,
+  ]);
 
-    return products.filter(
-      (product) =>
-        product.name?.toLowerCase().includes(query) ||
-        product.sku?.toLowerCase().includes(query) ||
-        product.tags?.some((tag) => tag.name.toLowerCase().includes(query)),
-    );
-  }, [products, searchQuery]);
-
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setNewTagName("");
-  };
-
-  const handleFieldChange = (field, value) => {
-    setForm((current) => {
-      const updated = { ...current, [field]: value };
-      if (field === "rawBatchId") {
-        if (value) {
-          const selectedBatch = batches.find((b) => b.id === parseInt(value));
-          if (selectedBatch) {
-            updated.supplierId = selectedBatch.supplierId || "";
-          }
-        } else {
-          updated.supplierId = "";
-        }
-      }
-      return updated;
-    });
-  };
-
-  const handleOpenCreateDialog = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-
-  const handleOpenEditDialog = (product) => {
-    setForm({
-      ...emptyForm,
-      name: product.name || "",
-      price: product.price || "",
-      salePrice: product.salePrice || "",
-      stock: product.stock !== undefined ? String(product.stock) : "0",
-      sku: product.sku || "",
-      shortDescription: product.shortDescription || "",
-      description: product.description || "",
-      supplierId: product.supplierId || "",
-      isPublished: product.isPublished || false,
-      selectedTagIds: product.tags ? product.tags.map((tag) => tag.id) : [],
-      thumbnailPreview: resolveLocalImage(product.thumbnail),
-      imagePreviews: (product.images || []).map(resolveLocalImage),
-      rawBatchId: product.rawBatchId || "",
-    });
-    setEditingId(product.id);
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    resetForm();
-  };
-
-  const handleThumbnailChange = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Ảnh không được lớn hơn 5MB");
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-      thumbnailFile: file,
-      thumbnailPreview: URL.createObjectURL(file),
-    }));
-  };
-
-  const handleImagesChange = (event) => {
-    const files = Array.from(event.target.files);
-    const validFiles = [];
-    const previews = [];
-
-    for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`File ${file.name} lớn hơn 5MB`);
-        continue;
-      }
-      validFiles.push(file);
-      previews.push(URL.createObjectURL(file));
-    }
-
-    setForm((current) => ({
-      ...current,
-      imageFiles: [...current.imageFiles, ...validFiles],
-      imagePreviews: [...current.imagePreviews, ...previews],
-    }));
-  };
-
-  const handleRemoveImagePreview = (index) => {
-    setForm((current) => ({
-      ...current,
-      imageFiles: current.imageFiles.filter(
-        (_, itemIndex) => itemIndex !== index,
-      ),
-      imagePreviews: current.imagePreviews.filter(
-        (_, itemIndex) => itemIndex !== index,
-      ),
-    }));
-  };
-
-  const handleToggleTag = (tagId) => {
-    setForm((current) => ({
-      ...current,
-      selectedTagIds: current.selectedTagIds.includes(tagId)
-        ? current.selectedTagIds.filter((id) => id !== tagId)
-        : [...current.selectedTagIds, tagId],
-    }));
-  };
-
-  const handleCreateTag = async () => {
-    const success = await createTag(newTagName);
-    if (success) {
-      setNewTagName("");
-    }
-  };
-
-  const handleTogglePublish = async (id) => {
-    await togglePublish(id);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!form.name.trim()) {
-      toast.error("Vui lòng nhập tên sản phẩm");
-      return;
-    }
-
-    if (!form.price || parseFloat(form.price) <= 0) {
-      toast.error("Vui lòng nhập đơn giá hợp lệ");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", form.name.trim());
-    formData.append("price", form.price);
-    if (form.salePrice) formData.append("salePrice", form.salePrice);
-    formData.append("stock", form.stock);
-    if (form.sku) formData.append("sku", form.sku.trim());
-    formData.append("shortDescription", form.shortDescription.trim());
-    formData.append("description", form.description.trim());
-    if (form.supplierId) formData.append("supplierId", form.supplierId);
-    formData.append("isPublished", form.isPublished ? "true" : "false");
-    formData.append("tagIds", JSON.stringify(form.selectedTagIds));
-    if (form.rawBatchId) {
-      formData.append("rawBatchId", form.rawBatchId);
-    } else {
-      formData.append("rawBatchId", "");
-    }
-
-    if (form.thumbnailFile) formData.append("thumbnail", form.thumbnailFile);
-    form.imageFiles.forEach((file) => formData.append("images", file));
-
-    const success = await submitProduct(editingId, formData);
-    if (success) {
-      handleCloseDialog();
-    }
-  };
-
-  const handleDelete = async (id) => {
-    await deleteProduct(id);
-  };
+  // Reset về trang 1 khi đổi filter/search
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, categoryFilter, publishedFilter, stockFilter]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-white text-slate-900 font-sans p-6 md:p-8">
@@ -275,25 +121,66 @@ const StaffProductPage = ({ initialTab = STAFF_PRODUCT_TABS.PRODUCTS }) => {
         </button>
       </div>
 
-      <ProductStatsGrid stats={stats} />
-
-      <div className="flex flex-col lg:flex-row gap-3 mb-3">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
         <ProductTabs activeTab={activeTab} onChange={setActiveTab} />
         <ProductSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           className="flex-1"
         />
+        {activeTab === STAFF_PRODUCT_TABS.PRODUCTS && (
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+            >
+              <option value="">Tất cả danh mục</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={publishedFilter}
+              onChange={(e) => setPublishedFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="true">Đang công khai</option>
+              <option value="false">Đang ẩn</option>
+            </select>
+            <select
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+            >
+              <option value="">Tất cả tồn kho</option>
+              <option value="in">Còn hàng ({">"}10)</option>
+              <option value="low">Sắp hết (≤10)</option>
+              <option value="out">Hết hàng</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {activeTab === STAFF_PRODUCT_TABS.PRODUCTS ? (
-        <StaffProductsTable
-          loading={loading}
-          products={filteredProducts}
-          onEdit={handleOpenEditDialog}
-          onDelete={handleDelete}
-          onTogglePublish={handleTogglePublish}
-        />
+        <>
+          <StaffProductsTable
+            loading={loading}
+            products={products}
+            page={page}
+            onEdit={handleOpenEditDialog}
+            onDelete={handleDelete}
+            onTogglePublish={handleTogglePublish}
+          />
+          <StaffPagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={setPage}
+          />
+        </>
       ) : (
         <StaffSoldProductsTable products={soldProducts} />
       )}

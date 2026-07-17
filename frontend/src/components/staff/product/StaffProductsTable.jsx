@@ -21,6 +21,7 @@ const resolveImage = (image) => {
 const StaffProductsTable = ({
   loading,
   products,
+  page = 1,
   onEdit,
   onDelete,
   onTogglePublish,
@@ -46,6 +47,9 @@ const StaffProductsTable = ({
         <table className="w-full text-left border-collapse text-xs md:text-sm whitespace-nowrap min-w-[800px]">
           <thead className="sticky top-0 z-10">
             <tr className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
+              <th className="px-3 py-2 bg-slate-50 border-b border-slate-200 text-center w-12">
+                STT
+              </th>
               <th className="px-3 py-2 bg-slate-50 border-b border-slate-200">
                 Sản phẩm
               </th>
@@ -70,7 +74,7 @@ const StaffProductsTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
-            {products.map((product) => {
+            {products.map((product, index) => {
               const thumbnailSrc = resolveImage(product.thumbnail);
               const hasDiscount =
                 product.salePrice && product.salePrice < product.price;
@@ -80,6 +84,9 @@ const StaffProductsTable = ({
                   key={product.id}
                   className="hover:bg-slate-50 transition-colors"
                 >
+                  <td className="p-3 text-center text-slate-400 font-semibold">
+                    {(page - 1) * 20 + index + 1}
+                  </td>
                   <td className="p-3 max-w-[280px]">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center">

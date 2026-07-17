@@ -28,6 +28,9 @@ io.on('connection', (socket) => {
   socket.on('join_user_room', (userId) => {
     socket.join(`user_${userId}`);
   });
+  socket.on('join_staff_room', (staffId) => {
+    socket.join(`staff_${staffId}`);
+  });
   socket.on('join_STAFF_dashboard', () => {
     socket.join('STAFF_dashboard');
   });

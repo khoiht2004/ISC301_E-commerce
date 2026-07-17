@@ -48,6 +48,8 @@ model User {
   assignedSupport SupportRequest[] @relation("StaffSupportRequests")
   messages        Message[]
 
+  staffOrders     Order[]          @relation("StaffOrders")
+
   @@map("user")
 }
 
@@ -55,7 +57,7 @@ model UserProfile {
   id          Int       @id @default(autoincrement())
   gender      String?
   dateOfBirth DateTime?
-  bio         String?   @db.Text
+  bio         String?   @db.NVarChar(Max)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -70,8 +72,8 @@ model Supplier {
   name        String
   email       String?
   phone       String?
-  address     String?  @db.Text
-  description String?  @db.Text
+  address     String?  @db.NVarChar(Max)
+  description String?  @db.NVarChar(Max)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -140,7 +142,7 @@ model Product {
   id               Int      @id @default(autoincrement())
   name             String
   slug             String   @unique
-  description      String?  @db.Text
+  description      String?  @db.NVarChar(Max)
   shortDescription String?
   thumbnail        String?
   images           String   @default("[]") // JSON array as string
@@ -204,7 +206,7 @@ model ProductBatch {
 model ProductReview {
   id        Int      @id @default(autoincrement())
   rating    Int      @default(5)
-  comment   String?  @db.Text
+  comment   String?  @db.NVarChar(Max)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -270,13 +272,16 @@ model Order {
   receiver_phone  String?
   customerPhone   String
   customerEmail   String
-  note            String?       @db.Text
+  note            String?       @db.NVarChar(Max)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   paidAt          DateTime?
 
   userId              Int
   user                User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignedStaffId     Int?
+  assignedStaff       User?                @relation("StaffOrders", fields: [assignedStaffId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
   orderItems          OrderItem[]
   paymentTransactions PaymentTransaction[]
   reviews             ProductReview[]
@@ -303,9 +308,9 @@ model OrderItem {
 
 model OrderComplaint {
   id         Int             @id @default(autoincrement())
-  reason     String          @db.Text
+  reason     String          @db.NVarChar(Max)
   status String @default("PENDING")
-  resolution String?         @db.Text
+  resolution String?         @db.NVarChar(Max)
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
@@ -338,8 +343,8 @@ model News {
   id          Int      @id @default(autoincrement())
   title       String
   slug        String   @unique
-  excerpt     String?  @db.Text
-  content     String   @db.Text
+  excerpt     String?  @db.NVarChar(Max)
+  content     String   @db.NVarChar(Max)
   thumbnail   String?
   views       Int      @default(0)
   isPublished Boolean  @default(false)
@@ -395,7 +400,7 @@ model PaymentTransaction {
   gateway       String
   amount        Int
   content       String
-  rawData       String   @db.Text
+  rawData       String   @db.NVarChar(Max)
   createdAt     DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: NoAction)

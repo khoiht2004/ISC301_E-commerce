@@ -27,7 +27,7 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: "15m" },
+    { expiresIn: "60m" },
   );
 };
 
@@ -240,7 +240,11 @@ const refresh = async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       );
     } catch (err) {
-      return errorResponse(res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
+      return errorResponse(
+        res,
+        "Refresh token không hợp lệ hoặc đã hết hạn",
+        401,
+      );
     }
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
@@ -251,7 +255,11 @@ const refresh = async (req, res, next) => {
       !user.refreshTokenExpiry ||
       user.refreshTokenExpiry < new Date()
     ) {
-      return errorResponse(res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
+      return errorResponse(
+        res,
+        "Refresh token không hợp lệ hoặc đã hết hạn",
+        401,
+      );
     }
 
     if (!user.isActive) {

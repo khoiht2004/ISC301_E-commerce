@@ -13,7 +13,7 @@ const ProductTabs = ({ activeTab, onChange }) => {
           key={tab.value}
           type="button"
           onClick={() => onChange(tab.value)}
-          className={`rounded-lg px-4 py-2 text-xs font-extrabold transition-colors ${
+          className={`rounded-lg px-3 py-2 text-xs font-extrabold transition-colors ${
             activeTab === tab.value
               ? "bg-primary-600 text-white"
               : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"

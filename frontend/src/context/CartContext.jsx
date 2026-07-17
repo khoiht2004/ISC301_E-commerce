@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api from '../services/axios';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 
 const CartContext = createContext();
 
@@ -19,7 +18,7 @@ export const CartProvider = ({ children, user }) => {
       setCartItems(items || []);
       setCartTotal(total || 0);
       setCartCount(itemCount || 0);
-    } catch (err) {
+    } catch {
       // Silently fail – user may not be logged in
       setCartItems([]);
       setCartTotal(0);
@@ -74,7 +73,7 @@ export const CartProvider = ({ children, user }) => {
       await api.delete(`/cart/item/${itemId}`);
       await fetchCart();
       toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
-    } catch (err) {
+    } catch {
       toast.error('Không thể xóa sản phẩm');
     }
   }, [fetchCart]);
@@ -86,7 +85,7 @@ export const CartProvider = ({ children, user }) => {
       setCartTotal(0);
       setCartCount(0);
       toast.success('Đã xóa toàn bộ giỏ hàng');
-    } catch (err) {
+    } catch {
       toast.error('Không thể xóa giỏ hàng');
     }
   }, []);
