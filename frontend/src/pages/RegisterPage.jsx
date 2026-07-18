@@ -62,7 +62,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+      <div className="max-w-lg w-full space-y-8 bg-white px-10 py-7 rounded-2xl shadow-xl border border-gray-100">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             Tạo tài khoản mới
@@ -72,10 +72,13 @@ const RegisterPage = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-primary-50 border-l-4 border-primary-500 p-4 rounded-md flex items-start gap-3">
-              <AlertCircle className="text-primary-500 shrink-0 mt-0.5" size={18} />
+              <AlertCircle
+                className="text-primary-500 shrink-0 mt-0.5"
+                size={18}
+              />
               <p className="text-sm text-primary-700 font-medium">{error}</p>
             </div>
           )}
@@ -103,7 +106,7 @@ const RegisterPage = () => {
                   name="fullName"
                   type="text"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="Nguyễn Văn A"
                   value={formData.fullName}
                   onChange={handleChange}
@@ -123,7 +126,7 @@ const RegisterPage = () => {
                   name="email"
                   type="email"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
@@ -142,7 +145,7 @@ const RegisterPage = () => {
                 <input
                   name="phone"
                   type="tel"
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="0912 345 678"
                   value={formData.phone}
                   onChange={handleChange}
@@ -163,7 +166,7 @@ const RegisterPage = () => {
                     name="password"
                     type="password"
                     required
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
@@ -182,7 +185,7 @@ const RegisterPage = () => {
                     name="confirmPassword"
                     type="password"
                     required
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}

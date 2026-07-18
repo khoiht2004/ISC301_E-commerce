@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../services/axios";
@@ -407,9 +408,6 @@ const NewsSection = () => {
                   {news.excerpt || "Đang cập nhật tóm tắt nội dung bài viết..."}
                 </p>
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-[11px] text-slate-400">
-                  <span>
-                    Tác giả: <b>{news.createdBy?.fullName || "Shop"}</b>
-                  </span>
                   <span>{news.views || 0} lượt xem</span>
                 </div>
               </div>

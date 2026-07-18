@@ -326,7 +326,7 @@ const CheckoutPage = () => {
                 Tóm tắt đơn hàng
               </h2>
 
-              <div className="space-y-4 max-h-60 overflow-y-auto pr-2 mb-6 custom-scrollbar">
+              <div className="space-y-4 max-h-60 overflow-y-auto pr-2 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">

@@ -129,7 +129,7 @@ const StaffProductDialog = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                   Lô nguyên liệu
@@ -144,7 +144,8 @@ const StaffProductDialog = ({
                   <option value="">-- Không liên kết --</option>
                   {batches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.batchCode} - {b.rawMaterialName} (HSD: {new Date(b.expirationDate).toLocaleDateString('vi-VN')})
+                      {b.batchCode} - {b.rawMaterialName} (HSD:{" "}
+                      {new Date(b.expirationDate).toLocaleDateString("vi-VN")})
                     </option>
                   ))}
                 </select>
@@ -156,8 +157,12 @@ const StaffProductDialog = ({
                 </label>
                 {form.rawBatchId ? (
                   (() => {
-                    const selectedBatch = batches.find((b) => b.id === parseInt(form.rawBatchId));
-                    const supplierName = selectedBatch?.supplier?.name || "Đang tải nhà cung cấp...";
+                    const selectedBatch = batches.find(
+                      (b) => b.id === parseInt(form.rawBatchId),
+                    );
+                    const supplierName =
+                      selectedBatch?.supplier?.name ||
+                      "Đang tải nhà cung cấp...";
                     return (
                       <div className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 font-semibold shadow-sm h-[46px] flex items-center select-none">
                         {supplierName}
@@ -180,6 +185,20 @@ const StaffProductDialog = ({
                     ))}
                   </select>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  Hạn sử dụng sản phẩm
+                </label>
+                <input
+                  type="date"
+                  className="w-full bg-white border border-slate-200 focus:border-primary-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600 transition-all text-slate-900 shadow-sm"
+                  value={form.expirationDate}
+                  onChange={(event) =>
+                    onFieldChange("expirationDate", event.target.value)
+                  }
+                />
               </div>
             </div>
 

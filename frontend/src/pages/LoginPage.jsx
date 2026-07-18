@@ -95,19 +95,19 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+      <div className="max-w-md w-full space-y-8 bg-white px-10 py-7 rounded-2xl shadow-xl border border-gray-100">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             Chào mừng trở lại
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-600">
             Đăng nhập để quản lý đơn hàng và nhận hỗ trợ 🥩
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-primary-50 border-l-4 border-primary-500 p-4 rounded-md flex flex-col gap-2">
+            <div className="bg-primary-50 border-l-4 border-primary-500 p-3 rounded-md flex flex-col gap-2">
               <div className="flex items-start gap-3">
                 <AlertCircle
                   className="text-primary-500 shrink-0 mt-0.5"
@@ -156,7 +156,7 @@ const LoginPage = () => {
                 <input
                   type="email"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -176,7 +176,7 @@ const LoginPage = () => {
                   <input
                     type="password"
                     required
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200 outline-none"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

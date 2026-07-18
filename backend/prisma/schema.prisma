@@ -152,6 +152,7 @@ model Product {
   sku              String?  @unique
   unit             String   @default("gram")
   weight           Int?
+  expirationDate   DateTime?
   isPublished      Boolean  @default(false)
   isDeleted        Boolean  @default(false)
   createdAt        DateTime @default(now())

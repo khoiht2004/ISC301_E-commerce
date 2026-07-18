@@ -38,6 +38,16 @@ const productSchema = z.object({
     (val) => (val === '' || val === 'null' || val === undefined ? null : val),
     z.coerce.number().int().positive().optional().nullable()
   ),
+  // HSD của sản phẩm (có thể khác HSD của lô nguyên liệu nếu sản phẩm đã qua chế biến/bảo quản)
+  expirationDate: z.preprocess(
+    (val) => (val === '' || val === 'null' || val === undefined ? null : val),
+    z.coerce.date({ invalid_type_error: 'Hạn sử dụng không hợp lệ' }).optional().nullable()
+  ).refine((date) => {
+    if (!date) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }, { message: 'Hạn sử dụng không được ở trong quá khứ' }),
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -397,18 +407,17 @@ const getDiscountSuggestions = async (req, res, next) => {
     const products = await prisma.product.findMany({
       where: {
         isDeleted: false,
-        rawBatchId: { not: null },
-        rawBatch: {
-          expirationDate: {
-            lte: next7Days
-          }
-        }
+        OR: [
+          { expirationDate: { lte: next7Days } },
+          { rawBatchId: { not: null }, rawBatch: { expirationDate: { lte: next7Days } } },
+        ],
       },
       include: PRODUCT_INCLUDE,
     });
 
     const suggestions = products.map(product => {
-      const expirationDate = new Date(product.rawBatch.expirationDate);
+      // Ưu tiên HSD riêng của sản phẩm (đã qua chế biến/bảo quản), fallback về HSD của lô nguyên liệu
+      const expirationDate = new Date(product.expirationDate || product.rawBatch?.expirationDate);
       const diffTime = expirationDate - today;
       const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 

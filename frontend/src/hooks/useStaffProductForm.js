@@ -17,6 +17,12 @@ const emptyForm = {
   imageFiles: [],
   imagePreviews: [],
   rawBatchId: "",
+  expirationDate: "",
+};
+
+const toDateInputValue = (date) => {
+  if (!date) return "";
+  return new Date(date).toISOString().substring(0, 10);
 };
 
 const resolveLocalImage = (image) => {
@@ -52,6 +58,9 @@ export const useStaffProductForm = ({
           const selectedBatch = batches.find((b) => b.id === parseInt(value));
           if (selectedBatch) {
             updated.supplierId = selectedBatch.supplierId || "";
+            // Tự động fill HSD sản phẩm theo HSD của lô khi đổi lô nguyên liệu,
+            // người dùng vẫn có thể chỉnh sửa lại sau đó (sản phẩm chế biến/bảo quản có thể để được lâu hơn)
+            updated.expirationDate = toDateInputValue(selectedBatch.expirationDate);
           }
         } else {
           updated.supplierId = "";
@@ -82,6 +91,7 @@ export const useStaffProductForm = ({
       thumbnailPreview: resolveLocalImage(product.thumbnail),
       imagePreviews: (product.images || []).map(resolveLocalImage),
       rawBatchId: product.rawBatchId || "",
+      expirationDate: toDateInputValue(product.expirationDate),
     });
     setEditingId(product.id);
     setIsDialogOpen(true);
@@ -174,6 +184,16 @@ export const useStaffProductForm = ({
       return;
     }
 
+    if (form.expirationDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const picked = new Date(form.expirationDate);
+      if (picked < today) {
+        toast.error("Hạn sử dụng không được ở trong quá khứ");
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append("name", form.name.trim());
     formData.append("price", form.price);
@@ -190,6 +210,7 @@ export const useStaffProductForm = ({
     } else {
       formData.append("rawBatchId", "");
     }
+    formData.append("expirationDate", form.expirationDate || "");
 
     if (form.thumbnailFile) formData.append("thumbnail", form.thumbnailFile);
     form.imageFiles.forEach((file) => formData.append("images", file));

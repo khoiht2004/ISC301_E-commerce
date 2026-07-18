@@ -146,9 +146,15 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar */
+/* Scrollbar - đồng nhất cho toàn bộ web (cả chiều dọc lẫn ngang, mọi trình duyệt) */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--color-surface-300)) rgb(var(--color-surface-100));
+}
+
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: rgb(var(--color-surface-100));
@@ -159,6 +165,15 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--color-surface-400));
+}
+
+/* Utility: ẩn hoàn toàn scrollbar (dùng cho thanh tab cuộn ngang) nhưng vẫn cuộn được */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom Components */
